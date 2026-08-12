@@ -3,8 +3,8 @@
 -- Porta el notebook legacy 'Cortes de Venta.ipynb'. Ventana movil: se ancla en el jueves mas
 -- reciente y toma los CORTE_DIAS anteriores.
 --
--- Las columnas de ruta (ruta, supervisor, oficina) llegan en la Fase 4 desde Redshift; el
--- legacy las tomaba de rutas_fintech.xlsx, que ya no existe en el proyecto.
+-- La ruta es la VIGENTE (dim_ruta_actual), no la historica: un corte semanal se reparte al
+-- equipo que atiende la cuenta hoy. El legacy la tomaba de rutas_fintech.xlsx, que ya no existe.
 
 CREATE OR REPLACE FUNCTION bnpl.corte_dias() RETURNS int
     LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$ SELECT 8 $$;
@@ -22,6 +22,11 @@ SELECT
     bnpl.ancla_corte()                                     AS fecha_corte,
     bnpl.ancla_corte() - bnpl.corte_dias()                 AS ventana_desde,
     o."netsuiteId"                                         AS netsuite_id,
+    dr.ruta,
+    dr.supervisor,
+    dr.oficina,
+    dr.region,
+    dr.tipo,
     o."salesOrderId"                                       AS sales_order_id,
     o."orderId"                                            AS order_id,
     bnpl.epoch_ms_a_mx(o."createdAt")                      AS created_at,
@@ -42,6 +47,7 @@ SELECT
     o."couponCode"                                         AS coupon_code,
     o."couponValue"                                        AS coupon_value
 FROM mongo_bnpl.credit_order_production o
+LEFT JOIN bnpl.dim_ruta_actual dr ON o."netsuiteId" = dr.netsuite_id
 WHERE o."salesOrderId" IS NOT NULL AND trim(o."salesOrderId") <> ''
   AND bnpl.epoch_ms_a_mx(o."createdAt")::date
       >= bnpl.ancla_corte() - bnpl.corte_dias();
@@ -56,6 +62,11 @@ SELECT
     fecha_corte,
     ventana_desde,
     netsuite_id,
+    ruta,
+    supervisor,
+    oficina,
+    region,
+    tipo,
     sales_order_id,
     order_id,
     max(created_at)                                        AS created_at,
@@ -68,7 +79,7 @@ SELECT
     count(DISTINCT product_id)                             AS skus,
     sum(quantity)                                          AS quantity
 FROM bnpl.corte_venta_sku
-GROUP BY fecha_corte, ventana_desde, netsuite_id, sales_order_id, order_id,
-         order_status, sales_channel;
+GROUP BY fecha_corte, ventana_desde, netsuite_id, ruta, supervisor, oficina, region, tipo,
+         sales_order_id, order_id, order_status, sales_channel;
 
 CREATE UNIQUE INDEX ix_corte_so_pk ON bnpl.corte_venta_so (netsuite_id, sales_order_id, order_id);

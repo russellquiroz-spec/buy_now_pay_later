@@ -81,15 +81,43 @@ valor nunca se confirmó con riesgo.
 
 ## 4. Clasificación organico / aliado
 
-**Estado**: implementado con `tipo_cliente` de Redshift tal cual.
+**Estado**: implementado con `tipo_cliente` de Redshift tal cual, en la columna `tipo`.
 
 El `rutas_fintech.xlsx` legacy clasificaba cada cliente como `organico` o `aliado`. La fuente
 equivalente en Redshift (`catalog.cat_estructura_comercial_v3.tipo_cliente`) trae
-**ORGANICO / PREVENTA / UNKNOWN**.
+**ORGANICO / PREVENTA / UNKNOWN**. Lo que se ve en los créditos:
+
+| tipo | Órdenes | DQ 90+ |
+|---|---|---|
+| PREVENTA | 77,466 | 4.10% |
+| UNKNOWN | 10,083 | **7.29%** |
+| ORGANICO | 4,303 | 4.28% |
 
 **Qué confirmar**: si `aliado ≡ PREVENTA`, o si "aliado" era una clasificación propia de fintech que
-no existe en el catálogo comercial. El Excel original ya no está en el proyecto, así que no hay con
-qué contrastar.
+no existe en el catálogo comercial. Importa porque PREVENTA es el 84% del volumen: si equivale a
+aliado, casi todo el crédito va por ese canal. El Excel original ya no está en el proyecto.
+
+**Hallazgo aparte que merece revisión**: los clientes con `tipo = UNKNOWN` mora un **78% más** que
+el resto (7.29% vs ~4.1%). Son 10,083 órdenes. Vale la pena entender qué son antes de seguir
+prestándoles igual.
+
+---
+
+## 4b. Las conciliaciones de Propaga en Excel no existen
+
+**Estado**: la paridad se validó contra `payment_report` en vez del Excel, con mejor resultado.
+
+El plan era comparar `propaga-transaction` contra un `revenue*.xlsx` de un mes cerrado. **Esos
+archivos no están en el proyecto** (solo hay `data/input/Elegibles BNPL Abril 2026.xlsx`), así que se
+contrastó contra la fuente que el pipeline ya usaba:
+
+| | Rabbit | Propaga | Δ |
+|---|---|---|---|
+| Monto financiado | $188,694,899 | $188,546,506 | 0.08% |
+| Interés | $7,114,154 | $7,107,173 | 0.10% |
+
+**Qué confirmar**: si todavía existe algún `revenue*.xlsx` en SharePoint para un contraste adicional.
+No es bloqueante — la validación contra `payment_report` es más relevante que contra un Excel viejo.
 
 ---
 

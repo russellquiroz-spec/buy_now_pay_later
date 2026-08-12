@@ -15,7 +15,7 @@ convierte en las tablas de riesgo y venta, y alimenta Power BI.
 | 1 | ETL Mongo → staging PostgreSQL | **listo** |
 | 2 | DDL tipado e índices | **listo** |
 | 3 | Tablas finales (PAR, vintage, grid, KPIs, revenue, cortes) | **listo** |
-| 4 | Dimensiones de ruta y cierre de huecos | pendiente |
+| 4 | Dimensiones de ruta y cierre de huecos | **listo** |
 | 5 | Orquestación y despliegue a la VM | pendiente |
 | 6 | Power BI Service + Gateway | pendiente |
 
@@ -60,10 +60,13 @@ igual y lo reporta `bnpl_ops.data_quality_checks`. La limpieza vive en la capa `
 # 2. ¿Hay problemas de calidad? Escribe bnpl_ops.data_quality_checks
 .venv\Scripts\python.exe ops\quality_checks.py
 
-# 3. Carga el staging
+# 3. Carga el staging desde Mongo
 .venv\Scripts\python.exe etl_mongo_to_postgres.py
 
-# 4. Refresca la capa de negocio (schema bnpl) — ~65 segundos
+# 4. Carga la estructura comercial desde Redshift (rutas) — ~2 minutos
+.venv\Scripts\python.exe etl_redshift_to_postgres.py
+
+# 5. Refresca la capa de negocio (schema bnpl) — ~65 segundos
 .venv\Scripts\python.exe build_bnpl.py
 ```
 
@@ -71,6 +74,8 @@ igual y lo reporta `bnpl_ops.data_quality_checks`. La limpieza vive en la capa `
 
 | Vista | Grano | Para qué |
 |---|---|---|
+| `bnpl.dim_ruta_actual` | cliente | ruta, supervisor y oficina **vigentes** |
+| `bnpl.dim_ruta_cliente_scd` | cliente × tramo | ruta **histórica**, como intervalos de vigencia |
 | `bnpl.grouped_orders` | cliente + sales order | base: cohort, índice de pedido, entrega |
 | `bnpl.loss_rates` | orden entregada | morosidad (PAR), días de atraso, revenue |
 | `bnpl.par_snapshot` | orden × corte mensual | auditar de dónde sale cada tasa del vintage |
@@ -162,5 +167,8 @@ PENDIENTES_NEGOCIO.md      Lo que falta confirmar con negocio (no bloquea el des
   le cobra al tendero. La comisión de Rabbit es el 14.2% del interés.
 - **Un pago puede llegar hasta 519 días tarde** (recuperaciones de mora), así que el PAR de un mes ya
   cerrado cambia retroactivamente. Las tablas de vintage no pueden ser incrementales.
+- **Hay dos rutas y no dan lo mismo.** La mora usa la ruta **histórica** (quién tenía la cuenta cuando
+  se originó el crédito); el grid y los cortes usan la **vigente** (quién la atiende hoy). Las órdenes
+  de 2023–2024 no tienen ruta de su época y salen marcadas con `ruta_inferida = true`.
 - Las credenciales de los notebooks en `legacy/` estuvieron en texto plano en OneDrive. **Se deben
   considerar comprometidas y rotarse.**

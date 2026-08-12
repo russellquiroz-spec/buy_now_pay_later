@@ -23,9 +23,12 @@ engine = create_engine(os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\""))
 
 TZ_OFFSET_HOURS = -6
 
-# (vista, archivo DDL). El orden es el de dependencia: cada una puede leer de las anteriores.
+# (vista, archivo DDL). El orden es el de DEPENDENCIA, no el del numero de archivo: las dims de
+# ruta viven en el 11 pero se construyen antes porque grouped_orders las lee.
 CAPAS = [
     (None, "02_bnpl_funciones.sql"),
+    ("dim_ruta_actual", "11_bnpl_dim_ruta.sql"),
+    ("dim_ruta_cliente_scd", None),  # se crea junto con dim_ruta_actual
     ("grouped_orders", "03_bnpl_grouped_orders.sql"),
     ("loss_rates", "04_bnpl_loss_rates.sql"),
     ("par_snapshot", "05_bnpl_par_snapshot.sql"),

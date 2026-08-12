@@ -439,7 +439,77 @@ Embudo del producto en `grid_bnpl`: 146,613 clientes → 62,334 preautorizados �
 
 ---
 
-## Fase 4 — Dimensiones y cierre de huecos
+## Fase 4 — Dimensiones y cierre de huecos — **COMPLETADA 2026-08-12**
+
+`etl_redshift_to_postgres.py` carga el schema `redshift_bnpl` y `sql/11_bnpl_dim_ruta.sql` crea las
+dos dims. La ruta ya fluye a `grouped_orders`, `loss_rates`, `grid_bnpl` y los cortes.
+
+| Tabla | Filas | Tiempo |
+|---|---|---|
+| `redshift_bnpl.estructura_comercial` | 611,179 | 36.5 s |
+| `redshift_bnpl.route_mapping` | 340 | 4.7 s |
+| `redshift_bnpl.ruta_cliente_scd` | 13,885 | 92.8 s |
+| `bnpl.dim_ruta_actual` | 611,179 | 9.1 s |
+| `bnpl.dim_ruta_cliente_scd` | 13,885 | — |
+
+**El SCD se comprime en Redshift, no en Postgres.** La vigencia diaria son 301M filas y 5.3M para
+el universo BNPL; comprimida por cambio de ruta con window functions baja a 13,885 tramos de 10,713
+clientes. Traer 5.3M filas por el túnel para comprimirlas después no tenía sentido.
+
+### Cobertura lograda
+
+| Medida | Resultado |
+|---|---|
+| Órdenes con ruta histórica | **98,841 de 98,854 (99.99%)** |
+| Órdenes con ruta inferida | 13,248 — exactamente las de 2023 y 2024 |
+| Clientes del grid con ruta vigente | 146,520 de 146,613 (99.94%) |
+| Enrolados con ruta | 10,707 de 10,708 |
+| Sales orders del corte semanal con ruta | 1,883 de 1,883, en 30 supervisores |
+
+Verificado que ninguno de los joins duplica filas: los conteos de las nueve vistas quedaron
+idénticos a antes de agregar las dims. Y el SCD no tiene intervalos solapados (0 casos).
+
+**Para esto era la ruta histórica** — ya se puede medir mora por supervisor. Ejemplo: `SVLRY04`
+(Los Reyes) tiene 6.68% de DQ 90+ sobre 2,202 órdenes, contra ~4.5% del promedio.
+
+### Paridad de Propaga: validada, pero no contra el Excel
+
+Las conciliaciones `revenue*.xlsx` **no existen en el proyecto**, así que la comparación planeada era
+imposible. Se hizo algo mejor: contrastar `propaga_transaction` contra `payment_report`, que es la
+fuente que el pipeline ya usaba.
+
+| | Rabbit | Propaga | Δ |
+|---|---|---|---|
+| Monto financiado | $188,694,899 | $188,546,506 | 0.08% |
+| Interés | $7,114,154 | $7,107,173 | 0.10% |
+
+En agregado cuentan la misma historia. Fila por fila el interés coincide en 94.1% y el monto en
+66.2% — diferencias de redondeo y de versión del registro (Propaga actualiza el documento; se toma
+el último por `updatedAt`). Y Propaga aporta datos reales: de las 182 órdenes COMPLETED sin pago en
+Rabbit, **rescata 118**.
+
+### Ruta histórica vs vigente: cuál usa cada tabla
+
+- `grouped_orders` y `loss_rates` → **histórica** (`dim_ruta_cliente_scd`, range join por
+  `created_at`). La mora se atribuye a quien tenía la cuenta cuando se originó el crédito.
+- `grid_bnpl` y los cortes → **vigente** (`dim_ruta_actual`). Ahí la pregunta es quién atiende la
+  cuenta hoy.
+
+### `tipo`: qué dicen los datos sobre organico/aliado
+
+| tipo | Órdenes | DQ 90+ |
+|---|---|---|
+| PREVENTA | 77,466 | 4.10% |
+| UNKNOWN | 10,083 | **7.29%** |
+| ORGANICO | 4,303 | 4.28% |
+
+PREVENTA es el 84% del volumen, así que si "aliado" del Excel legacy equivalía a PREVENTA, la
+mayoría de los créditos serían de aliados. Sigue sin confirmarse (PENDIENTE 4). Dato aparte que
+merece atención: los UNKNOWN mora 78% más que el resto.
+
+---
+
+## Detalle original de la Fase 4
 
 **Dos dims de ruta, no una:**
 

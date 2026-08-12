@@ -97,6 +97,13 @@ SELECT
     c."shopkeeperId"                                        AS shopkeeper_id,
     c."netsuiteId"                                          AS netsuite_id,
     c."shopName"                                            AS shop_name,
+    -- Estructura comercial VIGENTE: aqui la pregunta es quien atiende la cuenta hoy.
+    dr.ruta,
+    dr.supervisor,
+    dr.oficina,
+    dr.region,
+    dr.tipo,
+    dr.status                                               AS estructura_status,
     c.business_category,
     c."address_neighborhood"                                AS shop_neighborhood,
     c."address_zipCode"                                     AS shop_zip_code,
@@ -160,6 +167,7 @@ SELECT
          THEN 1 ELSE 0 END                                  AS bnpl_is_active
 FROM mongo_bnpl.fintech_customers_production c
 LEFT JOIN mongo_bnpl.fintech_credit_request_production r ON c."customerId" = r."customerId"
+LEFT JOIN bnpl.dim_ruta_actual dr ON c."netsuiteId" = dr.netsuite_id
 LEFT JOIN preautorizados pa      ON c."netsuiteId" = pa.netsuite_id
 LEFT JOIN lineas li              ON c."netsuiteId" = li.netsuite_id
 LEFT JOIN enrolados en           ON c."netsuiteId" = en.netsuite_id

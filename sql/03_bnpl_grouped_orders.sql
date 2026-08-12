@@ -99,13 +99,26 @@ SELECT
     to_char(o.bnpl_activated_at, 'YYYY-MM')               AS activated_cohort,
     bnpl.meses_entre(e.bnpl_enrolled_at, o.created_at)    AS months_since_enrollment,
     bnpl.meses_entre(o.bnpl_activated_at, o.created_at)   AS months_since_activation,
-    to_char(o.created_at, 'YYYY-MM')                      AS month_created_at
+    to_char(o.created_at, 'YYYY-MM')                      AS month_created_at,
+    -- Estructura comercial vigente CUANDO se creo la orden, no la de hoy: la mora se atribuye
+    -- a quien tenia la cuenta en ese momento.
+    r.ruta,
+    r.supervisor,
+    r.oficina,
+    r.region,
+    r.tipo,
+    -- La vigencia diaria arranca en 2025-01-01. Para ordenes anteriores se usa el primer tramo
+    -- conocido del cliente, y queda marcado como inferido.
+    (o.created_at::date < r.vigencia_real_desde)           AS ruta_inferida
 FROM con_indices o
 LEFT JOIN enrolados e   ON o.netsuite_id = e.netsuite_id
 LEFT JOIN cohortes c    ON e.enrollment_cohort = c.enrollment_cohort
 LEFT JOIN limite_por_orden lc ON o.sales_order_id = lc.sales_order_id
 LEFT JOIN mongo_bnpl.state_of_delivery_report_production d
-       ON o.sales_order_id = d."salesOrderId";
+       ON o.sales_order_id = d."salesOrderId"
+LEFT JOIN bnpl.dim_ruta_cliente_scd r
+       ON o.netsuite_id = r.netsuite_id
+      AND o.created_at::date BETWEEN r.valido_desde AND r.valido_hasta;
 
 CREATE UNIQUE INDEX ix_grouped_orders_pk
     ON bnpl.grouped_orders (netsuite_id, sales_order_id, order_id, order_status, sales_channel);
