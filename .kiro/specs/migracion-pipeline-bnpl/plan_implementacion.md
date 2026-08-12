@@ -592,6 +592,63 @@ Ahorro en un día como hoy: ~4 minutos de 26. No se implementó porque el resto 
 irreducible — `payment-report` no se puede acotar por fecha (los pagos llegan hasta 519 días tarde) y
 las demás colecciones sí escriben a diario.
 
+## Migración de los datos a la VM — **COMPLETADA 2026-08-12**
+
+`migrar_a_vm.py` copia los datos de la base local a `rabbit-bi-local` usando
+`postgres_local_client` (COPY sobre túnel SSH). Cuatro pasos independientes: `--ddl`, `--datos`,
+`--vistas`, `--validar`.
+
+| Paso | Resultado |
+|---|---|
+| Tablas base copiadas | 17 tablas, **2,650,675 filas en 6.6 min** (~2.4 MB/s) |
+| Capa de negocio | 11 vistas materializadas **en la VM**, 105 s |
+| Validación | 17 de 17 tablas con conteo idéntico |
+
+Totales de control, origen vs VM: revenue $1,023,125.91 = $1,023,125.91 · grid 146,613 = 146,613 ·
+enrolados 10,708 = 10,708 · órdenes con ruta 98,841 = 98,841.
+
+### Lo que no se copió, a propósito
+
+Las **11 vistas materializadas de `bnpl` (663 MB)**. Son datos derivados: se recrean desde los `.sql`
+y se materializan en la VM en 105 segundos. Mandarlas por el túnel habría sido transferir 663 MB
+para obtener lo mismo que el servidor calcula solo. Solo viajaron las tablas base (856 MB).
+
+También se omitió `mongo_bnpl.fintech_pre_authorization_status`, la tabla del nombre de colección
+equivocado que la Fase 1 reemplazó — 0 filas.
+
+### Tres cosas que la migración destapó
+
+**1. La librería sí hace DDL, estaba apagado.** `postgres_local_client` soporta DDL controlado por
+alias; `POSTGRES__local_rw__ALLOW_DDL` venía en `false` por el default seguro de la plantilla. Se
+puso en `true` en `.env.postgres_local_client`. Eso habilita DDL para cualquier proceso que use ese
+alias, no solo para esta migración.
+
+**2. `redshift_bnpl` no tenía DDL y eso era un bug latente.** Sus tres tablas las creaba
+`to_sql(if_exists="replace")` desde los dtypes de pandas. En local las fechas de Redshift llegaban
+como `datetime` y quedaban `date`; en la VM llegaron como `object` y quedaron **`text`**, así que
+`dim_ruta_cliente_scd` no compiló (`CASE types text and date cannot be matched`).
+
+Se corrigió en los dos lados: `sql/12_redshift_staging.sql` con los tipos explícitos, y
+`etl_redshift_to_postgres.py` ya no usa `replace` sino DDL + TRUNCATE + append. Sin ese segundo
+cambio, la próxima corrida del ETL habría vuelto a crear las columnas como text y el error habría
+regresado solo.
+
+**3. Enteros con nulos rompen COPY.** `freshness_history.docs_staging` es `bigint`, pero pandas la
+entrega como `float64` porque tiene NULLs, y COPY rechaza `"1110531.0"`. El migrador consulta los
+tipos del destino y convierte esas columnas a `Int64` (entero nullable de pandas).
+
+Además, cada tabla se vacía con TRUNCATE antes de cargarse: el primer intento murió a media copia
+con una tabla ya escrita, y sin eso un reintento la habría duplicado.
+
+### Lo que falta para que la VM sea autónoma
+
+La migración resuelve el arranque, no la operación. Para que el pipeline corra allá hay que
+verificar en la VM: credenciales AWS para el túnel SSM de Mongo, acceso a Redshift, y el `.env`
+propio. El paso de verificación es `ops\check_freshness.py` — si corre en la VM, los tres accesos
+están.
+
+---
+
 ## Fase 6 — Power BI
 
 `.pbix` repuntado de CSVs a PostgreSQL, On-Premises Gateway en la VM, refresh 07:00. Página de estado

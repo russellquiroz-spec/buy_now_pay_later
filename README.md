@@ -155,6 +155,29 @@ fila por colección por corrida.
 > 23-jul y `bo-file-upload-info-production` se detuvo el mismo día. Está reportado a ingeniería.
 > Impacto: los clientes enrolados desde entonces no tienen `shopName` ni teléfono.
 
+## Migrar los datos a la VM
+
+Los datos de la base local ya están en `rabbit-bi-local` (migrados el 2026-08-12). Para repetirlo o
+sincronizar de nuevo:
+
+```powershell
+.venv\Scripts\python.exe migrar_a_vm.py            # todo
+.venv\Scripts\python.exe migrar_a_vm.py --ddl      # solo schemas, tablas e índices
+.venv\Scripts\python.exe migrar_a_vm.py --datos    # solo los datos de las tablas base
+.venv\Scripts\python.exe migrar_a_vm.py --vistas   # solo materializar la capa de negocio
+.venv\Scripts\python.exe migrar_a_vm.py --validar  # comparar conteos origen vs VM
+```
+
+Lee del origen con `postgres_local_extractor` y escribe en la VM con `postgres_local_client` (COPY
+sobre túnel SSH). El alias de escritura necesita `ALLOW_DDL=true` en `.env.postgres_local_client`.
+
+**Solo viajan las tablas base** (856 MB, 2.65M filas, ~6.6 min). Las 11 vistas materializadas de
+`bnpl` no se copian: se recrean desde los `.sql` y se materializan en la VM en 105 segundos, así que
+mandar sus 663 MB por el túnel no tendría sentido. `credit_order_production` va por meses en 33
+lotes para no repetir los 2.5 GB de RAM que consume de un golpe.
+
+El paso `--datos` es re-ejecutable: vacía cada tabla destino antes de cargarla.
+
 ## Despliegue a la VM
 
 El pipeline está pensado para correr desatendido en una VM. En orden:
@@ -238,6 +261,7 @@ run_pipeline.bat           Lo que ejecuta el Task Scheduler
 etl_mongo_to_postgres.py   Extracción Mongo → staging (10 colecciones)
 etl_redshift_to_postgres.py Extracción Redshift → estructura comercial y rutas
 build_bnpl.py              Construye y refresca la capa de negocio
+migrar_a_vm.py             Copia los datos de la base local a la VM rabbit-bi-local
 ops/
   config.py                Fuentes, umbrales, conexión
   check_freshness.py       Frescura de Mongo vs staging

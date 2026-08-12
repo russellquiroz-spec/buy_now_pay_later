@@ -109,9 +109,15 @@ def _universo_bnpl() -> list:
 
 
 def _cargar(nombre: str, df: pd.DataFrame, inicio, segundos: float) -> None:
+    # El esquema lo gobierna sql/12_redshift_staging.sql, no los dtypes de pandas: con `replace`
+    # el tipo dependia de lo que pandas hubiera inferido en la corrida, y al migrar a la VM las
+    # columnas de fecha llegaron como text, rompiendo las vistas de ruta.
     with engine.begin() as conn:
-        conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
-    df.to_sql(nombre, engine, schema=SCHEMA, if_exists="replace", index=False)
+        conn.execute(
+            text((BASE_DIR / "sql" / "12_redshift_staging.sql").read_text(encoding="utf-8"))
+        )
+        conn.execute(text(f'TRUNCATE {SCHEMA}."{nombre}"'))
+    df.to_sql(nombre, engine, schema=SCHEMA, if_exists="append", index=False)
     with engine.begin() as conn:
         conn.execute(
             text(
