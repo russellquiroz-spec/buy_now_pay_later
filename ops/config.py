@@ -22,6 +22,18 @@ TZ_OFFSET_HOURS = -6
 LAG_WARN_HORAS = 24
 LAG_CRIT_HORAS = 48
 
+# Fuentes cuya falta de frescura invalida el resultado: si una de estas esta en CRIT, el
+# pipeline se detiene porque las tablas finales saldrian mal.
+#
+# El resto puede estar en CRIT sin abortar. fintech-customers, por ejemplo, lleva sin escrituras
+# desde el 2026-07-23: eso deja a los clientes nuevos sin shopName, pero no invalida la mora ni el
+# revenue. Abortar por eso seria dejar el tablero congelado por un problema que no lo afecta.
+FUENTES_CRITICAS = [
+    "credit-order-production",
+    "payment-report-production",
+    "state-of-delivery-report-production",
+]
+
 # Tolerancia de desfase del staging respecto a Mongo, como fraccion de los documentos.
 FALTANTES_WARN_PCT = 0.01
 

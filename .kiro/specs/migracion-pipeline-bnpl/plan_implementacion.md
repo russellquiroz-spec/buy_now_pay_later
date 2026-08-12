@@ -533,14 +533,64 @@ ORGANICO / PREVENTA / UNKNOWN. Confirmar si aliado ≡ PREVENTA.
 
 ---
 
-## Fase 5 — Orquestación y despliegue a la VM
+## Fase 5 — Orquestación y despliegue a la VM — **COMPLETADA 2026-08-12**
 
-- `main.py` (frescura → ETL → dims → tablas finales → log) y `run_cortes.py` (semanal).
-- `run_pipeline.bat` + Task Scheduler: robot diario 06:00, cortes los jueves.
-- El paso de frescura corre primero y aborta en CRIT.
-- Despliegue: push desde local → pull en la VM. Requiere en la VM: Python + venv, los 4 paquetes
-  internos, `.env` propio (nunca versionado), credenciales AWS para el túnel SSM, y acceso al
-  PostgreSQL destino.
+`main.py` es el único punto de entrada de la corrida desatendida y `run_pipeline.bat` lo que ejecuta
+el Task Scheduler. Seis pasos: frescura → staging Mongo → estructura comercial → capa de negocio →
+calidad → frescura final. Devuelve código 1 si algo falla, para que el scheduler lo reporte.
+
+### El aborto es selectivo, no ante cualquier CRIT
+
+Detenerse ante cualquier fuente en CRIT habría dejado el pipeline congelado indefinidamente:
+`fintech-customers` lleva más de 480 horas sin escrituras y no va a recuperarse solo. Pero eso no
+invalida la mora ni el revenue — solo deja a los clientes nuevos sin `shopName`.
+
+`ops/config.py` → `FUENTES_CRITICAS` lista las tres cuya falta sí invalida el resultado:
+`credit-order`, `payment-report` y `state-of-delivery`. Si una de esas está en CRIT el pipeline se
+detiene antes de cargar nada; las demás solo generan una advertencia en el log y la corrida sigue.
+
+### Decisiones
+
+- **No hay `run_cortes.py` semanal.** Los cortes son vistas materializadas cuya ventana se calcula
+  con `bnpl.ancla_corte()`, así que el refresh diario ya los deja al día. Un script aparte sería un
+  segundo punto de entrada que mantener para nada.
+- **La estructura comercial se puede omitir** con `--sin-redshift`: cambia por semanas, no por horas,
+  y son ~2 de los 5-10 minutos de la corrida.
+- **El log va a stdout, no a stderr.** PowerShell trata todo lo que llega por stderr como error y
+  marcaba como fallida una corrida exitosa.
+- **La tarea programada no puede correr como `SYSTEM`**: el túnel SSM necesita las credenciales AWS
+  de un usuario real. Va con `/RU <usuario> /RP`.
+
+### Presupuesto de tiempo — medido en la corrida end-to-end
+
+**23.2 minutos** sin el paso de Redshift; ~26 con él. La estimación previa de 5–10 minutos era
+incorrecta: solo contaba la ventana de `credit-order`, cuando el staging recarga las diez
+colecciones.
+
+| Paso | Tiempo |
+|---|---|
+| Staging Mongo (10 colecciones) | 21.8 min |
+| Estructura comercial (Redshift) | 2.3 min |
+| Capa de negocio (11 vistas) | 51 s |
+| Calidad + frescura ×2 | 31 s |
+
+Las más lentas: `fintech-customers` 221 s, `credit-order` 174 s (ventana), `payment-report` 156 s.
+La capa de negocio completa cuesta menos de un minuto — el peso está en traer datos por el túnel, no
+en calcular.
+
+Por eso la tarea programada quedó a las **05:30** y no a las 06:00: si el túnel SSM se pone lento
+(ya se midió 2x de variación en la misma extracción), 26 minutos pueden volverse 40, y el refresh de
+Power BI es a las 07:00.
+
+### Optimización identificada, no implementada
+
+`fintech-customers` tarda 221 s y **no recibe escrituras desde el 2026-07-23**. Recargarla completa
+cada día es trabajo puro perdido. Con `source_freshness.last_write_mongo` y `etl_runs.started_at` ya
+está toda la información para saltarse una tabla cuya fuente no escribió desde la última carga.
+
+Ahorro en un día como hoy: ~4 minutos de 26. No se implementó porque el resto del tiempo es
+irreducible — `payment-report` no se puede acotar por fecha (los pagos llegan hasta 519 días tarde) y
+las demás colecciones sí escriben a diario.
 
 ## Fase 6 — Power BI
 

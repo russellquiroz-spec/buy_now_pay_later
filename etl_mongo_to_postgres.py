@@ -350,7 +350,7 @@ def _dias_desde_ultimo_full(tabla: str):
                 f"SELECT max(started_at) FROM {OPS_SCHEMA}.etl_runs "
                 f"WHERE tabla = :tabla AND modo = 'full'"
             ),
-            {"tabla": tabla},
+            {"tabla": f"{SCHEMA}.{tabla}"},
         ).scalar()
     return None if ultimo is None else (_ahora_mx() - ultimo).days
 
@@ -429,6 +429,8 @@ def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
 
 
 def _registrar_corrida(tabla: str, modo: str, filas: int, segundos: float, inicio) -> None:
+    # Con el schema por delante, igual que el resto del pipeline: la bitacora queda consultable
+    # con un solo criterio (tabla LIKE 'mongo_bnpl.%').
     with engine.begin() as conn:
         conn.execute(
             text(
@@ -438,7 +440,7 @@ def _registrar_corrida(tabla: str, modo: str, filas: int, segundos: float, inici
             ),
             {
                 "inicio": inicio,
-                "tabla": tabla,
+                "tabla": f"{SCHEMA}.{tabla}",
                 "modo": modo,
                 "filas": filas,
                 "segundos": round(segundos, 1),

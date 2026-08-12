@@ -16,7 +16,7 @@ convierte en las tablas de riesgo y venta, y alimenta Power BI.
 | 2 | DDL tipado e índices | **listo** |
 | 3 | Tablas finales (PAR, vintage, grid, KPIs, revenue, cortes) | **listo** |
 | 4 | Dimensiones de ruta y cierre de huecos | **listo** |
-| 5 | Orquestación y despliegue a la VM | pendiente |
+| 5 | Orquestación y despliegue a la VM | **listo** (falta programar la tarea en la VM) |
 | 6 | Power BI Service + Gateway | pendiente |
 
 Plan detallado con las decisiones y sus mediciones:
@@ -53,21 +53,35 @@ igual y lo reporta `bnpl_ops.data_quality_checks`. La limpieza vive en la capa `
 
 ## Cómo se corre
 
+**Un solo comando** hace todo, en orden y con log:
+
 ```powershell
-# 1. ¿Están frescas las fuentes? Escribe bnpl_ops.source_freshness + freshness_history
-.venv\Scripts\python.exe ops\check_freshness.py
+.venv\Scripts\python.exe main.py
+```
 
-# 2. ¿Hay problemas de calidad? Escribe bnpl_ops.data_quality_checks
-.venv\Scripts\python.exe ops\quality_checks.py
+| Flag | Para qué |
+|---|---|
+| `--full` | fuerza recarga completa del staging |
+| `--sin-redshift` | omite la estructura comercial (no cambia a diario) |
+| `--rebuild` | reconstruye las vistas desde los `.sql` en vez de refrescarlas |
 
-# 3. Carga el staging desde Mongo
-.venv\Scripts\python.exe etl_mongo_to_postgres.py
+`main.py` corre seis pasos: frescura → staging Mongo → estructura comercial → capa de negocio →
+calidad → frescura final. Deja todo en `logs/pipeline_YYYY-MM.log` y en las tablas de `bnpl_ops`, y
+devuelve código 1 si algo falló, para que el Task Scheduler lo reporte.
 
-# 4. Carga la estructura comercial desde Redshift (rutas) — ~2 minutos
-.venv\Scripts\python.exe etl_redshift_to_postgres.py
+**Se detiene si una fuente crítica está en CRIT** (`credit-order`, `payment-report`,
+`state-of-delivery`): cargar datos viejos encima del tablero es peor que no cargar. Las demás
+fuentes en CRIT solo generan una advertencia — `fintech-customers` lleva semanas caída y eso no
+invalida la mora ni el revenue. La lista está en `ops/config.py` → `FUENTES_CRITICAS`.
 
-# 5. Refresca la capa de negocio (schema bnpl) — ~65 segundos
-.venv\Scripts\python.exe build_bnpl.py
+Cada paso también se puede correr solo:
+
+```powershell
+.venv\Scripts\python.exe ops\check_freshness.py        # frescura
+.venv\Scripts\python.exe ops\quality_checks.py         # calidad
+.venv\Scripts\python.exe etl_mongo_to_postgres.py      # staging Mongo
+.venv\Scripts\python.exe etl_redshift_to_postgres.py   # rutas (Redshift), ~2 min
+.venv\Scripts\python.exe build_bnpl.py                 # capa de negocio, ~65 s
 ```
 
 ### Tablas de la capa de negocio
@@ -141,10 +155,89 @@ fila por colección por corrida.
 > 23-jul y `bo-file-upload-info-production` se detuvo el mismo día. Está reportado a ingeniería.
 > Impacto: los clientes enrolados desde entonces no tienen `shopName` ni teléfono.
 
+## Despliegue a la VM
+
+El pipeline está pensado para correr desatendido en una VM. En orden:
+
+**1. Preparar la máquina**
+
+```powershell
+git clone https://github.com/russellquiroz-spec/buy_now_pay_later.git
+cd buy_now_pay_later
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install pandas sqlalchemy psycopg2-binary python-dotenv openpyxl
+```
+
+**2. Instalar las librerías internas** (editable, desde donde estén en la VM):
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e <ruta>\mongo_extractor
+.venv\Scripts\python.exe -m pip install -e <ruta>\redshift_extractor
+.venv\Scripts\python.exe -m pip install -e <ruta>\postgres_local_extractor
+```
+
+**3. Crear el `.env`** en la raíz, con `BD_ENGINE_RABBIT_LOCAL` apuntando al PostgreSQL de la VM.
+Nunca se versiona. Los extractores además leen su propio `.env.<paquete>`, que debe existir en la VM
+con el perfil `bnpl` de Mongo y el de Redshift.
+
+**4. Verificar los accesos antes de programar nada.** Es donde suele fallar:
+
+```powershell
+.venv\Scripts\python.exe ops\check_freshness.py
+```
+
+Si eso corre, la VM tiene lo que necesita: túnel SSM a Mongo (AWS CLI + Session Manager plugin +
+credenciales del rol), Redshift y PostgreSQL.
+
+**5. Programar la tarea diaria** a las 06:00, una hora antes del refresh de Power BI:
+
+```powershell
+schtasks /Create /TN "BNPL Pipeline" /SC DAILY /ST 05:30 ^
+  /TR "C:\ruta\buy_now_pay_later\run_pipeline.bat" ^
+  /RU <usuario> /RP * /RL HIGHEST
+```
+
+El usuario tiene que ser uno con las credenciales AWS configuradas: con `SYSTEM` el túnel SSM no
+levanta. Y debe quedar como "ejecutar aunque el usuario no haya iniciado sesión", que es lo que hace
+`/RP`.
+
+**Presupuesto de tiempo — medido, no estimado.** Corrida completa del 2026-08-12: **23.2 minutos**
+(sin el paso de Redshift; con él, ~26).
+
+| Paso | Tiempo |
+|---|---|
+| Staging Mongo (10 colecciones) | 21.8 min |
+| Estructura comercial (Redshift) | 2.3 min |
+| Capa de negocio (11 vistas) | 51 s |
+| Calidad + frescura ×2 | 31 s |
+
+Las tres colecciones más lentas del staging: `fintech-customers` 221 s, `credit-order` 174 s (por
+ventana) y `payment-report` 156 s. El día de la recarga completa mensual de `credit-order`, sumar
+~20 minutos más.
+
+Con la tarea a las 06:00 y el refresh de Power BI a las 07:00 hay margen, pero **no es el margen
+holgado de una corrida de 5 minutos**: si el túnel SSM se pone lento, 26 minutos pueden volverse 40.
+Conviene dejar la tarea a las 05:30 si Power BI refresca a las 07:00.
+
+**Verificar que corrió:**
+
+```sql
+select * from bnpl_ops.etl_runs where tabla = 'pipeline' order by started_at desc limit 5;
+select * from bnpl_ops.v_freshness_status;
+select * from bnpl_ops.v_quality_alerts;
+```
+
+`logs\pipeline_YYYY-MM.log` tiene el detalle paso a paso y `logs\scheduler.log` lo que el `.bat`
+capturó, incluido lo que falle antes de que arranque el logging.
+
 ## Estructura
 
 ```
+main.py                    Orquestador: el punto de entrada de la corrida desatendida
+run_pipeline.bat           Lo que ejecuta el Task Scheduler
 etl_mongo_to_postgres.py   Extracción Mongo → staging (10 colecciones)
+etl_redshift_to_postgres.py Extracción Redshift → estructura comercial y rutas
+build_bnpl.py              Construye y refresca la capa de negocio
 ops/
   config.py                Fuentes, umbrales, conexión
   check_freshness.py       Frescura de Mongo vs staging
