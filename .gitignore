@@ -1,0 +1,23 @@
+# Credenciales
+.env
+.env.*
+!.env.example
+
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+
+# Datos y salidas (el respaldo primario vive en OneDrive, no en el repo)
+data/
+logs/
+analisis_one_shot/output/
+analisis_one_shot/output_v1/
+*.csv
+*.xlsx
+*.parquet
+*.pbix
+
+# Notebooks legacy: contienen credenciales en texto plano
+legacy/
+.ipynb_checkpoints/
