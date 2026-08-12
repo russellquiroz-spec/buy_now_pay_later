@@ -14,7 +14,7 @@ convierte en las tablas de riesgo y venta, y alimenta Power BI.
 | 0 | Tablero de frescura y calidad de las fuentes | **listo** |
 | 1 | ETL Mongo → staging PostgreSQL | **listo** |
 | 2 | DDL tipado e índices | **listo** |
-| 3 | Tablas finales (PAR, vintage, grid, KPIs, revenue, cortes) | pendiente |
+| 3 | Tablas finales (PAR, vintage, grid, KPIs, revenue, cortes) | **listo** |
 | 4 | Dimensiones de ruta y cierre de huecos | pendiente |
 | 5 | Orquestación y despliegue a la VM | pendiente |
 | 6 | Power BI Service + Gateway | pendiente |
@@ -62,7 +62,31 @@ igual y lo reporta `bnpl_ops.data_quality_checks`. La limpieza vive en la capa `
 
 # 3. Carga el staging
 .venv\Scripts\python.exe etl_mongo_to_postgres.py
+
+# 4. Refresca la capa de negocio (schema bnpl) — ~65 segundos
+.venv\Scripts\python.exe build_bnpl.py
 ```
+
+### Tablas de la capa de negocio
+
+| Vista | Grano | Para qué |
+|---|---|---|
+| `bnpl.grouped_orders` | cliente + sales order | base: cohort, índice de pedido, entrega |
+| `bnpl.loss_rates` | orden entregada | morosidad (PAR), días de atraso, revenue |
+| `bnpl.par_snapshot` | orden × corte mensual | auditar de dónde sale cada tasa del vintage |
+| `bnpl.vintage_analysis` | cohort × mes de maduración | evolución del PAR por cohort |
+| `bnpl.grid_bnpl` | cliente | maestro: embudo, conteos, revenue por cliente |
+| `bnpl.kpis_daily` | día | serie diaria sin huecos, con acumulados y tasas |
+| `bnpl.revenue_comision` | orden | el ingreso del producto, orden por orden |
+| `bnpl.corte_venta_sku` / `_so` | SKU / sales order | corte semanal, ventana de 8 días desde jueves |
+
+`build_bnpl.py --rebuild` reconstruye las vistas desde los `.sql` (usar al cambiar la lógica);
+sin flags solo las refresca. El refresh es completo, no incremental, **y tiene que serlo**: un pago
+puede llegar 519 días tarde, así que el PAR de un mes cerrado cambia retroactivamente.
+
+Las reglas de negocio (plazo del crédito, 14.2% de comisión, interés moratorio, exención del primer
+pedido, buckets PAR) viven como funciones en `sql/02_bnpl_funciones.sql`, no incrustadas en cada
+vista. Cambiar una regla es cambiar una función y refrescar.
 
 ### Modos del ETL
 

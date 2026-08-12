@@ -1,0 +1,115 @@
+-- bnpl.grouped_orders — 1 fila por (cliente, sales order).
+--
+-- Porta bnpl_orders_group del legacy (celda 78). Dos cosas que no son obvias:
+--
+--   * orderGrossSales y totalPrice se agregan con MAX, no SUM: el monto total de la orden
+--     viene repetido en cada linea de SKU. Sumarlo infla las ventas por el numero de SKUs.
+--   * enrollment_cohort sale de la APROBACION del credito (fintech-credit-approval con
+--     status = APPROVED), no de la primera orden del cliente.
+
+DROP MATERIALIZED VIEW IF EXISTS bnpl.grouped_orders CASCADE;
+
+CREATE MATERIALIZED VIEW bnpl.grouped_orders AS
+WITH enrolados AS (
+    -- Clientes con credito aprobado. Es la base del cohort de enrolamiento.
+    SELECT
+        "netsuiteId"                                             AS netsuite_id,
+        bnpl.iso_a_mx("createdAt")                               AS bnpl_enrolled_at,
+        to_char(bnpl.iso_a_mx("createdAt"), 'YYYY-MM')           AS enrollment_cohort,
+        "creditLimit"                                            AS enrolled_credit_limit,
+        origin                                                   AS enrollment_channel
+    FROM mongo_bnpl.fintech_credit_approval_production
+    WHERE status = 'APPROVED'
+      AND "netsuiteId" IS NOT NULL
+),
+cohortes AS (
+    SELECT
+        enrollment_cohort,
+        count(*)                        AS enrolled_customers,
+        sum(enrolled_credit_limit)      AS enrolled_credit_limit_cohort
+    FROM enrolados
+    GROUP BY 1
+),
+limite_por_orden AS (
+    -- La linea de credito vigente al momento de la orden viene del reporte de pagos.
+    SELECT "transactionId" AS sales_order_id, max("creditLimit") AS credit_limit
+    FROM mongo_bnpl.payment_report_production
+    WHERE "transactionId" IS NOT NULL
+    GROUP BY 1
+),
+ordenes AS (
+    SELECT
+        o."netsuiteId"                                    AS netsuite_id,
+        o."salesOrderId"                                  AS sales_order_id,
+        o."orderId"                                       AS order_id,
+        o."orderStatus"                                   AS order_status,
+        coalesce(o."salesChannel", 'MARKETPLACE')         AS sales_channel,
+        max(o."createdAt")                                AS created_at_ms,
+        bnpl.epoch_ms_a_mx(max(o."createdAt"))            AS created_at,
+        bnpl.epoch_ms_a_mx(max(o."deliveryAt"))           AS delivery_at,
+        max(o."orderGrossSales")                          AS order_gross_sales,
+        max(o."totalPrice")                               AS total_price,
+        count(DISTINCT o."productId")                     AS skus,
+        sum(o.quantity)                                   AS quantity
+    FROM mongo_bnpl.credit_order_production o
+    WHERE o."salesOrderId" IS NOT NULL AND trim(o."salesOrderId") <> ''
+    GROUP BY 1, 2, 3, 4, 5
+),
+con_indices AS (
+    SELECT
+        ordenes.*,
+        row_number() OVER (
+            PARTITION BY netsuite_id ORDER BY created_at, sales_order_id
+        )                                                  AS customer_order_try_index,
+        CASE WHEN order_status = 'COMPLETED' THEN
+            row_number() OVER (
+                PARTITION BY netsuite_id, (order_status = 'COMPLETED')
+                ORDER BY created_at, sales_order_id
+            )
+        END                                                AS customer_completed_order_index,
+        -- Primera orden del cliente en un estado que cuenta como activacion.
+        min(CASE WHEN order_status = ANY (bnpl.estados_activacion()) THEN created_at END)
+            OVER (PARTITION BY netsuite_id)                AS bnpl_activated_at
+    FROM ordenes
+)
+SELECT
+    o.netsuite_id,
+    o.sales_order_id,
+    o.order_id,
+    o.order_status,
+    d."deliveryStatus"                                    AS delivery_status,
+    o.sales_channel,
+    o.created_at_ms,
+    o.created_at,
+    o.order_gross_sales,
+    o.total_price,
+    lc.credit_limit,
+    o.skus,
+    o.quantity,
+    o.delivery_at,
+    bnpl.epoch_ms_a_mx(d."deliveryDate")                  AS delivery_date,
+    o.customer_order_try_index,
+    o.customer_completed_order_index,
+    e.bnpl_enrolled_at,
+    e.enrollment_cohort,
+    e.enrollment_channel,
+    c.enrolled_customers,
+    c.enrolled_credit_limit_cohort,
+    o.bnpl_activated_at,
+    to_char(o.bnpl_activated_at, 'YYYY-MM')               AS activated_cohort,
+    bnpl.meses_entre(e.bnpl_enrolled_at, o.created_at)    AS months_since_enrollment,
+    bnpl.meses_entre(o.bnpl_activated_at, o.created_at)   AS months_since_activation,
+    to_char(o.created_at, 'YYYY-MM')                      AS month_created_at
+FROM con_indices o
+LEFT JOIN enrolados e   ON o.netsuite_id = e.netsuite_id
+LEFT JOIN cohortes c    ON e.enrollment_cohort = c.enrollment_cohort
+LEFT JOIN limite_por_orden lc ON o.sales_order_id = lc.sales_order_id
+LEFT JOIN mongo_bnpl.state_of_delivery_report_production d
+       ON o.sales_order_id = d."salesOrderId";
+
+CREATE UNIQUE INDEX ix_grouped_orders_pk
+    ON bnpl.grouped_orders (netsuite_id, sales_order_id, order_id, order_status, sales_channel);
+CREATE INDEX ix_grouped_orders_sales_order ON bnpl.grouped_orders (sales_order_id);
+CREATE INDEX ix_grouped_orders_netsuite    ON bnpl.grouped_orders (netsuite_id);
+CREATE INDEX ix_grouped_orders_cohort      ON bnpl.grouped_orders (enrollment_cohort);
+CREATE INDEX ix_grouped_orders_created     ON bnpl.grouped_orders (created_at);

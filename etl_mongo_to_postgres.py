@@ -123,9 +123,12 @@ COLLECTIONS = [
                     "_id": 0,
                     "netsuiteId": 1,
                     "customerId": 1,
+                    "shopkeeperId": 1,
                     "shopName": "$name",
                     "phoneNumber": 1,
                     "gender": 1,
+                    "business_category": 1,
+                    "address": 1,
                     "hasMarketplace": 1,
                     "hasPresales": 1,
                     "updatedAt": 1,
@@ -144,6 +147,8 @@ COLLECTIONS = [
                     "customerId": 1,
                     "requestId": 1,
                     "createdAt": 1,
+                    "name": 1,
+                    "lastNames": 1,
                     "birthdate": 1,
                     "phoneNumber": 1,
                     "gender": 1,
@@ -305,6 +310,17 @@ def _flatten(df: pd.DataFrame) -> pd.DataFrame:
     # llega a colisionar entre si. Lo que quede anidado se guarda como JSON.
     records = df.to_dict(orient="records")
     flat = pd.json_normalize(records, sep="_", max_level=1)
+
+    # Un dict opcional (address en customers) deja dos rastros: las columnas aplanadas de los
+    # documentos que lo traen y una columna con el nombre pelado, siempre nula, de los que no.
+    # Esa segunda no existe en el DDL, asi que se descarta.
+    residuos = [
+        col for col in flat.columns
+        if flat[col].isna().all() and any(c.startswith(f"{col}_") for c in flat.columns)
+    ]
+    if residuos:
+        flat = flat.drop(columns=residuos)
+
     for col in flat.columns:
         if flat[col].apply(lambda x: isinstance(x, (list, dict))).any():
             flat[col] = flat[col].apply(

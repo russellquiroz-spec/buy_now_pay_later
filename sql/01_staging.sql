@@ -110,15 +110,29 @@ CREATE INDEX IF NOT EXISTS ix_delivery_netsuite
 -- ─────────────────────────────────────────────────────────────────────────────
 -- fintech-customers-production
 -- ─────────────────────────────────────────────────────────────────────────────
+-- El dict `address` llega aplanado a un nivel. latitude/longitude vienen como texto en Mongo
+-- y se quedan asi: el staging no corrige tipos, eso pasa en la capa bnpl.
 CREATE TABLE IF NOT EXISTS mongo_bnpl.fintech_customers_production (
-    "netsuiteId"     text,
-    "customerId"     text,
-    "shopName"       text,
-    "phoneNumber"    text,
-    gender           text,
-    "hasMarketplace" boolean,
-    "hasPresales"    boolean,
-    "updatedAt"      double precision
+    "netsuiteId"             text,
+    "customerId"             text,
+    "shopkeeperId"           text,
+    "shopName"               text,
+    "phoneNumber"            text,
+    gender                   text,
+    business_category        text,
+    "address_street"         text,
+    "address_exteriorNumber" text,
+    "address_interiorNumber" text,
+    "address_neighborhood"   text,
+    "address_zipCode"        text,
+    "address_town"           text,
+    "address_state"          text,
+    "address_country"        text,
+    "address_latitude"       text,
+    "address_longitude"      text,
+    "hasMarketplace"         boolean,
+    "hasPresales"            boolean,
+    "updatedAt"              double precision
 );
 
 CREATE INDEX IF NOT EXISTS ix_customers_netsuite
@@ -133,6 +147,8 @@ CREATE TABLE IF NOT EXISTS mongo_bnpl.fintech_credit_request_production (
     "customerId"    text,
     "requestId"     text,
     "createdAt"     double precision,
+    name            text,
+    "lastNames"     text,
     birthdate       text,
     "phoneNumber"   text,
     gender          text,

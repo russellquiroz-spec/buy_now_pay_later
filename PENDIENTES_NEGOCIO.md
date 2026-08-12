@@ -11,7 +11,10 @@ constante en `config.py` y se re-materializa.
 
 ## 1. Comisión de Rabbit: ¿14.2% sobre el interés con IVA o sin IVA?
 
-**Estado**: implementado con IVA (el que coincide con el layout final de `bnpl_loss_rates`).
+**Estado**: implementadas **las dos**, lado a lado, en `bnpl.revenue_comision`
+(`rabbit_revenue` con IVA y `rabbit_revenue_sin_iva` sin IVA). Ambas reproducen su cifra del legacy
+con 0.04% de desviación, así que la decisión se puede tomar con los números a la vista. Cuando se
+confirme cuál es la del contrato, se borra la otra columna.
 
 El notebook legacy calcula el revenue de Rabbit de dos maneras distintas:
 

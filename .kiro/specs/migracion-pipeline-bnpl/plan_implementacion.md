@@ -365,21 +365,77 @@ entre 3 y 6 minutos, y el `--full` mensual entre 20 y 40.
 
 ---
 
-## Fase 3 — Tablas finales
+## Fase 3 — Tablas finales — **COMPLETADA 2026-08-12**
 
-| Tabla | Grano | Notas |
+Nueve vistas materializadas en el schema `bnpl`, orquestadas por `build_bnpl.py`
+(`--rebuild` reconstruye desde los `.sql`, sin flags refresca). **La capa completa se refresca en
+~65 segundos.**
+
+| Vista | Grano | Filas |
 |---|---|---|
-| `grouped_orders` | netsuiteId + SO | cohort de enrolamiento, `customerOrderTryIndex`, epoch → hora MX |
-| `loss_rates` | orden | reglas de la sección anterior; base de todo lo demás |
-| `par_monthly` | cohort × mes | conteos y exposición por bucket |
-| `vintage_analysis` | cohort × mes | evolución del PAR + proyección LGD (punto abierto) |
-| `loan_disbursement_index` | cliente | primer crédito vs recompra |
-| `grid_bnpl` | cliente | línea vigente y original, activación, validación manual |
-| `kpis_daily` | fecha | órdenes, ventas, entregas, pagos |
-| `revenue_comision` | orden | **nueva** — interés cobrado y comisión de Rabbit |
-| `corte_venta_sku` / `corte_venta_so` | SKU / SO | ventana móvil de 8 días desde jueves |
+| `grouped_orders` | cliente + sales order | 98,854 |
+| `loss_rates` | orden entregada | 91,864 |
+| `par_snapshot` | orden × corte mensual | 1,060,975 |
+| `vintage_analysis` | cohort × mes de maduración | 530 |
+| `grid_bnpl` | cliente | 146,613 |
+| `kpis_daily` | día | 983 |
+| `revenue_comision` | orden | 91,864 |
+| `corte_venta_sku` | línea de SKU en la ventana | 23,797 |
+| `corte_venta_so` | sales order en la ventana | 1,883 |
 
-Cada tabla se valida contra el notebook legacy sobre un mes cerrado antes de darse por buena.
+### Validación contra el legacy
+
+Las dos definiciones de revenue del notebook se reproducen **con 0.04% de desviación cada una**:
+
+| Definición | Legacy | Esta capa | Δ |
+|---|---|---|---|
+| Celda 82 — 14.2% sobre interés **con** IVA (`loss_rates`) | $1,023,550.32 | $1,023,125.91 | 0.04% |
+| Celda 70 — 14.2% sobre interés **sin** IVA (`grid_bnpl`) | $872,863.38 | $872,496.98 | 0.04% |
+
+La desviación es la misma en ambas y tiene explicación: los ~49 pagos que existen en
+`payment-report` pero cuya orden no está COMPLETED. Entre sí difieren 17.3%, exactamente lo medido
+en el análisis previo — la capa conserva la inconsistencia del legacy en vez de taparla, y expone
+las dos columnas en `revenue_comision` para poder decidir con números (PENDIENTE 1).
+
+Embudo del producto en `grid_bnpl`: 146,613 clientes → 62,334 preautorizados → 10,708 enrolados →
+9,294 activados (86.8% de los enrolados) → 1,898 activos en los últimos 30 días.
+
+### Reglas de negocio que se descubrieron al portar
+
+- **`orderGrossSales` se agrega con MAX, no SUM.** El monto total de la orden viene repetido en cada
+  línea de SKU; sumarlo infla las ventas por el número de SKUs. El `design.md` decía sum.
+- **El cohort sale de la aprobación del crédito**, no de la primera orden: `bnpl_enrolled_at` es el
+  `createdAt` de `fintech-credit-approval` con `status = APPROVED`.
+- **El vencimiento se calcula sobre el día de entrega, no el instante.** `epoch_to_date()` del legacy
+  devuelve `'%Y-%m-%d'`, así que allá las fechas ya venían truncadas a día.
+- **`epoch_to_date()` era sensible a la zona de la máquina**: usaba `fromtimestamp` (hora local) menos
+  6 horas, así que solo daba hora México si corría en un host en UTC. Había un notebook
+  `Cortes de Venta-EC2AMAZ-...`, lo que sugiere que sí. En esta capa el offset es explícito.
+- **El join con Propaga era por posición.** El legacy unía por `(netsuiteId, rank)` porque el Excel de
+  conciliaciones no traía el sales order. `propaga_transaction` sí lo trae, así que ahora se une por
+  `salesOrderId` — se acabó el riesgo de cruzar el pago con la orden equivocada.
+
+### Decisiones de alcance
+
+- **`par_monthly` y `vintage_analysis` son la misma tabla** en el legacy (`parfinal`), así que no se
+  duplicó: `vintage_analysis` es la de cohort × maduración con las tasas PAR, y `par_snapshot`
+  guarda el grano fino orden × corte para poder auditar de dónde sale cada tasa.
+- **`loan_disbursement_index` no se creó.** Su contenido — el rank de crédito por cliente — ya vive
+  en `grouped_orders.customer_order_try_index` y `loss_rates.rank_completadas`. Una tabla aparte
+  sería la misma lógica en dos lugares.
+- **Los buckets PAR corrigen un solapamiento del legacy.** Allá `DQ 7-14` se asignaba con
+  `>= 7 AND <= 15` y `DQ 15-29` con `>= 15`: un atraso de 15 días caía en el bucket equivocado por
+  orden de evaluación. Aquí `DQ 7-14` termina en 14.
+- **`customerAgeAtEnrollment` se calcula contra la fecha de enrolamiento.** El legacy usaba
+  `bnplEligibleAt` en esa columna y en `customerAgeAtEligibility`, así que le salían idénticas.
+- Se amplió la proyección del ETL con `address`, `business_category`, `shopkeeperId`, `name` y
+  `lastNames`: el grid las necesita y no estaban.
+
+### Lo que queda para la Fase 4
+
+`grouped_orders`, `grid_bnpl` y los cortes salen **sin las columnas de ruta**
+(`ruta`, `supervisor`, `oficina`, `tipo`), que llegan de Redshift. `grid_bnpl` tampoco trae
+`manualValidation`: el `clean_manual_validation.csv` no existe en el proyecto.
 
 ---
 
