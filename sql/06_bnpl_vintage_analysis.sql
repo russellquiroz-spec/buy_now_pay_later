@@ -10,7 +10,7 @@ DROP MATERIALIZED VIEW IF EXISTS bnpl.vintage_analysis CASCADE;
 
 CREATE MATERIALIZED VIEW bnpl.vintage_analysis AS
 WITH base AS (
-    SELECT * FROM bnpl.par_snapshot WHERE corte < current_date
+    SELECT * FROM bnpl.par_snapshot WHERE corte < bnpl.hoy_mx()
 ),
 agregado AS (
     SELECT

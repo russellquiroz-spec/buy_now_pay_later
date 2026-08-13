@@ -13,7 +13,7 @@ CREATE MATERIALIZED VIEW bnpl.kpis_daily AS
 WITH rango AS (
     SELECT generate_series(
         (SELECT min(created_at)::date FROM bnpl.grouped_orders),
-        current_date,
+        bnpl.hoy_mx(),
         interval '1 day'
     )::date AS fecha
 ),

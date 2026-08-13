@@ -38,7 +38,7 @@ ordenes_completadas AS (
         count(sales_order_id)                               AS bnpl_completed_orders_count,
         sum(order_gross_sales)                              AS bnpl_completed_order_volume,
         count(*) FILTER (
-            WHERE delivery_at + (bnpl.dias_credito() || ' days')::interval <= now()
+            WHERE delivery_at + (bnpl.dias_credito() || ' days')::interval <= bnpl.ahora_mx()
         )                                                   AS bnpl_due_for_payment_orders_count
     FROM bnpl.grouped_orders
     WHERE order_status = 'COMPLETED'
@@ -115,7 +115,7 @@ SELECT
     r."lastNames"                                           AS customer_last_names,
     coalesce(nullif(r.gender, 'NOT_DEFINED'), nullif(c.gender, 'NOT_DEFINED')) AS gender,
     r.birthdate::date                                       AS customer_birthdate,
-    (current_date - r.birthdate::date) / 365                AS customer_age,
+    (bnpl.hoy_mx() - r.birthdate::date) / 365               AS customer_age,
     (pa.bnpl_eligible_at::date - r.birthdate::date) / 365   AS customer_age_at_eligibility,
     (en.bnpl_enrolled_at::date - r.birthdate::date) / 365   AS customer_age_at_enrollment,
     c."phoneNumber"                                         AS customer_phone_number,
@@ -163,7 +163,7 @@ SELECT
     coalesce(p.bnpl_revenue, 0)                             AS bnpl_revenue,
     coalesce(p.bnpl_revenue_share, 0)                       AS bnpl_revenue_share,
     -- Activo = con actividad en los ultimos dias_inactividad() dias.
-    CASE WHEN current_date - oa.bnpl_last_order_at::date <= bnpl.dias_inactividad()
+    CASE WHEN bnpl.hoy_mx() - oa.bnpl_last_order_at::date <= bnpl.dias_inactividad()
          THEN 1 ELSE 0 END                                  AS bnpl_is_active
 FROM mongo_bnpl.fintech_customers_production c
 LEFT JOIN mongo_bnpl.fintech_credit_request_production r ON c."customerId" = r."customerId"

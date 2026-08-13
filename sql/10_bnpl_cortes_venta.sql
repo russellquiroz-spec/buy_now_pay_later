@@ -10,7 +10,12 @@ CREATE OR REPLACE FUNCTION bnpl.corte_dias() RETURNS int
     LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$ SELECT 8 $$;
 
 -- Jueves mas reciente (incluido hoy si hoy es jueves). isodow: 4 = jueves.
-CREATE OR REPLACE FUNCTION bnpl.ancla_corte(hoy date DEFAULT current_date) RETURNS date
+--
+-- El default es bnpl.hoy_mx() y no current_date a proposito: con current_date la ventana queda a
+-- merced de la zona del servidor, y aqui un dia de desfase se amplifica a una semana. En un host
+-- en UTC, a las 18:00 MX del miercoles el servidor ya cree que es jueves y el ancla salta del
+-- jueves anterior a hoy mismo, tirando 7 dias de ordenes del corte.
+CREATE OR REPLACE FUNCTION bnpl.ancla_corte(hoy date DEFAULT bnpl.hoy_mx()) RETURNS date
     LANGUAGE sql STABLE PARALLEL SAFE AS $$
     SELECT hoy - ((extract(isodow FROM hoy)::int - 4 + 7) % 7)
 $$;

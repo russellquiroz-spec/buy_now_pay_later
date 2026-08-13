@@ -120,7 +120,7 @@ calculado AS (
             AS end_of_month_expected_payment_date,
         CASE
             WHEN paid_date IS NULL
-                THEN current_date - expected_payment_date::date
+                THEN bnpl.hoy_mx() - expected_payment_date::date
             ELSE paid_date::date - expected_payment_date::date
         END AS days_past_due
     FROM fechas
@@ -190,8 +190,8 @@ SELECT
          ELSE (coalesce(total_amount_to_pay, 0) - coalesce(total_amount, 0)) * bnpl.share_rabbit()
     END                                                       AS rabbit_revenue,
     CASE
-        WHEN paid_date IS NOT NULL              THEN 'Paid'
-        WHEN expected_payment_date >= now()     THEN 'Ongoing'
+        WHEN paid_date IS NOT NULL                    THEN 'Paid'
+        WHEN expected_payment_date >= bnpl.ahora_mx() THEN 'Ongoing'
         ELSE bnpl.bucket_par(days_past_due)
     END                                                       AS par
 FROM calculado;

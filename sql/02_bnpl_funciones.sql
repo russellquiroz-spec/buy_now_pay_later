@@ -56,6 +56,29 @@ CREATE OR REPLACE FUNCTION bnpl.epoch_ms_a_mx(ms double precision) RETURNS times
                 THEN (to_timestamp(ms / 1000) AT TIME ZONE 'UTC') - interval '6 hours' END
 $$;
 
+-- Fecha de negocio de hoy, en hora Mexico. Existe por el mismo motivo que el offset explicito
+-- de epoch_ms_a_mx(): current_date depende de la zona del servidor, no de la del negocio. En un
+-- host en UTC, entre las 18:00 y las 24:00 MX current_date ya es el dia siguiente, y eso corre
+-- las ventanas y la mora un dia entero.
+--
+-- Paso en rabbit-bi-local: estaba en UTC y el corte de venta salio con 1,077 filas en vez de
+-- 2,027, porque el ancla salto del jueves 06 al 13 (2026-08-12). La base quedo en
+-- America/Mexico_City, asi que current_date ya daria la fecha correcta; estas dos funciones son
+-- el blindaje para que el resultado no dependa de como este configurado el host.
+--
+-- ahora_mx() ademas devuelve timestamp *sin* zona, que es lo que hay en las vistas: comparar un
+-- timestamp naive contra now() (timestamptz) hace que Postgres interprete el naive en la zona de
+-- la sesion, o sea la misma dependencia por la vuelta de los tipos.
+CREATE OR REPLACE FUNCTION bnpl.ahora_mx() RETURNS timestamp
+    LANGUAGE sql STABLE PARALLEL SAFE AS $$
+    SELECT (now() AT TIME ZONE 'UTC') - interval '6 hours'
+$$;
+
+CREATE OR REPLACE FUNCTION bnpl.hoy_mx() RETURNS date
+    LANGUAGE sql STABLE PARALLEL SAFE AS $$
+    SELECT bnpl.ahora_mx()::date
+$$;
+
 -- Texto ISO 8601 -> timestamp en hora Mexico. Devuelve NULL en lugar de fallar si el valor no
 -- es una fecha ('No Information' y similares aparecen en estas colecciones).
 CREATE OR REPLACE FUNCTION bnpl.iso_a_mx(valor text) RETURNS timestamp
