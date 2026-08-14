@@ -18,7 +18,7 @@ original, porque de ellos cuelgan 66 medidas DAX, 22 relaciones y ~50 columnas c
 
 ## Índice
 
-- [Las 18 vistas](#las-18-vistas)
+- [Las 19 vistas](#las-19-vistas)
 - [Cómo conectarlas](#cómo-conectarlas)
 - [Cambiar una consulta](#cambiar-una-consulta)
 - [Agregar una tabla nueva al tablero](#agregar-una-tabla-nueva-al-tablero)
@@ -27,23 +27,23 @@ original, porque de ellos cuelgan 66 medidas DAX, 22 relaciones y ~50 columnas c
 - [Concurso Crédito Rabbit](#concurso-crédito-rabbit-18-al-30-de-agosto)
 - [Notas de traducción que valen para todas](#notas-de-traducción-que-valen-para-todas)
 
-## Las 18 vistas
+## Las 19 vistas
 
-De dónde venía cada tabla del modelo y de dónde viene ahora. Filas y columnas verificadas contra la
-base el 2026-08-14.
+De dónde venía cada tabla del modelo y de dónde viene ahora. Filas y columnas leídas contra la base
+el 2026-08-14 por la tarde; se mueven con cada corrida del pipeline.
 
 | # | Vista en `pbi_bnpl` | Origen anterior | Fuente ahora | Filas | Cols |
 |---|---|---|---|---:|---:|
-| 01 | `bnpl_grouped_orders` | CSV local | `bnpl.grouped_orders` + `dim_ruta_actual` | 99,019 | 31 |
-| 02 | `bnpl_loss_rates` | CSV local | `bnpl.loss_rates` + conteo de activados | 92,009 | 37 |
-| 03 | `bnpl_par` | CSV local | `bnpl.par_snapshot` + `loss_rates` | 1,061,120 | 32 |
-| 04 | `months_closes` | CSV local | `bnpl.par_snapshot` + `loss_rates` | 1,061,120 | 31 |
+| 01 | `bnpl_grouped_orders` | CSV local | `bnpl.grouped_orders` + `dim_ruta_actual` | 99,187 | 31 |
+| 02 | `bnpl_loss_rates` | CSV local | `bnpl.loss_rates` + conteo de activados | 92,162 | 37 |
+| 03 | `bnpl_par` | CSV local | `bnpl.par_snapshot` + `loss_rates` | 1,061,273 | 32 |
+| 04 | `months_closes` | CSV local | `bnpl.par_snapshot` + `loss_rates` | 1,061,273 | 31 |
 | 05 | `vintage_analysis` | CSV local | `bnpl.vintage_analysis` | 530 | 21 |
 | 06 | `grid_bnpl` | CSV local | `bnpl.grid_bnpl` | 146,542 | 55 |
 | 07 | `bnpl_audiencia_agg` | CSV SharePoint | `bnpl.grouped_orders` (panel cliente×mes) | 214 | 5 |
-| 08 | `loans_matured_default_profile` | CSV local | `bnpl.loss_rates` + `grid_bnpl` + `ventas_cliente` | 90,262 | 50 |
-| 09 | `bnpl_cosechas_agg` | CSV SharePoint (196 MB) | `redshift_bnpl.cosechas_agg` | 51,721 | 11 |
-| 10 | `overall_prev_post_bnpl_sales` | CSV SharePoint (171 MB) | `redshift_bnpl.ventas_cliente` + `grid_bnpl` | 1,293,358 | 22 |
+| 08 | `loans_matured_default_profile` | CSV local | `bnpl.loss_rates` + `grid_bnpl` + `ventas_cliente` | 90,405 | 50 |
+| 09 | `bnpl_cosechas_agg` | CSV SharePoint (196 MB) | `redshift_bnpl.cosechas_agg` | 51,737 | 11 |
+| 10 | `overall_prev_post_bnpl_sales` | CSV SharePoint (171 MB) | `redshift_bnpl.ventas_cliente` + `grid_bnpl` | 1,294,443 | 22 |
 | 11 | `seasonality_delta` | CSV local (oct-2024) | `redshift_bnpl.estacionalidad_mes` | 132 | 10 |
 | 12 | `odds_table` | CSV local | `bnpl.loss_rates` + `grid_bnpl` | 18 | 14 |
 | 13 | `vars_and_iv` | CSV local | `bnpl.loss_rates` + `grid_bnpl` | 6 | 4 |
@@ -51,7 +51,8 @@ base el 2026-08-14.
 | 15 | `atr_combinations_iv` | CSV local | `archivos_bnpl.atr_combinations_iv` | 468 | 5 |
 | 16 | `ps_transactional_profile` | CSV local | `archivos_bnpl.ps_transactional_profile` | 100,793 | 2 |
 | 17 | `bnpl_cac` | CSV local | `archivos_bnpl.bnpl_cac` | 25 | 2 |
-| 20 | `concurso_base` | — (dataset nuevo) | `bnpl.bnpl_clientes_concurso` + `grouped_orders` | 1,098 | 44 |
+| 20 | `concurso_base` | — (dataset nuevo) | `bnpl.grouped_orders` + `dim_ruta_actual` + `grid_bnpl` | 1,266 | 44 |
+| 21 | `concurso_clientes` | — (dataset nuevo) | `bnpl.bnpl_clientes_concurso` | 51,294 | 7 |
 
 El `90_redshift_ventas_cliente_mes.sql` **no** se publica como vista: el glob de `build_bnpl.py` sólo
 toma los `[0-8][0-9]_`. Los 90+ son documentación de piezas del pipeline, no consultas del tablero.
@@ -80,7 +81,7 @@ descubrió que la primera versión de la 07 estaba mal.
 
 ### Costo de lectura
 
-El refresh lee las 18 vistas completas. Medido con `EXPLAIN ANALYZE` (sólo el lado del servidor):
+El refresh lee las 19 vistas completas. Medido con `EXPLAIN ANALYZE` (sólo el lado del servidor):
 
 | Vista | s | Vista | s |
 |---|---:|---|---:|
@@ -140,7 +141,10 @@ completo. Ver [Cuando falla el refresh → El gateway](#4-el-gateway).
 anterior a esta limpieza y publicarlo la deshacia. Si hace falta uno, se abre el `.pbip` en Desktop y
 *Archivo -> Guardar como*.
 
-`concurso_base` no está en ninguno de los dos modelos: es un tablero aparte, todavía sin construir.
+`concurso_base` no está en ninguno de los dos modelos: es un tablero aparte, ya publicado en el
+Service y con su propio modelo. Ése lee `bnpl.bnpl_clientes_concurso` y `bnpl.dim_ruta_actual`
+directo, y por eso son los dos únicos objetos de `bnpl` con `SELECT` para `pbi_gateway` — ver
+[Cuando falla el refresh → El gateway](#4-el-gateway).
 
 ## Cambiar una consulta
 
@@ -148,7 +152,7 @@ anterior a esta limpieza y publicarlo la deshacia. Si hace falta uno, se abre el
 # 1. Editar el .sql
 code sql\pbi\06_grid_bnpl.sql
 
-# 2. Reconstruir las 18 vistas (DROP + CREATE; menos de un segundo)
+# 2. Reconstruir las 19 vistas (DROP + CREATE; menos de un segundo)
 .venv\Scripts\python.exe build_bnpl.py
 
 # 3. Refrescar en Power BI Desktop. El paso M NO cambia.
@@ -327,7 +331,7 @@ retipar **en el modelo**, no agregar un paso M.
 | `loanDisbursementIndexRange` | `text` en las 5 que lo traen | **el modelo lo tiene como `Int64`** porque el `.pbix` cargó una versión vieja en la que el rango era numérico. Al conectar hay que retiparlo a texto en `loans_matured_default_profile` **y también en `vars_and_iv`**, o la relación entre las dos deja de cruzar. |
 | `Id cliente` | `bigint` (`ps_transactional_profile`) | sí, con espacio: es el nombre en el modelo |
 
-Consulta para revisar cualquier columna en las 18 vistas de una vez:
+Consulta para revisar cualquier columna en las 19 vistas de una vez:
 
 ```sql
 select table_name, column_name, data_type
@@ -348,10 +352,36 @@ pero apunta al schema equivocado.
 | `Gateway_BI` → *"Configuración incorrecta"* | el modelo **publicado** es el viejo, el de orígenes de archivo. Un gateway empresarial no puede servir CSV del disco de otra persona, y ese modelo no tiene ni un origen de PostgreSQL | republicar desde el `.pbip` reemplazando el modelo semántico |
 | `permission denied for view …` en el refresh del día siguiente | el `DROP VIEW` de `build_bnpl.py` se llevó los `GRANT` de `pbi_gateway` | ya no debería pasar: lo repara [`sql/16_pbi_grants.sql`](../16_pbi_grants.sql) en cada corrida |
 | `42501: permission denied for schema bnpl` — y `pbi_gateway` sólo consulta `pbi_bnpl` | seis vistas llaman funciones de `bnpl` (`ahora_mx()`, `hoy_mx()`, `estados_activacion()`, `dias_credito()`), y PostgreSQL cobra las **funciones** al que consulta, no al dueño de la vista: la regla del dueño sólo cubre las tablas | ya no debería pasar: [`sql/16_pbi_grants.sql`](../16_pbi_grants.sql) deduce de `pg_depend` los schemas a los que dar `USAGE` |
+| `42501: permission denied for table …` / `for materialized view …`, nombrando un objeto de `bnpl` | un modelo apunta directo a `bnpl.<objeto>` en vez de a su vista de `pbi_bnpl`. El rol tiene `USAGE` sobre `bnpl` (para las funciones) pero `SELECT` sólo sobre lo que se le dio en una lista explícita | o se repunta el paso M a `pbi_bnpl`, o se agrega el objeto a `directos` en [`sql/16_pbi_grants.sql`](../16_pbi_grants.sql). **Un `GRANT` a mano no basta** — ver abajo |
 
-Los dos últimos son fallas de **permisos**, y desde el 2026-08-14 el pipeline los repara solo. Si
+Los dos del medio son fallas de **permisos**, y desde el 2026-08-14 el pipeline los repara solo. Si
 vuelve a aparecer uno, la pregunta no es qué `GRANT` falta sino por qué no corrió el paso de permisos
 — revisa el final del log de `build_bnpl.py`, que imprime `permisos de pbi_gateway aplicados`.
+
+El último pasó el 2026-08-14 a las 14:28 con el **tablero del concurso**, que es un modelo aparte del
+de `pbi_new/` y lee `bnpl.bnpl_clientes_concurso` y `bnpl.dim_ruta_actual` sin pasar por `pbi_bnpl`.
+El refresh muere en 9 segundos, antes de leer una sola fila. Se resolvió dándole `SELECT` sobre esas
+dos, y **el `GRANT` va en el bloque `directos` de `sql/16_pbi_grants.sql`, no corrido a mano**: como
+`sql/11_bnpl_dim_ruta.sql` hace `DROP MATERIALIZED VIEW … CASCADE`, un permiso suelto sobrevive los
+refreshes diarios pero desaparece en el próximo `--rebuild`, y el error vuelve semanas después sin
+que nadie relacione las dos cosas. Probado revocando los dos y corriendo el archivo: los repone.
+
+Para saber qué alcanza el gateway, se le pregunta al catálogo:
+
+```sql
+select n.nspname, count(*) filter (where has_table_privilege('pbi_gateway', c.oid, 'SELECT')) as legibles,
+       count(*) as total
+from pg_class c join pg_namespace n on n.oid = c.relnamespace
+where n.nspname in ('bnpl', 'pbi_bnpl') and c.relkind in ('r', 'v', 'm')
+group by 1;
+```
+
+`pbi_bnpl` tiene que dar 19 de 19, y `bnpl` **2 de 12** — exactamente los dos de la lista. Si aparece
+un tercero sin que nadie lo haya agregado ahí, alguien otorgó permisos fuera del pipeline.
+
+Y para reproducir lo que ve el gateway sin adivinar, en el `.env` está `BD_ENGINE_RABBIT_LOCAL_PBI`,
+que es la URL del propio rol `pbi_gateway`. Corre la consulta con ese engine y el error sale idéntico
+al del portal, en un segundo y sin republicar nada.
 
 **El mensaje del portal casi nunca es el motivo.** El bueno está en el log del gateway, en la VM:
 
@@ -401,21 +431,51 @@ con su propia vigencia.
 
 | # | Tabla | Grano | Filas |
 |---|---|---|---|
-| 20 | `pbi_bnpl.concurso_base` | cliente × sales order creada en la ventana | 1,098 |
-| — | `bnpl.bnpl_clientes_concurso` | 1 fila por cliente del universo | 51,294 |
+| 20 | `pbi_bnpl.concurso_base` | cliente × sales order creada en la ventana | 1,266 |
+| 21 | `pbi_bnpl.concurso_clientes` | 1 fila por cliente del universo | 51,294 |
+| — | `bnpl.bnpl_clientes_concurso` | la tabla física detrás de la 21 | 51,294 |
+
+**El tablero de hoy lee la 20 y la tabla física**, con `SELECT` explícito sobre ella. La 21 es la
+alternativa que no necesita ese permiso: misma tabla, proyectada en camelCase y con el
+`netsuiteIdNum` que cruza contra la 20. Está publicada y verificada, hoy nadie la consume; si el
+tablero se repunta a ella, el bloque `directos` de [`sql/16_pbi_grants.sql`](../16_pbi_grants.sql) se
+puede borrar y el rol vuelve a ver sólo `pbi_bnpl`.
+
+Al 2026-08-14 la 20 trae puras filas de `'Previo'` (1,266 órdenes, 1,038 clientes, del 05 al 14 de
+agosto) y ninguna de `'Concurso'`: la ventana todavía no abre. Va a seguir creciendo sola cada día.
 
 `bnpl_clientes_concurso` no es una consulta: es una **tabla física** con el universo de lanzamiento
 y su línea de crédito, cargada a mano desde `BBDD tablero BNPL LANZAMIENTO.xlsx` (Drive de BI,
 `Dashboards/Venta/Punto de encuentro (Compromisos)/concurso_bnpl/`) con
-`carga_clientes_concurso.py`. Es la única tabla de `bnpl` que no reconstruye `build_bnpl.py`; el
-dato lo pone negocio, no sale de Mongo ni de Redshift.
+`carga_clientes_concurso.py`. `build_bnpl.py` sólo aplica su DDL; el dato lo pone negocio, no sale de
+Mongo ni de Redshift.
 
 Se carga la hoja `bbdd`, ya filtrada a clasificación `ajuste` (33,476) y `nuevo` (17,818). La otra
 hoja del libro (`Hoja1`) trae 20,004 filas más de `baja` y `corrientes`, que quedan fuera.
 
-Para relacionarla con `concurso_base` va `netsuite_id_num` (bigint) contra `netsuiteIdNum`, no la
-versión texto: es exactamente el caso para el que esa columna existe. Los 51,294 cruzan al 100%
-contra `bnpl.grid_bnpl`, pero sólo 89 tienen orden BNPL — es el universo objetivo, no el colocado.
+Para relacionar `concurso_clientes` con `concurso_base` va `netsuiteIdNum` (bigint) contra su
+homónima, no la versión texto: es exactamente el caso para el que esa columna existe. Los 51,294 son
+únicos y sin nulos, así que sirve de lado "uno".
+
+**Pero el solape es mínimo, y hay que decidirlo antes de armar el tablero.** Medido el 2026-08-14
+sobre la ventana previa:
+
+| | clientes | órdenes |
+|---|---:|---:|
+| Compraron y **no** están en el universo | **995** | 1,221 |
+| `nuevo` | 31 | 33 |
+| `ajuste` | 12 | 12 |
+
+Sólo **43 de los 1,038** que compraron están en el universo, y del universo completo apenas **91 de
+51,294 han hecho una orden BNPL alguna vez** (0.18%). Los 51,294 sí cruzan al 100% contra
+`bnpl.grid_bnpl`: es el universo objetivo, no el colocado.
+
+Dos consecuencias. La primera es de modelo: con la relación muchos-a-uno, esas 1,221 órdenes caen en
+la fila en blanco, y **cualquier visual cortado por `clasificacion` o por la ruta asignada las pierde
+en silencio**. Hay que definir si el concurso mide sólo al universo o a toda la base BNPL. La
+segunda es de negocio, y le pone número a la duda 3 de más abajo: la meta de 8,000 sobre este
+universo es pasar de 43 a 8,000 en 13 días — 15.6% de penetración contra una tasa histórica de
+0.18%.
 
 Dos cosas de la fuente que ya vienen resueltas en la carga: la columna del Excel llamada
 `Ruta preventa` es en realidad el **supervisor** (códigos `SV*`, homónima de `Ruta Preventa` salvo

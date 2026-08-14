@@ -30,8 +30,8 @@ convierte en las tablas de riesgo y venta, y alimenta Power BI.
 | 2 | DDL tipado e índices | **listo** |
 | 3 | Tablas finales (PAR, vintage, grid, KPIs, revenue, cortes) | **listo** |
 | 4 | Dimensiones de ruta y cierre de huecos | **listo** |
-| 5 | Orquestación y despliegue a la VM | **listo** — tarea `BNPL Pipeline`, diaria 07:30 CDMX |
-| 6 | Capa de consumo `pbi_bnpl` + archivos del Drive en `archivos_bnpl` | **listo** — 18 vistas, 4 tablas |
+| 5 | Orquestación y despliegue a la VM | **listo** — tarea `BNPL Pipeline`, diaria 00:00 CDMX |
+| 6 | Capa de consumo `pbi_bnpl` + archivos del Drive en `archivos_bnpl` | **listo** — 19 vistas, 4 tablas |
 | 7 | Power BI Service + Gateway | **listo** — refresh desde el Service por `Gateway_BI` |
 
 Plan detallado con las decisiones y sus mediciones:
@@ -53,7 +53,7 @@ Plan detallado con las decisiones y sus mediciones:
                                 1.4 min                      ─▶       │             (la capa de negocio)
                                                                       │
                                                                       ▼
-                                build_bnpl.py                   pbi_bnpl.*          18 vistas, una por tabla
+                                build_bnpl.py                   pbi_bnpl.*          19 vistas, una por tabla
                                 (mismo paso, al final)       ─▶       ▲             del modelo de Power BI
                                                                       │
   Drive compartido              carga_archivos_bnpl.py          archivos_bnpl.*   ──┤  4 tablas: los CSV que
@@ -70,7 +70,7 @@ Plan detallado con las decisiones y sus mediciones:
 **El staging es un espejo fiel de Mongo**: no deduplica ni corrige. Si Mongo trae basura, la trae
 igual y lo reporta `bnpl_ops.data_quality_checks`. La limpieza vive en la capa `bnpl`.
 
-**`pbi_bnpl` no tiene lógica propia.** Cada una de sus 18 vistas es, literalmente, un archivo de
+**`pbi_bnpl` no tiene lógica propia.** Cada una de sus 19 vistas es, literalmente, un archivo de
 `sql/pbi/*.sql` envuelto en un `CREATE VIEW` por `build_bnpl.py`. El `.sql` es la única fuente y no
 puede quedar desfasado de la vista.
 
@@ -81,7 +81,7 @@ puede quedar desfasado de la vista.
 | `mongo_bnpl` | 10 tablas espejo de Mongo | `etl_mongo_to_postgres.py` | sí, se rehace |
 | `redshift_bnpl` | 6 tablas de Redshift: rutas, ventas, cosechas, estacionalidad | `etl_redshift_to_postgres.py` | sí, se rehace |
 | `bnpl` | 11 vistas materializadas: la capa de negocio + 1 tabla física del concurso | `build_bnpl.py` (la del concurso, `carga_clientes_concurso.py`) | las 11 sí; la tabla del concurso **no** |
-| `pbi_bnpl` | 18 vistas, una por tabla del modelo de Power BI | `build_bnpl.py` desde `sql/pbi/*.sql` | sí, se rehace en cada corrida |
+| `pbi_bnpl` | 19 vistas, una por tabla del modelo de Power BI | `build_bnpl.py` desde `sql/pbi/*.sql` | sí, se rehace en cada corrida |
 | `archivos_bnpl` | 4 tablas + 4 vistas: los CSV que ninguna consulta reemplaza | `carga_archivos_bnpl.py`, **a mano** | **NO** — hay que volver a conseguir los archivos |
 | `bnpl_ops` | 4 tablas + 2 vistas: frescura, calidad, bitácora | todos los pasos | sí, pero se pierde el histórico |
 
@@ -100,7 +100,7 @@ puede quedar desfasado de la vista.
 | 1/6 frescura | `ops/check_freshness.py` | `bnpl_ops.source_freshness`, `freshness_history` | ~15 s |
 | 2/6 staging Mongo | `etl_mongo_to_postgres.py` | `mongo_bnpl.*` (10 tablas) | **13.9 min** |
 | 3/6 estructura comercial | `etl_redshift_to_postgres.py` | `redshift_bnpl.*` (6 tablas) | **3.5 min** |
-| 4/6 capa de negocio | `build_bnpl.py` | `bnpl.*` (11 matviews) + `pbi_bnpl.*` (18 vistas) | **1.4 min** |
+| 4/6 capa de negocio | `build_bnpl.py` | `bnpl.*` (11 matviews) + `pbi_bnpl.*` (19 vistas) | **1.4 min** |
 | 5/6 calidad | `ops/quality_checks.py` | `bnpl_ops.data_quality_checks` | ~15 s |
 | 6/6 frescura final | `ops/check_freshness.py` | deja registrado que el staging quedó sincronizado | ~15 s |
 | | | **total** | **~20 min** |
@@ -120,10 +120,12 @@ Deja todo en `logs/pipeline_YYYY-MM.log` y en las tablas de `bnpl_ops`, y devuel
 falló, para que el Task Scheduler lo reporte.
 
 En la VM ese comando **no** se corre a mano: lo dispara la tarea `\BNPL Pipeline` todos los días a las
-**07:30 de CDMX** vía `run_pipeline.bat` — cómo quedó registrada y por qué el disparador dice `13:30`
+**00:00 de CDMX** vía `run_pipeline.bat` — cómo quedó registrada y por qué el disparador dice `06:00`
 está en [Despliegue a la VM](#despliegue-a-la-vm). Ojo con qué significa "lo reporte": el código 1
-queda en el `LastTaskResult` de la tarea y en `bnpl_ops.etl_runs`, pero **nadie recibe un aviso**. Si
-la corrida falla, hay que ir a verlo.
+queda en el `LastTaskResult` de la tarea y en `bnpl_ops.etl_runs`, y desde el 2026-08-14 `ops/notificar.py`
+manda además un correo con las últimas 60 líneas del log — **pero sólo si existe `.env.bnpl_pipeline`**
+con la credencial SMTP y la lista de destinatarios. Mientras ese archivo no exista, el aviso degrada a
+un WARNING en el log y hay que ir a verlo a mano.
 
 **Se detiene si una fuente crítica está en CRIT** (`credit-order`, `payment-report`,
 `state-of-delivery`): cargar datos viejos encima del tablero es peor que no cargar. Las demás
@@ -180,7 +182,7 @@ Los dos ETL y `build_bnpl.py` aceptan `--solo` para no rehacer todo:
 | `fintech_credit_approval` | 18.1 | | | | | `dim_ruta_cliente_scd` + `corte_venta_so` | 0.4 |
 | **total** | **832.6** | | **total** | **212.8** | | **total** | **83.2** |
 
-Las 18 vistas de `pbi_bnpl` no aparecen porque son sólo DDL: crearlas cuesta menos de un segundo.
+Las 19 vistas de `pbi_bnpl` no aparecen porque son sólo DDL: crearlas cuesta menos de un segundo.
 Lo que sí cuesta es **leerlas**, y eso lo paga Power BI en cada refresh — ver
 [Verificar una corrida](#verificar-una-corrida).
 
@@ -191,7 +193,7 @@ la misma extracción tardó 166 s y 356 s en corridas consecutivas.
 
 ## Cambiar una consulta del tablero
 
-Las 18 tablas del modelo de Power BI se alimentan de `pbi_bnpl.*`, y cada vista es un archivo de
+Las 17 tablas del modelo de Power BI se alimentan de `pbi_bnpl.*`, y cada vista es un archivo de
 `sql/pbi/`. **El `.sql` es la única fuente.** Corregir una consulta es esto y nada más:
 
 ```powershell
@@ -199,7 +201,7 @@ Las 18 tablas del modelo de Power BI se alimentan de `pbi_bnpl.*`, y cada vista 
 #    sql/pbi/06_grid_bnpl.sql  ->  pbi_bnpl.grid_bnpl
 code sql\pbi\06_grid_bnpl.sql
 
-# 2. Reconstruir las vistas (DROP + CREATE de las 18; tarda menos de un segundo)
+# 2. Reconstruir las vistas (DROP + CREATE de las 19; tarda menos de un segundo)
 .venv\Scripts\python.exe build_bnpl.py
 
 # 3. Comprobar contra la base ANTES de tocar Power BI
@@ -297,15 +299,26 @@ union all select 'bnpl_cac',                 count(*) from archivos_bnpl.bnpl_ca
 
 Si los conteos difieren, el archivo cambió y no se ha recargado.
 
-> **Limitación conocida:** `carga_archivos_bnpl.py` **no** escribe en `bnpl_ops.etl_runs`, así que no
-> hay registro de cuándo se cargó cada archivo. El conteo de filas es hoy la única señal. Vale la
-> pena agregarle la bitácora, como la tienen los demás scripts.
+> **Cuándo se cargó cada archivo:** desde el 2026-08-14, las dos cargas manuales sí escriben en
+> `bnpl_ops.etl_runs` con `modo = 'manual'`. Para verlo:
+>
+> ```sql
+> select tabla, max(started_at) as ultima_carga, max(filas) as filas
+> from bnpl_ops.etl_runs
+> where tabla like 'archivos_bnpl.%' or tabla = 'bnpl.bnpl_clientes_concurso'
+> group by tabla order by ultima_carga;
+> ```
+>
+> Y el chequeo `cargas_manuales_viejas` de `ops/quality_checks.py` levanta un WARN si alguna lleva
+> más de 90 días sin recargarse o nunca se registró.
 
 ### El Excel del concurso
 
-`bnpl.bnpl_clientes_concurso` (51,294 filas) es la única tabla de `bnpl` que **no** reconstruye
-`build_bnpl.py`: el universo de lanzamiento y la línea de crédito los pone negocio en
-`BBDD tablero BNPL LANZAMIENTO.xlsx`. Mismo patrón: `--dry-run` primero, transacción única.
+`bnpl.bnpl_clientes_concurso` (51,294 filas) es la única tabla de `bnpl` cuyos **datos** no salen del
+pipeline: el universo de lanzamiento y la línea de crédito los pone negocio en
+`BBDD tablero BNPL LANZAMIENTO.xlsx`. `build_bnpl.py` sí aplica su DDL en cada corrida —`CREATE TABLE`
+/ `CREATE INDEX IF NOT EXISTS`, para que una VM limpia tenga la tabla— pero **nunca toca sus datos**.
+Mismo patrón que los CSV: `--dry-run` primero, transacción única.
 
 ```powershell
 .venv\Scripts\python.exe carga_clientes_concurso.py --dry-run
@@ -365,8 +378,12 @@ where tabla <> 'pipeline'
 order by tabla, started_at desc;
 ```
 
-Deben aparecer **27 tablas** con `started_at` de hoy: 10 de `mongo_bnpl`, 6 de `redshift_bnpl` y 11
-de `bnpl`. Las 18 vistas de `pbi_bnpl` no se registran (son DDL, no carga).
+Deben aparecer **46 tablas** con `started_at` de hoy: 10 de `mongo_bnpl`, 6 de `redshift_bnpl`, 11 de
+`bnpl` y las 19 vistas de `pbi_bnpl`, que desde el 2026-08-14 también dejan bitácora (entran con
+`modo = 'vista'` y `filas` en nulo: son DDL, no carga). Cada fila trae además `commit_sha` —el commit
+del repo que produjo esa carga, con sufijo `+sucio` si había cambios sin commitear— y `sql_sha256`,
+el hash del `.sql` que definió el objeto: eso es lo que permite saber *qué* definición corrió el día
+que el tablero salga raro.
 
 ### 3. ¿Las fuentes están al día?
 
@@ -400,6 +417,12 @@ fila por colección por corrida.
 
 Esto es lo que de verdad dice si la corrida quedó bien. Cada fila es una identidad que **debe**
 cumplirse; si no se cumple, algo se quedó a medias entre dos capas.
+
+Desde el 2026-08-14 **ya no hay que copiar y pegar nada**: las 15 identidades corren solas en el paso
+[5/6] como los chequeos `identidad_*` de `ops/quality_checks.py` y quedan con su historia en
+`bnpl_ops.data_quality_checks`. El SQL de abajo se queda como referencia para revisarlas a mano. Si
+una identidad **CRIT** no cuadra —o no se puede medir— el pipeline sale con código 1 y registra
+`modo = 'ok_identidades_rotas'` en `bnpl_ops.etl_runs`.
 
 ```sql
 select 'grouped_orders'  as par, (select count(*) from bnpl.grouped_orders) as origen,
@@ -466,7 +489,7 @@ Dos deltas más que **no** son constantes y por eso no sirven como check:
 
 ### 5. ¿Cuánto le va a costar a Power BI leer esto?
 
-El refresh lee las 18 vistas completas. Costo del lado del servidor, medido con `EXPLAIN ANALYZE`
+El refresh lee las 19 vistas completas. Costo del lado del servidor, medido con `EXPLAIN ANALYZE`
 (no incluye transferencia ni compresión del modelo):
 
 | Vista | s | | Vista | s |
@@ -525,7 +548,7 @@ Los `_rw` son los únicos con escritura y `ALLOW_DDL`; los demás rechazan cualq
 | `bnpl.kpis_daily` | día | serie diaria sin huecos, con acumulados y tasas |
 | `bnpl.revenue_comision` | orden | el ingreso del producto, orden por orden |
 | `bnpl.corte_venta_sku` / `_so` | SKU / sales order | corte semanal, ventana de 8 días desde jueves |
-| `bnpl.bnpl_clientes_concurso` | cliente | tabla física, carga manual. **No la toca `build_bnpl.py`.** |
+| `bnpl.bnpl_clientes_concurso` | cliente | tabla física, carga manual. `build_bnpl.py` aplica su DDL, **no sus datos**. |
 
 `build_bnpl.py --rebuild` reconstruye las vistas desde los `.sql` (usar al cambiar la lógica);
 sin flags solo las refresca. El refresh es completo, no incremental, **y tiene que serlo**: un pago
@@ -603,7 +626,7 @@ sales orders atascados). Esas se re-extraen dirigidas por `salesOrderId` en la m
 El modelo productivo es **`pbi_new/`**, y es el que está publicado: sus 17 tablas leen de `pbi_bnpl`,
 sin un solo `Csv.Document`, sin `SharePoint.Files`, sin `Table.TransformColumnTypes`, sin
 `excludeFromModelRefresh` y sin `Consulta1`. Refresca desde el Service por `Gateway_BI`.
-(`concurso_base` no está en el modelo: es un tablero aparte, todavía sin construir.)
+(`concurso_base` no está en el modelo: es un tablero aparte, con su propio modelo ya publicado.)
 
 **`pbi/` está deprecado** y desde el 2026-08-14 ya no vive en el repo: es el modelo viejo, con 18
 orígenes de archivo (`Csv.Document` contra un disco local y `SharePoint.Files` contra un OneDrive
@@ -632,7 +655,7 @@ refresh sale desde el Service sin exponer PostgreSQL a la red.
 | Conexión | `rabbit-bi-local` → tipo PostgreSQL, servidor `localhost:9553`, base `rabbit-bi-local` |
 | Credencial | Básica, rol `pbi_gateway`: solo lectura y solo sobre `pbi_bnpl` |
 | Conexión cifrada | **desmarcada** — el servidor tiene `ssl = off` |
-| Actualización programada | **08:30 CDMX** (movida de las 07:00 el 2026-08-14), 40 min después del cierre normal de la corrida de las 07:30 — ver [Despliegue a la VM](#despliegue-a-la-vm) |
+| Actualización programada | **08:30 CDMX** (movida de las 07:00 el 2026-08-14), 8 h después del cierre normal de la corrida de medianoche — ver [Despliegue a la VM](#despliegue-a-la-vm) |
 
 El driver (Npgsql 4.0.10) viene empaquetado con el gateway; no se instala aparte. Y como gateway y
 PostgreSQL comparten máquina, la conexión es loopback: no hay tráfico que un TLS pudiera proteger.
@@ -646,9 +669,9 @@ CREATE ROLE pbi_gateway LOGIN PASSWORD '<en el gestor de contraseñas>';
 **Sus permisos no son manuales.** Viven en [`sql/16_pbi_grants.sql`](sql/16_pbi_grants.sql) y
 `build_bnpl.py` los aplica al final de cada corrida, después del `DROP` + `CREATE` de las vistas.
 Antes eran cuatro líneas que se corrían una vez al configurar, y ése era el problema: este rol pierde
-sus permisos solo, de dos maneras distintas, y las dos ya rompieron el refresh.
+sus permisos solo, de tres maneras distintas, y las tres ya rompieron el refresh.
 
-**1. El `DROP VIEW` se lleva el `GRANT`.** `build_bnpl.py` recrea las 18 vistas en cada corrida y un
+**1. El `DROP VIEW` se lleva el `GRANT`.** `build_bnpl.py` recrea las 19 vistas en cada corrida y un
 `GRANT` vive pegado al objeto. El archivo pone las default privileges — para que las vistas nuevas
 nazcan legibles — y además un `GRANT SELECT` explícito, que repara el caso de una vista recreada a
 mano fuera del pipeline. El `FOR ROLE` tiene que nombrar al dueño de las vistas, no al usuario que
@@ -669,7 +692,7 @@ al que consulta ([`CREATE VIEW`](https://www.postgresql.org/docs/current/sql-cre
 | `odds_table` | `bnpl.ahora_mx()` |
 | `overall_prev_post_bnpl_sales` | `bnpl.estados_activacion()` |
 | `vars_and_iv` | `bnpl.ahora_mx()` |
-| `concurso_base` | `bnpl.estados_activacion()` (no está publicada) |
+| `concurso_base` | `bnpl.estados_activacion()` (la consume el tablero del concurso, no el de `pbi_new/`) |
 
 Cinco de ésas son tablas del modelo, y basta una para tumbar el refresh completo.
 
@@ -678,10 +701,23 @@ registra qué función usa cada vista. Si mañana una consulta de `sql/pbi/` emp
 de otro schema, el `USAGE` sale en la siguiente corrida sin que nadie toque nada. Eso es lo que evita
 que el error vuelva — lo que hay que mantener no es una lista, es nada.
 
-`USAGE` **no da lectura**: sólo permite resolver nombres dentro del schema. `pbi_gateway` sigue sin
-`SELECT` sobre ninguna de las 12 tablas de `bnpl` y sigue viendo únicamente `pbi_bnpl`, que es la
-intención. El `EXECUTE` de las 16 funciones no se otorga porque en PostgreSQL nace en `PUBLIC`; si
-algún día se le revoca a `PUBLIC`, hay que agregar un `GRANT EXECUTE ON ALL FUNCTIONS`.
+`USAGE` **no da lectura**: sólo permite resolver nombres dentro del schema. El `EXECUTE` de las 16
+funciones no se otorga porque en PostgreSQL nace en `PUBLIC`; si algún día se le revoca a `PUBLIC`,
+hay que agregar un `GRANT EXECUTE ON ALL FUNCTIONS`.
+
+**3. Un modelo que lee `bnpl` directo.** El tablero del concurso —otro modelo, no el de `pbi_new/`—
+apunta a `bnpl.bnpl_clientes_concurso` y `bnpl.dim_ruta_actual` sin pasar por `pbi_bnpl`, así que
+necesita `SELECT` explícito sobre las dos. Falló así el 2026-08-14 a las 14:28, con
+`42501: permission denied for table bnpl_clientes_concurso`: nueve segundos, antes de leer una fila.
+
+Ese par va en el arreglo `directos` del archivo y **no en un `GRANT` corrido a mano**, porque
+`sql/11_bnpl_dim_ruta.sql` hace `DROP MATERIALIZED VIEW … CASCADE`: un permiso suelto aguanta los
+refreshes diarios y desaparece en el próximo `--rebuild`. Es la única lista escrita a mano del
+archivo, y tiene que serlo: la dependencia vive en un modelo de Power BI, no en `pg_depend`.
+
+Así que hoy `pbi_gateway` lee las 19 vistas de `pbi_bnpl` y **2 de las 12** tablas de `bnpl`. Si
+alguna vez el tablero se repunta a `pbi_bnpl.concurso_base` y `pbi_bnpl.concurso_clientes` (esa vista
+ya existe, sin consumir), se borra el bloque y el rol vuelve a ver únicamente `pbi_bnpl`.
 
 Para aplicarlos sin esperar una corrida completa:
 
@@ -739,14 +775,14 @@ credenciales del rol), Redshift y PostgreSQL.
 $raiz = "C:\Users\Administrator\Documents\Proyectos\buy_now_pay_later"
 Register-ScheduledTask -TaskName "BNPL Pipeline" -Force `
   -Action    (New-ScheduledTaskAction -Execute "$raiz\run_pipeline.bat" -WorkingDirectory $raiz) `
-  -Trigger   (New-ScheduledTaskTrigger -Daily -At "13:30") `
+  -Trigger   (New-ScheduledTaskTrigger -Daily -At "06:00") `
   -Principal (New-ScheduledTaskPrincipal -UserId "$env:COMPUTERNAME\Administrator" `
                 -LogonType S4U -RunLevel Highest) `
   -Settings  (New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -StartWhenAvailable `
                 -ExecutionTimeLimit (New-TimeSpan -Hours 4))
 ```
 
-**Las 13:30 del disparador son UTC y son las 07:30 de CDMX.** El reloj de la VM está en UTC
+**Las 06:00 del disparador son UTC y son las 00:00 de CDMX.** El reloj de la VM está en UTC
 (`tzutil /g` → `UTC`) y el Task Scheduler dispara en la hora del sistema operativo, no en la del
 negocio — que es la misma trampa que `main.py` ya resuelve con `TZ_OFFSET_HOURS` para las fechas y
 para el log. Como México **ya no usa horario de verano**, el UTC−6 no se mueve en el año: no hay que
@@ -775,7 +811,7 @@ lanzó con `Start-ScheduledTask` para ejercitar esa ruta y no la de la consola. 
 | `LastTaskResult` | `0` |
 | Duración | **20.9 min** — el ~20 esperado, no los 17 de antes del paso 3 |
 | Tablas con `started_at` de hoy | **27 de 27** |
-| Cuadre origen → destino | las 12 identidades, incluida la de `grid_bnpl` en **exactamente −71** |
+| Cuadre origen → destino | las 15 identidades (`identidad_*` en `ops/quality_checks.py`), incluida la de `grid_bnpl` en **exactamente −71** |
 | Alertas de calidad | las dos de siempre (1,469 y 276), las que la sección de arriba dice no perseguir |
 | Túnel SSM | levantó y resolvió `~/.aws/credentials` sin sesión interactiva |
 
@@ -783,24 +819,27 @@ Lo único que ensucia el log es un `UserWarning` de `redshift_extractor` (pandas
 connectable de SQLAlchemy) y el aviso de que la sesión SSM queda `Active` hasta que la barra el idle
 timeout. Ninguno de los dos es nuevo ni afecta el resultado.
 
-**Ventana de tiempo.** La corrida arranca 13:30 UTC (07:30 CDMX) y el refresh de Power BI es a las
-**08:30 CDMX**: 60 minutos para una corrida de ~20. Los tres escenarios:
+**Ventana de tiempo.** La corrida arranca 06:00 UTC (00:00 CDMX) y el refresh de Power BI es a las
+**08:30 CDMX**: 8 h 30 min para una corrida de ~20. Los tres escenarios:
 
 | Escenario | Cierre | Margen al refresh |
 |---|---|---|
-| Corrida normal (~20 min) | ~07:50 | 40 min |
-| Túnel SSM lento — la variación medida en una misma extracción va de 166 s a 356 s | ~08:00 | 30 min |
-| Día de la recarga completa mensual de `credit-order` (+~20 min) | ~08:10 | 20 min |
+| Corrida normal (~20 min) | ~00:20 | 8 h 10 min |
+| Túnel SSM lento — la variación medida en una misma extracción va de 166 s a 356 s | ~00:30 | 8 h |
+| Día de la recarga completa mensual de `credit-order` (+~20 min) | ~00:40 | 7 h 50 min |
 
 Y **el refresh de Power BI se lleva sus propios 32 s de lectura** más la carga del modelo.
 
-**Por qué 07:30 y no 08:00.** El 2026-08-14 la tarea quedó primero a las 08:00 y el refresh se movió
-de las 07:00 a las 08:30: **10 minutos** de margen, que la variación del túnel se come sola y que el
-día de la recarga completa no alcanzan. Se adelantó la corrida media hora en lugar de volver a mover
-el tablero, porque a las 07:30 no hay nadie esperando el dato y el margen sube de 10 a 40 minutos.
+**Por qué 00:00 y no 07:30 ni 08:00.** El 2026-08-14 la tarea pasó por tres horarios el mismo día.
+Primero las 08:00, contra un refresh que se acababa de mover de las 07:00 a las 08:30: **10 minutos**
+de margen, que la variación del túnel se come sola y que el día de la recarga completa no alcanzan.
+Se adelantó a las 07:30 —40 minutos— y ese mismo día se movió a **medianoche**, que es la única hora
+que deja el margen fuera de discusión: 8 h 30 min contra el refresh de las 08:30, o sea que ni el
+túnel lento ni el `--full` mensual pueden acercarse. Se movió la corrida y no el tablero porque a
+medianoche no hay nadie esperando el dato, y el refresh a las 08:30 sí tiene quien lo espere.
 
 Si algún día hay que volver a moverla, esto es lo que no se puede perder de vista: **el paso 4 hace
-`DROP VIEW` + `CREATE VIEW` de las 18 vistas de `pbi_bnpl` en cada corrida**. Un refresh que caiga
+`DROP VIEW` + `CREATE VIEW` de las 19 vistas de `pbi_bnpl` en cada corrida**. Un refresh que caiga
 dentro de la corrida no devuelve tranquilamente el dato de ayer — puede **fallar** por vista
 inexistente. El refresh se cambia en el Power BI Service (*Configuración del conjunto de datos →
 Actualización programada*), no en la VM.
@@ -830,7 +869,7 @@ main.py                     Orquestador: el punto de entrada de la corrida desat
 run_pipeline.bat            Lo que ejecuta el Task Scheduler
 etl_mongo_to_postgres.py    Extracción Mongo → staging (10 colecciones)
 etl_redshift_to_postgres.py Extracción Redshift → rutas, ventas, cosechas, estacionalidad (6 tablas)
-build_bnpl.py               Construye bnpl.* (11 matviews) y pbi_bnpl.* (18 vistas)
+build_bnpl.py               Construye bnpl.* (11 matviews) y pbi_bnpl.* (19 vistas)
 carga_archivos_bnpl.py      MANUAL: 4 CSV del Drive → archivos_bnpl.*
 carga_clientes_concurso.py  MANUAL: Excel de negocio → bnpl.bnpl_clientes_concurso
 migrar_a_vm.py              DEPRECADO: su base origen ya no existe (ver arriba)
@@ -847,7 +886,7 @@ sql/
   13_bnpl_clientes_concurso.sql  DDL de la tabla del concurso
   14_archivos_bnpl.sql      DDL de archivos_bnpl + sus 4 vistas de traducción
   15_pbi_vistas.sql         Sólo crea el schema pbi_bnpl; el cuerpo lo pone build_bnpl.py
-  pbi/                      Las 18 consultas del tablero + PASOS_M.md (ver su README)
+  pbi/                      Las 19 consultas del tablero + PASOS_M.md (ver su README)
 pbi_new/                    PRODUCTIVO. El PBIP publicado: .pbip + .Report/ + .SemanticModel/, sobre pbi_bnpl
                             (pbi/ era el modelo deprecado de orígenes CSV; salió del repo el 2026-08-14)
 analisis/                   Scripts que respaldan cada decisión de diseño (ver su README)

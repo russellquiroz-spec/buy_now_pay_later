@@ -582,13 +582,15 @@ Por eso el plan pedía la tarea a las **05:30** y no a las 06:00: si el túnel S
 midió 2x de variación en la misma extracción), 26 minutos pueden volverse 40, y el refresh de Power BI
 es a las 07:00.
 
-**Corregido el 2026-08-14: la tarea quedó a las 07:30 CDMX** (`13:30` en el disparador, porque el reloj
-de la VM está en UTC) y el refresh de Power BI pasó de las 07:00 a las **08:30**. La corrida estuvo un
-rato en las 08:00, por decisión de negocio, y se adelantó media hora cuando quedó claro que contra un
-refresh a las 08:30 eso dejaba **10 minutos** — exactamente el margen que el argumento de arriba dice
-que el 2x de variación del túnel se come, y que el día de la recarga completa no alcanza. Con 07:30 el
-margen es de 40 min en un día normal y 20 el de la recarga completa. El razonamiento no cambió; sólo se
-movió media hora más tarde de lo que pedía el plan. Ver el bloque de despliegue del README.
+**Corregido el 2026-08-14: la tarea quedó a las 00:00 CDMX** (`06:00` en el disparador, porque el reloj
+de la VM está en UTC) y el refresh de Power BI pasó de las 07:00 a las **08:30**. Ese día la tarea pasó
+por tres horarios. Estuvo primero en las 08:00, por decisión de negocio, y se adelantó a las 07:30
+cuando quedó claro que contra un refresh a las 08:30 eso dejaba **10 minutos** — exactamente el margen
+que el argumento de arriba dice que el 2x de variación del túnel se come, y que el día de la recarga
+completa no alcanza. Las 07:30 daban 40 min en un día normal y 20 el de la recarga completa; a
+medianoche el margen sube a **8 h 30 min** y deja de depender de cuánto tarde el túnel. El
+razonamiento no cambió: sólo se llevó hasta el extremo, moviendo la corrida en vez del tablero. Ver el
+bloque de despliegue del README.
 
 ### Optimización identificada, no implementada
 
