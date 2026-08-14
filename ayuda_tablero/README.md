@@ -37,6 +37,18 @@ Correrlo es idempotente: dos veces seguidas deja los archivos igual.
 **Cierra Power BI Desktop antes de aplicar.** Si el reporte está abierto, Desktop tiene su propia
 copia en memoria y al guardar sobrescribe lo que acaba de escribirse en disco.
 
+**Y al guardar desde Desktop, vuelve a abrir la portada antes de guardar.** `pages.json` guarda
+`activePageName`, que es la página que se abre primero. `portada.py` la deja en la portada
+(`portada.py:154`), pero Desktop la reescribe con **la página que estuviera seleccionada al
+guardar**. Por eso llegó a decir `a4eca66684d1a46d5446` (Resumen Ejecutivo) aunque el `pageOrder` sí
+empieza por la portada: nadie lo había dejado sin configurar, Desktop lo revirtió al guardar. Quedó
+corregido el 2026-08-14 y hoy dice `00portada0bnpl0lectu`, pero si al guardar estás parado en otra
+página se pierde otra vez — y no hay nada que lo detecte. Después de cerrar Desktop, compruébalo:
+
+```powershell
+Select-String -Path "pbi_new\Buy Now Pay Later.Report\definition\pages\pages.json" -Pattern "activePageName"
+```
+
 El modo por defecto es diagnóstico a propósito: dice cuántos visuales cambiarían y cuáles, para que
 un cambio en el modelo no se cuele sin que nadie lo vea.
 
@@ -118,7 +130,7 @@ negocio la confirme.
 | `aplicar.py` | escribe las cuatro propiedades en los `visual.json` |
 | `portada.py` | crea la página *Cómo leer este tablero* y la pone primero |
 | `volcado.py` | vuelca en texto lo que hace cada visual — para leerlo antes de escribir un texto a mano |
-| `revisar_referencias.py` | resuelve cada campo contra el modelo y reporta los que no existen |
+| `revisar_referencias.py` | resuelve **toda** referencia al modelo —campos, filtros de visual, de página y de reporte, y valores dinámicos dentro de `visual.objects`— y reporta las que no existen. Lista además los visuales atados a una jerarquía de fechas automática |
 | `medir_en_base.py` | las consultas que respaldan los números citados en los textos |
 
 `_datos/` guarda `inventario.json` y `textos.json`. Son derivados: se regeneran y no se versionan.
@@ -150,11 +162,35 @@ cálculos del propio visual y los filtros con sus valores.
 El generador lee el modelo en cada corrida, así que un campo nuevo o una medida nueva entran solos.
 Lo que **no** entra solo es su significado de negocio: si `componer.py` no encuentra la medida en
 `M`, cae a humanizar el nombre (`avgTicketTotal` → "avg ticket total"), que es legible pero pobre.
-Para ver qué quedó sin significado:
+Para ver qué referencias dejaron de resolver contra el modelo:
 
 ```powershell
 .venv\Scripts\python.exe ayuda_tablero\revisar_referencias.py
 ```
+
+El revisor cubre **cinco** orígenes de referencia y los distingue en la salida:
+
+| `origen` | De dónde sale | Cómo rompe si la columna no existe |
+|---|---|---|
+| `query` | el campo está puesto en la gráfica | el visual da error visible |
+| `filtro-visual` | `filterConfig` del `visual.json` | **el visual se queda SIN FILTRAR, sin avisar** |
+| `filtro-pagina` | `filterConfig` del `page.json` | toda la página queda sin filtrar |
+| `filtro-reporte` | `filterConfig` del `report.json` | todo el reporte queda sin filtrar |
+| `objects` | valor dinámico dentro de un objeto (título, cuadro de texto) | el objeto se pinta vacío |
+
+La columna que importa es la segunda: un filtro roto **no** vacía el visual, lo deja sin filtrar, y
+eso no se ve en pantalla. Por eso el revisor no puede quedarse en el `queryState`.
+
+Para resolver a qué tabla apunta un alias (`"SourceRef": {"Source": "g"}`) lee el bloque `From` del
+mismo ámbito, incluidas las `Subquery`. Lo que no resuelve se reporta como `alias-sin-resolver`, no
+se descarta en silencio.
+
+`filtro-reporte` hoy siempre sale en cero: el `report.json` de este PBIP no tiene clave
+`filterConfig`. El recolector queda puesto para el día que alguien agregue un filtro de reporte.
+
+La sección **VISUALES ATADOS A UNA JERARQUIA DE FECHAS AUTOMATICA** existe para el apagado de
+`__PBI_TimeIntelligenceEnabled`: dice exactamente qué visuales hay que re-apuntar antes de tocar
+esa opción, y tiene que quedar en cero antes de apagarla.
 
 Y siempre corre primero en modo diagnóstico: si cambiaron 40 visuales y esperabas 2, algo se movió
 en el modelo que conviene entender antes de escribirlo.

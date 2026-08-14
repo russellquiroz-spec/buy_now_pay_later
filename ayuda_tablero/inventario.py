@@ -123,6 +123,81 @@ def walk_fields(o, out, path=""):
         for v in o:
             walk_fields(v, out, path)
 
+# ---------------- referencias resueltas (queryState + filtros + objects) ----------------
+REF_KINDS = ("Column", "Measure", "HierarchyLevel", "NativeVisualCalculation", "SparklineData")
+
+
+def _alias_map(nodo, heredado=None):
+    """Alias de consulta -> entidad real, leyendo el bloque From de este nivel."""
+    m = dict(heredado or {})
+    frm = nodo.get("From")
+    if isinstance(frm, list):
+        for f in frm:
+            if isinstance(f, dict) and f.get("Name"):
+                m[f["Name"]] = f.get("Entity")
+    return m
+
+
+def _entidad(nodo, alias):
+    """(entidad, alias_sin_resolver). Resuelve SourceRef.Source contra el From."""
+    e = nodo.get("Expression")
+    if not isinstance(e, dict):
+        return None, None
+    sr = e.get("SourceRef")
+    if isinstance(sr, dict):
+        if sr.get("Entity"):
+            return sr["Entity"], None
+        src = sr.get("Source")
+        if src in alias:
+            return alias[src], None
+        return None, src
+    h = e.get("Hierarchy")
+    if isinstance(h, dict):
+        pv = (h.get("Expression") or {}).get("PropertyVariationSource")
+        if isinstance(pv, dict):
+            return _entidad(pv, alias)
+        return _entidad(h, alias)
+    return None, None
+
+
+def walk_refs(o, out, origen, alias=None, ruta=""):
+    """Recolecta toda referencia a tabla.columna/medida, venga de donde venga."""
+    alias = alias or {}
+    if isinstance(o, dict):
+        alias = _alias_map(o, alias)
+        for k in REF_KINDS:
+            nodo = o.get(k)
+            if not isinstance(nodo, dict):
+                continue
+            ent, sin_resolver = _entidad(nodo, alias)
+            prop, jer, nivel = nodo.get("Property"), None, None
+            if k == "HierarchyLevel":
+                h = (nodo.get("Expression") or {}).get("Hierarchy") or {}
+                pv = (h.get("Expression") or {}).get("PropertyVariationSource") or {}
+                jer, nivel = h.get("Hierarchy"), nodo.get("Level")
+                prop = pv.get("Property") or prop
+            out.append({"kind": k, "entity": ent, "property": prop, "role": ruta,
+                        "origen": origen, "alias": sin_resolver,
+                        "hierarchy": jer, "level": nivel})
+        for kk, vv in o.items():
+            walk_refs(vv, out, origen, alias, ruta or kk)
+    elif isinstance(o, list):
+        for v in o:
+            walk_refs(v, out, origen, alias, ruta)
+
+
+def dedup_refs(refs):
+    seen, out = set(), []
+    for f in refs:
+        if not f.get("property"):
+            continue
+        key = (f["kind"], f["entity"], f["property"], f["role"], f["origen"], f["level"])
+        if key not in seen:
+            seen.add(key)
+            out.append(f)
+    return out
+
+
 def lit(node):
     """Extrae valor literal de un expr."""
     try:
@@ -146,9 +221,12 @@ visuals = []
 for pdir in sorted(glob.glob(os.path.join(RPT, "pages", "*", "page.json"))):
     p = json.load(open(pdir, encoding="utf-8"))
     pid = p["name"]
+    pref = []
+    walk_refs(p.get("filterConfig", {}), pref, "filtro-pagina")
     pages[pid] = {"name": p.get("displayName"), "id": pid,
                   "order": order.index(pid) if pid in order else 999,
-                  "dir": os.path.dirname(pdir)}
+                  "dir": os.path.dirname(pdir),
+                  "refs": dedup_refs(pref)}
     for vf in sorted(glob.glob(os.path.join(os.path.dirname(pdir), "visuals", "*", "visual.json"))):
         v = json.load(open(vf, encoding="utf-8"))
         vis = v.get("visual", {})
@@ -246,16 +324,19 @@ for pdir in sorted(glob.glob(os.path.join(RPT, "pages", "*", "page.json"))):
                 desc += "  [oculto en lectura]"
             fdet.append({"campo": campo, "desc": desc, "tipo": flt.get("type")})
 
-        filters = []
-        walk_fields(v.get("filterConfig", {}), filters)
-        walk_fields(objs.get("general", [{}])[0].get("properties", {}).get("filter", {}) if "general" in objs else {}, filters)
+        # --- TODAS las referencias del visual: consulta, filtros y objetos ---
+        refs = []
+        walk_refs(vis.get("query", {}), refs, "query")
+        walk_refs(v.get("filterConfig", {}), refs, "filtro-visual")
+        walk_refs(objs, refs, "objects")
+        walk_refs(vco, refs, "objects")   # titulo/subtitulo con valor dinamico
         visuals.append({
             "page": p.get("displayName"), "page_id": pid,
             "page_order": pages[pid]["order"],
             "id": v.get("name"), "type": vtype,
             "title": title, "subtitle": subtitle, "textbox": tbox,
             "fields": uf, "projections": projs, "filterDetail": fdet,
-            "filters": [f for f in filters if f.get("property")],
+            "refs": dedup_refs(refs),
             "file": vf,
             "has_tooltip": "visualHeaderTooltip" in vco,
             "pos": v.get("position", {}),
@@ -263,7 +344,13 @@ for pdir in sorted(glob.glob(os.path.join(RPT, "pages", "*", "page.json"))):
             "isGroup": "visualGroup" in v,
         })
 
-out = {"model": model, "pages": pages, "visuals": visuals}
+# report_refs sale en 0 mientras report.json no tenga clave filterConfig: el recolector
+# queda puesto para cuando alguien agregue un filtro de reporte.
+rrefs = []
+walk_refs(json.load(open(os.path.join(RPT, "report.json"), encoding="utf-8")).get("filterConfig", {}),
+          rrefs, "filtro-reporte")
+
+out = {"model": model, "pages": pages, "visuals": visuals, "report_refs": dedup_refs(rrefs)}
 with open(DATOS / "inventario.json", "w", encoding="utf-8") as fh:
     json.dump(out, fh, ensure_ascii=False, indent=1)
 
