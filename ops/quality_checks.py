@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 from postgres_local_client import extract_sql, transaction
 
-from config import DB_OPS_RW, DB_STAGING, STAGING_SCHEMA, TZ_OFFSET_HOURS
+from config import DB_BNPL, DB_OPS, DB_OPS_RW, DB_STAGING, STAGING_SCHEMA, TZ_OFFSET_HOURS
 
 S = STAGING_SCHEMA
 
@@ -101,6 +101,75 @@ CHECKS = [
                           on p."transactionId" = o."salesOrderId"
                    where o."salesOrderId" is null""",
     },
+    {
+        "name": "cargas_manuales_viejas",
+        "tabla": "etl_runs",
+        "requiere": [],   # no depende de columnas del staging
+        "db": DB_OPS,
+        "severidad": "WARN",
+        "detalle": "Carga manual sin correr en 90 dias (o sin registro en etl_runs)",
+        "sql": """select count(*) as n from (
+                       select t.tabla,
+                              (select max(started_at) from bnpl_ops.etl_runs r
+                                where r.tabla = t.tabla) as ultima
+                       from (values ('archivos_bnpl.odds_combinations'),
+                                    ('archivos_bnpl.atr_combinations_iv'),
+                                    ('archivos_bnpl.ps_transactional_profile'),
+                                    ('archivos_bnpl.bnpl_cac'),
+                                    ('bnpl.bnpl_clientes_concurso')) as t(tabla)
+                   ) x
+                   where ultima is null or ultima < current_date - 90""",
+    },
+]
+
+
+# ── Identidades entre capas ──────────────────────────────────────────────────
+#
+# Cada fila es un conteo que DEBE cumplirse: destino = origen * factor + delta. Si no se cumple,
+# algo se quedo a medias entre dos capas y el tablero va a leer una mitad vieja.
+#
+# Estaban en README.md:404-435 como un bloque de SQL para copiar y pegar a mano. Un check que
+# depende de que alguien se acuerde de correrlo no es un check. Aqui corren en cada pipeline y
+# quedan en bnpl_ops.data_quality_checks con su historia.
+#
+# CRIT = si no cuadra, hay una capa incompleta y el resultado no sirve.
+# WARN = el delta es real y esperado pero puede moverse (grid_bnpl) o el origen es carga manual
+#        y desfasarse es normal hasta que alguien recargue (los cuatro de archivos_bnpl).
+#
+#              nombre                    origen                                   destino                                factor delta  sev
+IDENTIDADES = [
+    ("grouped_orders",           "bnpl.grouped_orders",                    "pbi_bnpl.bnpl_grouped_orders",           1,    0, "CRIT"),
+    ("loss_rates",               "bnpl.loss_rates",                        "pbi_bnpl.bnpl_loss_rates",               1,    0, "CRIT"),
+    ("revenue_comision",         "bnpl.loss_rates",                        "bnpl.revenue_comision",                  1,    0, "CRIT"),
+    ("bnpl_par",                 "bnpl.par_snapshot",                      "pbi_bnpl.bnpl_par",                      1,    0, "CRIT"),
+    ("months_closes",            "bnpl.par_snapshot",                      "pbi_bnpl.months_closes",                 1,    0, "CRIT"),
+    ("vintage_analysis",         "bnpl.vintage_analysis",                  "pbi_bnpl.vintage_analysis",              1,    0, "CRIT"),
+    ("grid_bnpl",                "bnpl.grid_bnpl",                         "pbi_bnpl.grid_bnpl",                     1,  -71, "WARN"),
+    ("dim_ruta_actual",          "redshift_bnpl.estructura_comercial",     "bnpl.dim_ruta_actual",                   1,    0, "CRIT"),
+    ("dim_ruta_cliente_scd",     "redshift_bnpl.ruta_cliente_scd",         "bnpl.dim_ruta_cliente_scd",              1,    0, "CRIT"),
+    ("cosechas_agg",             "redshift_bnpl.cosechas_agg",             "pbi_bnpl.bnpl_cosechas_agg",             1,    0, "CRIT"),
+    ("seasonality_delta",        "redshift_bnpl.estacionalidad_mes",       "pbi_bnpl.seasonality_delta",            11,    0, "CRIT"),
+    ("odds_combinations",        "archivos_bnpl.odds_combinations",        "pbi_bnpl.odds_combinations",             1,    0, "WARN"),
+    ("atr_combinations_iv",      "archivos_bnpl.atr_combinations_iv",      "pbi_bnpl.atr_combinations_iv",           1,    0, "WARN"),
+    ("ps_transactional_profile", "archivos_bnpl.ps_transactional_profile", "pbi_bnpl.ps_transactional_profile",      1,    0, "WARN"),
+    ("bnpl_cac",                 "archivos_bnpl.bnpl_cac",                 "pbi_bnpl.bnpl_cac",                      1,    0, "WARN"),
+]
+
+CHECKS += [
+    {
+        "name": f"identidad_{nombre}",
+        "tabla": destino,
+        "requiere": [],          # no aplica: la guarda de columnas mira solo el staging
+        "db": DB_BNPL,
+        "severidad": severidad,
+        "detalle": f"count({destino}) debe ser count({origen}) * {factor} {delta:+d}",
+        # n = filas de mas o de menos. 0 = la identidad se cumple.
+        "sql": f"""select abs(
+                       (select count(*) from {destino})
+                       - ((select count(*) from {origen}) * {factor} + ({delta}))
+                   )::bigint as n""",
+    }
+    for nombre, origen, destino, factor, delta, severidad in IDENTIDADES
 ]
 
 
@@ -137,7 +206,24 @@ def correr_checks() -> list:
             })
             continue
 
-        n = int(extract_sql(check["sql"], db=DB_STAGING)["n"].iloc[0])
+        # Cada check declara contra que alias corre; los del staging no declaran nada y siguen
+        # cayendo en DB_STAGING, igual que antes.
+        try:
+            n = int(extract_sql(check["sql"], db=check.get("db", DB_STAGING))["n"].iloc[0])
+        except Exception as e:
+            # Misma semantica que la guarda de columnas: una relacion que no existe se registra
+            # como NO_APLICABLE y queda visible, en vez de tumbar los otros checks.
+            filas.append({
+                "checked_at": checked_at,
+                "check_name": check["name"],
+                "tabla": tabla,
+                "n_filas": None,
+                "severidad": check["severidad"],
+                "resultado": "NO_APLICABLE",
+                "detalle": str(e).splitlines()[0][:200],
+            })
+            continue
+
         filas.append({
             "checked_at": checked_at,
             "check_name": check["name"],

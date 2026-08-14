@@ -10,6 +10,9 @@ SQL_DIR = BASE_DIR / "sql"
 DB_OPS = "bnpl_ops"
 DB_OPS_RW = "bnpl_ops_rw"
 DB_STAGING = "mongo_bnpl"
+# Alias de lectura de la capa de negocio. Lo usan los checks de identidad entre capas, que son
+# los unicos que no miran el staging.
+DB_BNPL = "bnpl"
 
 MONGO_PROFILE = "bnpl"
 OPS_SCHEMA = "bnpl_ops"

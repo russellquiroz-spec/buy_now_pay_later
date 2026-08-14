@@ -141,7 +141,13 @@ def sondear_staging() -> dict:
     return resultado
 
 
-def _semaforo_fuente(lag_horas) -> str:
+def _semaforo_fuente(lag_horas, docs_mongo) -> str:
+    # Cero documentos no es "no se pudo medir la frescura": o renombraron la coleccion, o
+    # el sondeo no la vio. Es el peor estado posible, porque el ETL cargaria eso encima
+    # del staging. Va como CRIT para que main.py detenga la corrida en el paso [1/6] y no
+    # como SIN_DATOS, que main.py:99 ignora.
+    if docs_mongo == 0:
+        return "CRIT"
     if lag_horas is None:
         return "SIN_DATOS"
     if lag_horas >= LAG_CRIT_HORAS:
@@ -155,7 +161,8 @@ def _semaforo_staging(docs_mongo, staging) -> str:
     if staging is None:
         return "FALTA"
     if docs_mongo == 0:
-        return "SIN_DATOS"
+        # Mismo criterio que arriba: la fuente no tiene con que alimentar al staging.
+        return "CRIT"
     faltantes = docs_mongo - staging["docs_staging"]
     if faltantes <= 0:
         return "OK"
@@ -183,7 +190,7 @@ def construir_filas(mongo: dict, staging: dict, checked_at: datetime) -> list:
             "last_write_mongo": m["last_write_mongo"],
             "last_dato_staging": s["last_dato_staging"] if s else None,
             "lag_fuente_horas": lag_horas,
-            "semaforo_fuente": _semaforo_fuente(lag_horas),
+            "semaforo_fuente": _semaforo_fuente(lag_horas, m["docs_mongo"]),
             "semaforo_staging": _semaforo_staging(m["docs_mongo"], s),
             "checked_at": checked_at,
         })

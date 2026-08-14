@@ -17,6 +17,7 @@ Alcance del SCD: solo clientes con credito BNPL (con orden o aprobados). Para el
 analisis de riesgo que atribuir, y el IN de la consulta se mantiene manejable.
 """
 import argparse
+import logging
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -31,6 +32,8 @@ from postgres_local_client import transaction as pg_transaction
 from redshift_extractor import extract_sql
 
 BASE_DIR = Path(__file__).resolve().parent
+
+log = logging.getLogger(__name__)
 
 SCHEMA = "redshift_bnpl"
 OPS_SCHEMA = "bnpl_ops"
@@ -253,12 +256,29 @@ def _ahora_mx() -> datetime:
     return (datetime.now(timezone.utc) + timedelta(hours=TZ_OFFSET_HOURS)).replace(tzinfo=None)
 
 
+def _hay_grouped_orders() -> bool:
+    """En una VM limpia el paso 3 (Redshift) corre ANTES del paso 4 (capa de negocio), asi que
+    bnpl.grouped_orders todavia no existe. Sin esta guarda el primer arranque revienta con un
+    'relation does not exist' que no dice nada del orden del pipeline."""
+    df = pg_extract_sql(
+        "select to_regclass('bnpl.grouped_orders') is not null as existe", db=DB_BNPL
+    )
+    return bool(df["existe"].iloc[0])
+
+
 def _universo_bnpl() -> list:
-    """Clientes con credito: con al menos una orden o con aprobacion."""
-    df = pg_extract_sql("""
+    """Clientes con credito: con al menos una orden o con aprobacion.
+
+    En el primer arranque, sin grouped_orders, el universo queda solo con los aprobados. Es un
+    subconjunto valido: la segunda corrida ya trae las dos mitades.
+    """
+    ordenes = """
         select distinct netsuite_id from bnpl.grouped_orders
         where netsuite_id is not null
         union
+    """ if _hay_grouped_orders() else ""
+    df = pg_extract_sql(f"""
+        {ordenes}
         select distinct "netsuiteId" from mongo_bnpl.fintech_credit_approval_production
         where "netsuiteId" is not null
     """, db=DB_BNPL)
@@ -335,7 +355,7 @@ def _cargar(nombre: str, df: pd.DataFrame, inicio, segundos: float) -> None:
         },
         db=DB_OPS_RW,
     )
-    print(f"  -> {SCHEMA}.{nombre}: {len(df):,} filas en {segundos:.1f}s")
+    log.info("  -> %s.%s: %s filas en %.1fs", SCHEMA, nombre, f"{len(df):,}", segundos)
 
 
 def run(solo: list = None) -> None:
@@ -346,22 +366,30 @@ def run(solo: list = None) -> None:
     # El universo se consulta una sola vez aunque lo pidan las dos tablas que lo usan.
     universo = None
 
+    # cosechas_agg necesita el mes de la primera orden BNPL de cada cliente y eso SOLO sale de
+    # grouped_orders: no hay forma de derivarlo sin la capa de negocio. En el primer arranque se
+    # omite y se avisa, en vez de tumbar el paso 3 completo.
+    if "cosechas_agg" in tablas and not _hay_grouped_orders():
+        log.info("bnpl.grouped_orders no existe todavia: se omite cosechas_agg. Corre "
+                 "build_bnpl.py y despues etl_redshift_to_postgres.py --solo cosechas_agg")
+        tablas = [t for t in tablas if t != "cosechas_agg"]
+
     if "estructura_comercial" in tablas:
-        print("Extrayendo estructura comercial (ruta vigente)...")
+        log.info("Extrayendo estructura comercial (ruta vigente)...")
         inicio, t0 = _ahora_mx(), time.time()
         df = extract_sql(REDSHIFT_DB, SQL_ESTRUCTURA)
         df["netsuite_id"] = df["netsuite_id"].astype(str).str.strip()
         _cargar("estructura_comercial", df, inicio, time.time() - t0)
 
     if "route_mapping" in tablas:
-        print("Extrayendo catalogo de rutas...")
+        log.info("Extrayendo catalogo de rutas...")
         inicio, t0 = _ahora_mx(), time.time()
         df = extract_sql(REDSHIFT_DB, SQL_ROUTE_MAPPING)
         _cargar("route_mapping", df, inicio, time.time() - t0)
 
     if "ruta_cliente_scd" in tablas:
         universo = universo if universo is not None else _universo_bnpl()
-        print(f"Extrayendo ruta historica de {len(universo):,} clientes con credito...")
+        log.info("Extrayendo ruta historica de %s clientes con credito...", f"{len(universo):,}")
         inicio, t0 = _ahora_mx(), time.time()
         lista = ",".join(f"'{i}'" for i in universo)
         df = extract_sql(REDSHIFT_DB, SQL_SCD.format(ids=lista))
@@ -370,7 +398,8 @@ def run(solo: list = None) -> None:
 
     if "ventas_cliente" in tablas:
         universo = universo if universo is not None else _universo_bnpl()
-        print(f"Extrayendo venta Rabbit completa de {len(universo):,} clientes con credito...")
+        log.info("Extrayendo venta Rabbit completa de %s clientes con credito...",
+                 f"{len(universo):,}")
         inicio, t0 = _ahora_mx(), time.time()
         lista = ",".join(f"'{i}'" for i in universo)
         v, n = _bloques_pedidos(
@@ -386,13 +415,13 @@ def run(solo: list = None) -> None:
         _cargar("ventas_cliente", df, inicio, time.time() - t0)
 
     if "cosechas_agg" in tablas:
-        print("Agregando cosechas de la base Rabbit completa...")
+        log.info("Agregando cosechas de la base Rabbit completa...")
         inicio, t0 = _ahora_mx(), time.time()
         df = extract_sql(REDSHIFT_DB, _sql_cosechas())
         _cargar("cosechas_agg", df, inicio, time.time() - t0)
 
     if "estacionalidad_mes" in tablas:
-        print("Calculando estacionalidad por mes calendario...")
+        log.info("Calculando estacionalidad por mes calendario...")
         inicio, t0 = _ahora_mx(), time.time()
         v, n = _bloques_pedidos(COSECHAS_ANIOS_VIEJAS, COSECHAS_ANIOS_NUEVAS)
         df = extract_sql(REDSHIFT_DB, SQL_ESTACIONALIDAD.format(viejas=v, nuevas=n))
@@ -403,4 +432,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Carga la estructura comercial desde Redshift")
     parser.add_argument("--solo", help="tablas a cargar, separadas por coma")
     args = parser.parse_args()
+    # Corriendo suelto no hay logging configurado (eso lo hace main.py) y el detalle por
+    # tabla no se veria en ningun lado.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s  %(levelname)-7s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     run(solo=args.solo.split(",") if args.solo else None)

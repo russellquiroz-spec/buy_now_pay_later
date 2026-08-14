@@ -18,6 +18,7 @@ inserciones y borrados pero no modificaciones in-place del historico congelado.
 """
 import argparse
 import json
+import logging
 import os
 import time
 from datetime import datetime, timedelta, timezone
@@ -28,12 +29,13 @@ from mongo_extractor import extract_aggregate
 from postgres_local_client import (
     execute_sql,
     extract_sql,
-    load_dataframe,
     table_exists,
     transaction,
 )
 
 BASE_DIR = Path(__file__).resolve().parent
+
+log = logging.getLogger(__name__)
 
 SCHEMA = "mongo_bnpl"
 OPS_SCHEMA = "bnpl_ops"
@@ -400,8 +402,15 @@ def _aplicar_ddl(tablas_a_recrear: list = None) -> None:
         tx.execute_sql((BASE_DIR / "sql" / "01_staging.sql").read_text(encoding="utf-8"))
 
 
-def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
-    """Deja la tabla lista para el append. Devuelve (modo efectivo, llaves a refrescar)."""
+def _decidir_modo(defn: dict, full: bool, corte_ms) -> tuple:
+    """Decide como se cargara la tabla y que llaves hay que refrescar. NO toca el destino.
+
+    El TRUNCATE/DELETE se movio a _escribir(), que corre DESPUES de que la extraccion
+    trajo datos. Antes se borraba aqui, 75 lineas antes del extract_aggregate y en
+    autocommit: si Mongo devolvia cero (coleccion renombrada, tunel caido, filtro roto)
+    la tabla quedaba vacia, las matviews se refrescaban en ceros y la corrida salia 'ok'.
+    Es el mismo arreglo que ya tiene _cargar() en etl_redshift_to_postgres.py:318-323.
+    """
     tabla = defn["table"]
     completa = full
 
@@ -409,21 +418,29 @@ def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
         dias = _dias_desde_ultimo_full(tabla)
         if dias is None or dias >= FULL_CADA_DIAS:
             motivo = "sin registro de full previo" if dias is None else f"ultimo full hace {dias}d"
-            print(f"  recarga completa programada ({motivo})")
+            log.info("  recarga completa programada (%s)", motivo)
             completa = True
 
-    if completa:
-        execute_sql(f'TRUNCATE {SCHEMA}."{tabla}"', db=DB_STAGING_RW)
+    if completa or defn["modo"] != "ventana":
         return "full", []
+    return "ventana", _llaves_no_finales(defn, corte_ms)
 
-    if defn["modo"] == "ventana":
-        campo = defn["campo_ventana"]
-        llaves = _llaves_no_finales(defn, corte_ms)
-        # Los dos DELETE siguen compartiendo transaccion: borrar la ventana sin borrar
-        # las llaves atrasadas dejaria el staging a medio refrescar.
-        with transaction(db=DB_STAGING_RW) as tx:
+
+def _escribir(defn: dict, modo: str, llaves: list, df: pd.DataFrame, corte_ms) -> None:
+    """Borra lo que se reemplaza y carga lo nuevo, todo en UNA transaccion.
+
+    Si el COPY falla, el TRUNCATE/DELETE se revierte y el staging conserva la carga
+    anterior: datos de ayer es mucho mejor que una tabla vacia.
+    """
+    tabla = defn["table"]
+    with transaction(db=DB_STAGING_RW) as tx:
+        if modo == "full":
+            tx.execute_sql(f'TRUNCATE {SCHEMA}."{tabla}"')
+        else:
+            # Los dos DELETE comparten transaccion con la carga: borrar la ventana sin
+            # borrar las llaves atrasadas dejaria el staging a medio refrescar.
             tx.execute_sql(
-                f'DELETE FROM {SCHEMA}."{tabla}" WHERE "{campo}" >= :corte',
+                f'DELETE FROM {SCHEMA}."{tabla}" WHERE "{defn["campo_ventana"]}" >= :corte',
                 {"corte": int(corte_ms)},
             )
             if llaves:
@@ -432,10 +449,7 @@ def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
                     f'WHERE "{defn["llave_refresco"]}" = ANY(:llaves)',
                     {"llaves": llaves},
                 )
-        return "ventana", llaves
-
-    execute_sql(f'TRUNCATE {SCHEMA}."{tabla}"', db=DB_STAGING_RW)
-    return "full", []
+        tx.load_dataframe(df, tabla, schema=SCHEMA)
 
 
 def _registrar_corrida(tabla: str, modo: str, filas: int, segundos: float, inicio) -> None:
@@ -470,33 +484,45 @@ def run(full: bool = False, solo: list = None, recrear: bool = False) -> None:
     corte_ms = _corte_ventana_ms()
 
     for defn in definiciones:
-        print(f"Extrayendo {defn['collection']}...")
+        log.info("Extrayendo %s...", defn["collection"])
         inicio = _ahora_mx()
         t0 = time.time()
 
-        modo, llaves = _preparar_destino(defn, full or recrear, corte_ms)
+        modo, llaves = _decidir_modo(defn, full or recrear, corte_ms)
         pipeline = list(defn["pipeline"])
         if modo == "ventana":
             condiciones = [{defn["campo_ventana"]: {"$gte": corte_ms}}]
             if llaves:
                 condiciones.append({defn["llave_refresco"]: {"$in": llaves}})
-                print(
-                    f"  ventana {VENTANA_DIAS}d + {len(llaves):,} "
-                    f"{defn['llave_refresco']} en estado no final"
+                log.info(
+                    "  ventana %dd + %s %s en estado no final",
+                    VENTANA_DIAS, f"{len(llaves):,}", defn["llave_refresco"],
                 )
             else:
-                print(f"  ventana {VENTANA_DIAS}d")
+                log.info("  ventana %dd", VENTANA_DIAS)
             pipeline.insert(0, {"$match": {"$or": condiciones}})
 
         df = extract_aggregate(MONGO_PROFILE, defn["collection"], pipeline)
         filas = len(df)
-        if filas:
-            df = _flatten(df)
-            load_dataframe(df, defn["table"], schema=SCHEMA, db=DB_STAGING_RW)
+        # Cero documentos NO es un caso normal: las 10 colecciones tienen datos en
+        # produccion y credit-order siempre tiene filas en una ventana de 60 dias. Se
+        # aborta la etapa nombrando la coleccion (era lo que pedia el diseno original) en
+        # vez de dejar el staging vacio y la corrida en verde.
+        if filas == 0:
+            raise RuntimeError(
+                f"{defn['collection']} devolvio 0 documentos (modo {modo}). No se toca "
+                f"{SCHEMA}.{defn['table']}: se conserva la carga anterior. Revisa si la "
+                "coleccion cambio de nombre, si el tunel SSM se cayo o si el $match quedo mal."
+            )
+
+        _escribir(defn, modo, llaves, _flatten(df), corte_ms)
 
         segundos = time.time() - t0
         _registrar_corrida(defn["table"], modo, filas, segundos, inicio)
-        print(f"  -> {SCHEMA}.{defn['table']}: {filas:,} filas en {segundos:.0f}s ({modo})")
+        log.info(
+            "  -> %s.%s: %s filas en %.0fs (%s)",
+            SCHEMA, defn["table"], f"{filas:,}", segundos, modo,
+        )
 
 
 if __name__ == "__main__":
@@ -516,6 +542,13 @@ if __name__ == "__main__":
         help="colecciones o tablas a cargar, separadas por coma (default: todas)",
     )
     args = parser.parse_args()
+    # Corriendo suelto no hay logging configurado (eso lo hace main.py) y el detalle por
+    # tabla no se veria en ningun lado.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s  %(levelname)-7s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     run(
         full=args.full,
         solo=args.solo.split(",") if args.solo else None,

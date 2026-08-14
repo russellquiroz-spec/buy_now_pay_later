@@ -32,10 +32,11 @@ sys.path.insert(0, str(BASE_DIR / "ops"))
 import build_bnpl
 import etl_mongo_to_postgres
 import etl_redshift_to_postgres
-from config import DB_OPS_RW, FUENTES_CRITICAS, TZ_OFFSET_HOURS
-from postgres_local_client import execute_sql
+from config import DB_OPS, DB_OPS_RW, FUENTES_CRITICAS, TZ_OFFSET_HOURS
+from postgres_local_client import execute_sql, extract_sql
 
 import check_freshness
+import notificar
 import quality_checks
 
 LOG_DIR = BASE_DIR / "logs"
@@ -123,6 +124,56 @@ def _revisar_frescura(log) -> bool:
     return True
 
 
+def _alertas_previas() -> set:
+    """Checks que ya estaban en alerta en la corrida ANTERIOR.
+
+    quality_checks.run() ya persistio la corrida de hoy, asi que la anterior es el
+    segundo checked_at mas alto. Sirve para distinguir las dos alertas cronicas
+    (README.md:392-397) de una que aparecio hoy.
+    """
+    df = extract_sql(
+        "SELECT check_name FROM bnpl_ops.data_quality_checks "
+        "WHERE resultado <> 'OK' AND checked_at = ("
+        "    SELECT max(checked_at) FROM bnpl_ops.data_quality_checks "
+        "    WHERE checked_at < (SELECT max(checked_at) FROM bnpl_ops.data_quality_checks))",
+        db=DB_OPS,
+    )
+    return set(df["check_name"])
+
+
+def _reportar_calidad(log, filas: list) -> None:
+    """Reporta las alertas con el nivel que les toca y el orden de v_quality_alerts.
+
+    Antes todo salia como log.warning sin mirar `severidad`, y dos de los ocho checks son
+    CRIT (ops/quality_checks.py:19 y :28). El criterio y el orden son los mismos de
+    bnpl_ops.v_quality_alerts (sql/00_bnpl_ops.sql:97-102) para que el log y la vista que
+    manda consultar README.md:375 digan lo mismo: CRIT primero, luego por n_filas.
+    Tambien entra NO_APLICABLE, que es como la vista trata a un check sin su columna.
+    """
+    alertas = [f for f in filas if f["resultado"] != "OK"]
+    if not alertas:
+        log.info("calidad: los %d chequeos en OK", len(filas))
+        return
+
+    previas = _alertas_previas()
+    orden = {"CRIT": 0, "WARN": 1}
+    for a in sorted(alertas, key=lambda x: (orden.get(x["severidad"], 2), -(x["n_filas"] or 0))):
+        emisor = log.error if a["severidad"] == "CRIT" else log.warning
+        emisor(
+            "calidad %s%s — %s: %s filas (%s)",
+            a["severidad"],
+            "" if a["check_name"] in previas else " NUEVA",
+            a["check_name"],
+            f"{a['n_filas']:,}" if a["n_filas"] is not None else "-",
+            a["detalle"],
+        )
+
+    nuevas = [a["check_name"] for a in alertas if a["check_name"] not in previas]
+    if nuevas:
+        log.error("calidad: %d alerta(s) que no estaban ayer: %s", len(nuevas), ", ".join(nuevas))
+    log.info("Detalle ordenado: select * from bnpl_ops.v_quality_alerts;")
+
+
 def run(full: bool = False, sin_redshift: bool = False, rebuild: bool = False) -> int:
     archivo = _configurar_log()
     log = logging.getLogger("bnpl")
@@ -136,6 +187,7 @@ def run(full: bool = False, sin_redshift: bool = False, rebuild: bool = False) -
         if not _revisar_frescura(log):
             log.error("Pipeline detenido: hay fuentes criticas sin actualizarse.")
             _registrar_corrida(inicio, time.time() - t0, "abortado_frescura")
+            notificar.avisar_fallo("abortado_frescura", archivo, log)
             return 1
 
         log.info("[2/6] Staging desde Mongo%s", " (recarga completa)" if full else "")
@@ -151,9 +203,20 @@ def run(full: bool = False, sin_redshift: bool = False, rebuild: bool = False) -
         build_bnpl.run(rebuild=rebuild)
 
         log.info("[5/6] Chequeos de calidad")
-        alertas = [f for f in quality_checks.run() if f["resultado"] == "ALERTA"]
-        for a in alertas:
-            log.warning("calidad — %s: %s filas (%s)", a["check_name"], a["n_filas"], a["detalle"])
+        calidad = quality_checks.run()
+        _reportar_calidad(log, calidad)
+        # Las identidades entre capas son distintas del resto: no describen basura del origen sino
+        # una capa que se quedo a medias. Si una no cuadra, el tablero va a leer numeros que no
+        # cruzan entre si. NO_APLICABLE cuenta como rota: una identidad CRIT que no se pudo medir
+        # (la relacion no existe, o el alias no la alcanza) tampoco esta comprobada.
+        rotas = [a for a in calidad
+                 if a["check_name"].startswith("identidad_") and a["severidad"] == "CRIT"
+                 and a["resultado"] in ("ALERTA", "NO_APLICABLE")]
+        if rotas:
+            log.error(
+                "%d identidad(es) entre capas sin comprobar: %s. La corrida sale con codigo 1.",
+                len(rotas), ", ".join(a["check_name"] for a in rotas),
+            )
 
         log.info("[6/6] Frescura final")
         finales = check_freshness.run()
@@ -165,13 +228,18 @@ def run(full: bool = False, sin_redshift: bool = False, rebuild: bool = False) -
             )
 
         segundos = time.time() - t0
+        # Se termina la corrida completa (la frescura final ya quedo registrada) pero se sale con
+        # 1 para que el Task Scheduler la marque como fallida. Un pipeline que devuelve 0 con una
+        # identidad rota es un pipeline que miente.
+        resultado = "ok" if not rotas else "ok_identidades_rotas"
         log.info("Pipeline terminado en %.1f min", segundos / 60)
-        _registrar_corrida(inicio, segundos, "ok")
-        return 0
+        _registrar_corrida(inicio, segundos, resultado)
+        return 0 if not rotas else 1
 
     except Exception:
         log.exception("Pipeline abortado por un error")
         _registrar_corrida(inicio, time.time() - t0, "error")
+        notificar.avisar_fallo("error", archivo, log)
         return 1
 
 

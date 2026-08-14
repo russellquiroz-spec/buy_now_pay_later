@@ -14,16 +14,39 @@ columnas mas 'baja' y 'corrientes', pegadas al lado de un bloque distinto de tra
 lineas de julio/abril, Venta L6M). `bbdd` es subconjunto exacto de ese bloque, ya filtrado.
 """
 import argparse
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
-from postgres_local_client import transaction
+from postgres_local_client import execute_sql, transaction
 
 BASE_DIR = Path(__file__).resolve().parent
 
 SCHEMA = "bnpl"
 TABLA = "bnpl_clientes_concurso"
 DB_RW = "bnpl_rw"
+DB_OPS_RW = "bnpl_ops_rw"
+TZ_OFFSET_HOURS = -6  # las fechas del pipeline van en hora Mexico, igual que ops/config.py:19
+
+
+def _ahora_mx() -> datetime:
+    return (datetime.now(timezone.utc) + timedelta(hours=TZ_OFFSET_HOURS)).replace(tzinfo=None)
+
+
+def _registrar(tabla: str, filas: int, segundos: float, inicio) -> None:
+    """Misma bitacora que el resto del pipeline. Sin esto no hay forma de saber cuando se
+    cargo cada archivo: el conteo de filas es la unica senal, y no distingue recarga de
+    archivo sin cambios."""
+    execute_sql(
+        "INSERT INTO bnpl_ops.etl_runs (started_at, tabla, modo, filas, segundos) "
+        "VALUES (:inicio, :tabla, 'manual', :filas, :segundos) "
+        "ON CONFLICT (started_at, tabla) DO NOTHING",
+        {"inicio": inicio, "tabla": f"{SCHEMA}.{tabla}", "filas": int(filas),
+         "segundos": round(segundos, 1)},
+        db=DB_OPS_RW,
+    )
+
 
 ARCHIVO = (
     r"D:\Shared drives\Data Room - BI & Data Analytics\Dashboards\Venta"
@@ -113,11 +136,14 @@ def run(archivo: str = ARCHIVO, dry_run: bool = False) -> None:
 
     # DDL + TRUNCATE + carga en una transaccion, misma razon que en etl_redshift_to_postgres.py:
     # si el COPY falla, el TRUNCATE no se confirma y la tabla no se queda vacia.
+    inicio, t0 = _ahora_mx(), time.time()
     with transaction(db=DB_RW) as tx:
         tx.execute_sql((BASE_DIR / "sql" / "13_bnpl_clientes_concurso.sql").read_text(
             encoding="utf-8"))
         tx.execute_sql(f'TRUNCATE {SCHEMA}."{TABLA}"')
         tx.load_dataframe(df, TABLA, schema=SCHEMA)
+    # Fuera de la transaccion a proposito: la bitacora va a otro alias.
+    _registrar(TABLA, len(df), time.time() - t0, inicio)
 
     print(f"\n-> {SCHEMA}.{TABLA}: {len(df):,} filas")
 

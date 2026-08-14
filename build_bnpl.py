@@ -9,13 +9,17 @@ despues del movimiento (recuperaciones de mora), asi que el PAR de un mes ya cer
 retroactivamente.
 """
 import argparse
+import logging
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import bnpl_version
 from postgres_local_client import execute_sql, extract_sql
 
 BASE_DIR = Path(__file__).resolve().parent
+
+log = logging.getLogger(__name__)
 
 # Alias de postgres_local_client. Uno por schema y por nivel de permiso: el DDL de las
 # vistas necesita ALLOW_DDL, la bitacora vive en otro schema y los conteos son lectura.
@@ -29,6 +33,13 @@ TZ_OFFSET_HOURS = -6
 # ruta viven en el 11 pero se construyen antes porque grouped_orders las lee.
 CAPAS = [
     (None, "02_bnpl_funciones.sql"),
+    # DDL puro (CREATE TABLE / CREATE INDEX IF NOT EXISTS): no borra ni recarga nada, los datos
+    # siguen entrando por carga_archivos_bnpl.py y carga_clientes_concurso.py a mano. Estan aqui
+    # porque las vistas de consumo los leen: sql/pbi/14, 15, 16 y 17 hacen FROM archivos_bnpl.*
+    # y sql/pbi/20 lee bnpl.bnpl_clientes_concurso. En una VM limpia, sin estas dos lineas, esas
+    # cinco vistas fallan al crearse y pbi_bnpl queda incompleto sin que nadie se entere.
+    (None, "14_archivos_bnpl.sql"),
+    (None, "13_bnpl_clientes_concurso.sql"),
     ("dim_ruta_actual", "11_bnpl_dim_ruta.sql"),
     ("dim_ruta_cliente_scd", None),  # se crea junto con dim_ruta_actual
     ("grouped_orders", "03_bnpl_grouped_orders.sql"),
@@ -67,38 +78,69 @@ def _construir_vistas_pbi() -> None:
     if not archivos:
         raise SystemExit(f"No encontre consultas en {PBI_DIR}")
 
+    fallidas = []
     for archivo in archivos:
         vista = archivo.stem.split("_", 1)[1]
         cuerpo = archivo.read_text(encoding="utf-8").strip().rstrip(";")
+        inicio, t0 = _ahora_mx(), time.time()
         # DROP + CREATE y no CREATE OR REPLACE: este ultimo falla si cambian los nombres, el orden
         # o el tipo de las columnas, que es justo lo que pasa al corregir una consulta.
-        execute_sql(
-            f'DROP VIEW IF EXISTS {PBI_SCHEMA}."{vista}" CASCADE;\n'
-            f'CREATE VIEW {PBI_SCHEMA}."{vista}" AS\n{cuerpo};',
-            db=DB_BNPL_RW,
-        )
-    print(f"{PBI_SCHEMA}: {len(archivos)} vistas creadas para Power BI")
+        try:
+            execute_sql(
+                f'DROP VIEW IF EXISTS {PBI_SCHEMA}."{vista}" CASCADE;\n'
+                f'CREATE VIEW {PBI_SCHEMA}."{vista}" AS\n{cuerpo};',
+                db=DB_BNPL_RW,
+            )
+        except Exception as e:  # noqa: BLE001 - una vista rota no puede tumbar a las otras 17
+            # Una consulta rota no se puede llevar a las otras 17: el DROP ya corrio, asi que
+            # abortar aqui deja esa vista borrada Y las siguientes sin crear. Se registran todas
+            # y se falla al final, con la lista completa.
+            fallidas.append((vista, str(e).splitlines()[0][:200]))
+            continue
+        # Se registra cada vista: son las unicas 18 cosas que Power BI lee y hasta ahora no
+        # dejaban ni una fila de bitacora. sql_sha256 dice CUAL definicion se publico. Fuera del
+        # try a proposito: el except es solo para la consulta rota, no para la bitacora.
+        _registrar(f"{PBI_SCHEMA}.{vista}", "vista", None, time.time() - t0, inicio, archivo)
+    log.info("%s: %d de %d vistas creadas para Power BI",
+             PBI_SCHEMA, len(archivos) - len(fallidas), len(archivos))
+    for vista, error in fallidas:
+        log.error("    FALLO %s.%s: %s", PBI_SCHEMA, vista, error)
 
     # Despues del DROP + CREATE, no antes: el DROP se lleva los GRANT de pbi_gateway, y el USAGE
     # que otorga se deduce de las funciones que las vistas acaban de declarar. El archivo explica
     # los dos modos en que este rol pierde permisos.
     execute_sql((BASE_DIR / "sql" / "16_pbi_grants.sql").read_text(encoding="utf-8"),
                 db=DB_BNPL_RW)
-    print(f"{PBI_SCHEMA}: permisos de pbi_gateway aplicados")
+    log.info("%s: permisos de pbi_gateway aplicados", PBI_SCHEMA)
+
+    # El raise va DESPUES de los grants, no antes. Con el try/except de arriba, una consulta rota ya
+    # no detiene el bucle: las vistas siguientes se dropean y se recrean igual, y el DROP se lleva
+    # sus GRANT. Si se abortara aqui arriba, 16_pbi_grants.sql no correria y pbi_gateway se quedaria
+    # sin permisos sobre las vistas SANAS — o sea que una sola consulta rota tumbaria el refresh
+    # entero en vez de solo su tabla, que es justo lo contrario de lo que busca el try/except.
+    if fallidas:
+        raise RuntimeError(
+            f"{len(fallidas)} vistas de {PBI_SCHEMA} no se crearon: "
+            f"{', '.join(v for v, _ in fallidas)}"
+        )
 
 
-def _registrar(vista: str, modo: str, filas, segundos: float, inicio) -> None:
+def _registrar(objeto: str, modo: str, filas, segundos: float, inicio, archivo=None) -> None:
     execute_sql(
-        "INSERT INTO bnpl_ops.etl_runs (started_at, tabla, modo, filas, segundos) "
-        "VALUES (:inicio, :tabla, :modo, :filas, :segundos) "
+        "INSERT INTO bnpl_ops.etl_runs "
+        "(started_at, tabla, modo, filas, segundos, commit_sha, sql_sha256) "
+        "VALUES (:inicio, :tabla, :modo, :filas, :segundos, :commit, :sql_sha) "
         "ON CONFLICT (started_at, tabla) DO NOTHING",
         {
             "inicio": inicio,
-            "tabla": f"bnpl.{vista}",
+            "tabla": objeto,
             "modo": modo,
             # int() porque _filas devuelve numpy.int64 y psycopg3 no adapta tipos de numpy.
-            "filas": int(filas),
+            # None para las vistas de pbi_bnpl: son DDL, no se cuentan sus filas.
+            "filas": int(filas) if filas is not None else None,
             "segundos": round(segundos, 1),
+            "commit": bnpl_version.commit_sha(),
+            "sql_sha": bnpl_version.sha_sql(archivo),
         },
         db=DB_OPS_RW,
     )
@@ -124,7 +166,7 @@ def run(rebuild: bool = False, solo: list = None) -> None:
             execute_sql(
                 (BASE_DIR / "sql" / archivo).read_text(encoding="utf-8"), db=DB_BNPL_RW
             )
-            print(f"{archivo}: aplicado ({time.time() - t0:.1f}s)")
+            log.info("%s: aplicado (%.1fs)", archivo, time.time() - t0)
             continue
 
         if rebuild:
@@ -134,8 +176,8 @@ def run(rebuild: bool = False, solo: list = None) -> None:
                 # archivo desaparecen de etl_runs en las corridas --rebuild y la bitacora miente
                 # sobre que se reconstruyo.
                 filas = _filas(vista)
-                _registrar(vista, "rebuild", filas, time.time() - t0, inicio)
-                print(f"bnpl.{vista}: {filas:,} filas (creada junto con la anterior)")
+                _registrar(f"bnpl.{vista}", "rebuild", filas, time.time() - t0, inicio, None)
+                log.info("bnpl.%s: %s filas (creada junto con la anterior)", vista, f"{filas:,}")
                 continue
             execute_sql(
                 (BASE_DIR / "sql" / archivo).read_text(encoding="utf-8"), db=DB_BNPL_RW
@@ -147,8 +189,8 @@ def run(rebuild: bool = False, solo: list = None) -> None:
 
         segundos = time.time() - t0
         filas = _filas(vista)
-        _registrar(vista, modo, filas, segundos, inicio)
-        print(f"bnpl.{vista}: {filas:,} filas en {segundos:.1f}s ({modo})")
+        _registrar(f"bnpl.{vista}", modo, filas, segundos, inicio, archivo)
+        log.info("bnpl.%s: %s filas en %.1fs (%s)", vista, f"{filas:,}", segundos, modo)
 
     # Al final y siempre: son vistas simples, crearlas es solo DDL y cuesta menos de un segundo.
     # Correrlo en cada build las deja auto-reparadas si alguien tocó una a mano.
@@ -169,4 +211,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--solo", help="vistas a procesar, separadas por coma")
     args = parser.parse_args()
+    # Corrida suelta: sin main.py no hay logging configurado y el detalle por vista no se veria.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s  %(levelname)-7s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     run(rebuild=args.rebuild, solo=args.solo.split(",") if args.solo else None)

@@ -17,15 +17,38 @@ que una corrida fallida no deja tablas a medias.
     python carga_archivos_bnpl.py --solo bnpl_cac     # uno solo
 """
 import argparse
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
-from postgres_local_client import transaction
+from postgres_local_client import execute_sql, transaction
 
 BASE_DIR = Path(__file__).resolve().parent
 
 SCHEMA = "archivos_bnpl"
 DB_RW = "bnpl_rw"
+DB_OPS_RW = "bnpl_ops_rw"
+TZ_OFFSET_HOURS = -6  # las fechas del pipeline van en hora Mexico, igual que ops/config.py:19
+
+
+def _ahora_mx() -> datetime:
+    return (datetime.now(timezone.utc) + timedelta(hours=TZ_OFFSET_HOURS)).replace(tzinfo=None)
+
+
+def _registrar(tabla: str, filas: int, segundos: float, inicio) -> None:
+    """Misma bitacora que el resto del pipeline. Sin esto no hay forma de saber cuando se
+    cargo cada archivo: el conteo de filas es la unica senal, y no distingue recarga de
+    archivo sin cambios."""
+    execute_sql(
+        "INSERT INTO bnpl_ops.etl_runs (started_at, tabla, modo, filas, segundos) "
+        "VALUES (:inicio, :tabla, 'manual', :filas, :segundos) "
+        "ON CONFLICT (started_at, tabla) DO NOTHING",
+        {"inicio": inicio, "tabla": f"{SCHEMA}.{tabla}", "filas": int(filas),
+         "segundos": round(segundos, 1)},
+        db=DB_OPS_RW,
+    )
+
 
 DRIVE = Path(r"D:\Shared drives\Data Room - BI & Data Analytics")
 RIESGO = DRIVE / "Rabbit Risk Analytics" / "Buy Now Pay Later"
@@ -108,10 +131,14 @@ def run(solo: list = None, dry_run: bool = False) -> None:
             print(f"    (dry-run) tipos: {dict(df.dtypes.astype(str))}")
             continue
 
+        inicio, t0 = _ahora_mx(), time.time()
         with transaction(db=DB_RW) as tx:
             tx.execute_sql(ddl)
             tx.execute_sql(f'TRUNCATE {SCHEMA}."{nombre}"')
             tx.load_dataframe(df, nombre, schema=SCHEMA)
+        # Fuera de la transaccion a proposito: la bitacora va a otro alias y no debe poder
+        # tumbar una carga que ya quedo bien.
+        _registrar(nombre, len(df), time.time() - t0, inicio)
         print(f"    -> {SCHEMA}.{nombre} cargada")
 
 
