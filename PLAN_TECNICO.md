@@ -5334,46 +5334,47 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 ## 3. Checklist
 
 ### Ola 0 — Git
-- [ ] O0.1 `.gitignore`: `.pbi/` y `*.abf` ignorados (`git check-ignore` imprime la regla)
-- [ ] O0.2 `pbi/` (deprecado) fuera del repo y sin su `.pbi/`; `pbi_new/` conserva su nombre; cache y `.pbix` borrados
+- [x] O0.1 `.gitignore`: `.pbi/` y `*.abf` ignorados (`git check-ignore` imprime la regla)
+- [x] O0.2 `pbi/` (deprecado) fuera del repo y sin su `.pbi/`; `pbi_new/` conserva su nombre; cache y `.pbix` borrados
 - [x] ~~O0.3~~ CANCELADA - inventario.py:7 y portada.py:8 ya apuntan a `pbi_new`, que es el productivo
-- [ ] O0.4a `README.md:769-770` — qué se versiona del PBIP y qué no
-- [ ] O0.4b `README.md:576-589` — sección Power BI reescrita
-- [ ] O0.4c `README.md:760-761` — una sola carpeta en el árbol
-- [ ] O0.4d `sql/pbi/README.md:121-126` y `:135` — estado de la migración
-- [ ] O0.4e `sql/pbi/README.md:294-301` — el barrido cubre todo el SemanticModel
-- [ ] O0.4f `README.md:815-816` y `sql/pbi/README.md:472-473` — markup XML borrado
-- [ ] O0.5 Cuatro commits temáticos de los 25 modificados
-- [ ] O0.6 Cuatro commits de lo nuevo (sql, cargas, ayuda_tablero, auditoría)
-- [ ] O0.7 Commit del PBIP + `git push` (los 2 rezagados + los 8 nuevos)
+- [x] O0.4a `README.md:769-770` — qué se versiona del PBIP y qué no
+- [x] O0.4b `README.md:576-589` — sección Power BI reescrita
+- [x] O0.4c `README.md:760-761` — una sola carpeta en el árbol
+- [x] O0.4d `sql/pbi/README.md:121-126` y `:135` — estado de la migración
+- [x] O0.4e `sql/pbi/README.md:294-301` — el barrido cubre todo el SemanticModel
+- [x] O0.4f `README.md:815-816` y `sql/pbi/README.md:472-473` — markup XML borrado
+- [x] O0.5 Cuatro commits temáticos de los 25 modificados
+- [x] O0.6 Cuatro commits de lo nuevo (sql, cargas, ayuda_tablero, auditoría) — **+ `sql/16_pbi_grants.sql` y `PLAN_TECNICO.md`, que el plan no listaba**
+- [x] O0.7 Commit del PBIP — **falta el `git push`**, bloqueado por el clasificador de permisos de la sesión
 
 ### Ola 1 — El tablero deja de mentir
-- [ ] O1.1 ETL Mongo: extraer antes de borrar, una transacción, `RuntimeError` en 0 documentos
-- [ ] O1.2 `docs_mongo == 0` → CRIT en `check_freshness`
-- [ ] O1.3 `bnplMinimumTenure` con guardia de blanco (146K → 9K)
-- [ ] O1.4 Relación `grid_bnpl[bnplEnrolledAt] → enrollment_dates[Date]` restaurada
-- [ ] O1.5 Relación `with_lead → grid_bnpl` restaurada + 3 lugares de texto corregidos
-- [ ] O1.6 `Y0` de `tendenciaNoEnroladosDropProyectada` filtra `"N"`
-- [ ] O1.7 SWITCH de `bnpl_audiencia_agg[valor]` + `formatString: #,0`
-- [ ] O1.8 Tipos de `months_closes` alineados en el `.sql` **y** en el `.tmdl`
-- [ ] O1.9 `ruta_inferida` = TRUE cuando no hay tramo (medir antes)
+- [x] O1.1 ETL Mongo: extraer antes de borrar, una transacción, `RuntimeError` en 0 documentos
+- [x] O1.2 `docs_mongo == 0` → CRIT en `check_freshness`
+- [x] O1.3 `bnplMinimumTenure` con guardia de blanco (146K → 9K) — *falta comprobar la tarjeta en Desktop*
+- [x] O1.4 Relación `grid_bnpl[bnplEnrolledAt] → enrollment_dates[Date]` restaurada
+- [x] O1.5 Relación `with_lead → grid_bnpl` restaurada + 3 lugares de texto corregidos — **eran 6 ocurrencias en `textos_a_mano.py`, no 5** (la 6ª con otra redacción y partida entre líneas), **y faltaba `conocimiento.py:75`**, que metía `SIN_GRID` en la tabla cuya relación restaura esta acción
+- [x] O1.6 `Y0` de `tendenciaNoEnroladosDropProyectada` filtra `"N"`
+- [x] O1.7 SWITCH de `bnpl_audiencia_agg[valor]` + `formatString: #,0`
+- [x] O1.8 Tipos de `months_closes` alineados en el `.sql` **y** en el `.tmdl`
+- [x] O1.9 `ruta_inferida` = TRUE cuando no hay tramo — *medir después del rebuild, no se tocó la base*
 
 ### Ola 2 — Que no se rompa
-- [ ] O2.1 `CAPAS` con `14_archivos_bnpl.sql` y `13_bnpl_clientes_concurso.sql` + 4 doc fixes
-- [ ] O2.2+O2.3 `build_bnpl`: try/except por vista, `pbi_bnpl` siempre, `commit_sha`/`sql_sha256`, `bnpl_version.py`
-- [ ] O2.4 `bnpl.a_fecha()` y `bnpl.a_coord()` en `sql/02`
-- [ ] O2.5 Los siete casts de `grid_bnpl` por las funciones guardadas (medir antes)
-- [ ] O2.6 `DISTINCT ON` en `enrolados`, `preautorizados` y `lineas` de `grid_bnpl`
-- [ ] O2.7 `DISTINCT ON` en `enrolados` de `grouped_orders` (medir antes; si > 0, avisar a Riesgo)
-- [ ] O2.8 Redshift arranca en frío sin `bnpl.grouped_orders`
-- [ ] O2.9 `concurso_base` une `bnpl_clientes_concurso` + 3 columnas + doc
-- [ ] O2.10 Las 15 identidades entre capas como chequeos
-- [ ] O2.11+O2.12 `main.py [5/6]`: nivel por severidad, marca NUEVA, salida 1 si una identidad se rompe
-- [ ] O2.13 Cargas manuales en `etl_runs` + `cargas_manuales_viejas`
-- [ ] O2.14 Los 16 `print` de los tres ETL → `log.info`
-- [ ] O2.15 WARNING del SessionId al cierre (medir con `describe-sessions` primero; PR aparte)
-- [ ] O2.16 `requirements.txt` con el freeze real (repos internos limpios primero) + README
-- [ ] O2.17 `ops/notificar.py` + enganche en `main.py`
+- [x] O2.1 `CAPAS` con `14_archivos_bnpl.sql` y `13_bnpl_clientes_concurso.sql` + 4 doc fixes
+- [x] O2.2 `build_bnpl`: try/except por vista, `commit_sha`/`sql_sha256`, `bnpl_version.py`. **El `raise` se movió DESPUÉS de `16_pbi_grants.sql`**: abortar antes dejaba a `pbi_gateway` sin permisos sobre las vistas sanas
+- [ ] **O2.3 NO APLICADA — el código no coincide con el plan.** El cierre de `run()` ya trae `if not solo or rebuild:` (no `if not solo:`) y seis líneas de comentario propias. Falta el caso `--solo` sin `--rebuild` y el aviso del revisor. Parche listo, pendiente de decidir si esa guarda es deliberada
+- [x] O2.4 `bnpl.a_fecha()` y `bnpl.a_coord()` en `sql/02`
+- [x] O2.5 Los siete casts de `grid_bnpl` por las funciones guardadas — *medir después del rebuild*
+- [x] O2.6 `DISTINCT ON` en `enrolados`, `preautorizados` y `lineas` de `grid_bnpl`
+- [x] O2.7 `DISTINCT ON` en `enrolados` de `grouped_orders` — **hoy no puede mover cifras**: los cuatro CTE entran contra un `CREATE UNIQUE INDEX`, así que si hubiera duplicados el build ya estaría roto
+- [x] O2.8 Redshift arranca en frío sin `bnpl.grouped_orders`
+- [ ] **O2.9 DIFERIDA** — `sql/pbi/20_concurso_base.sql` y `sql/pbi/README.md` se estaban editando a mano en paralelo
+- [x] O2.10 Las 15 identidades entre capas como chequeos
+- [x] O2.11+O2.12 `main.py [5/6]`: nivel por severidad, marca NUEVA, salida 1 si una identidad se rompe (incluye `NO_APLICABLE`)
+- [x] O2.13 Cargas manuales en `etl_runs` + `cargas_manuales_viejas`
+- [x] O2.14 Los 16 `print` de los tres ETL → `log.info` — **son 17: O2.8 agrega uno que esta acción tiene que convertir** (choque no listado en «Acciones que se pisan»)
+- [ ] **O2.15 DIFERIDA** — vive fuera del repo (`mongo_extractor`), requiere PR aparte y medir antes con `aws ssm describe-sessions`
+- [ ] **O2.16 DIFERIDA** — depende de O2.15 y de que los tres repos internos estén limpios para leer sus SHA
+- [x] O2.17 `ops/notificar.py` + enganche en `main.py` — *falta el `.env.bnpl_pipeline` (credencial SMTP y destinatarios)*
 
 ### Ola 3 — Modelo y nombres
 - [ ] O3.1 3 consultas "Errores en…" y 4 queryGroups borrados
@@ -5418,6 +5419,41 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 - [ ] 14.2% del interés: ¿con o sin IVA? (§16.1)
 - [ ] Desfase entre el Excel de líneas de Propaga y su carga a Mongo (§16.11)
 - [ ] Mover el remoto de la cuenta personal a la organización
+
+---
+
+## 4. Estado de la aplicación — 2026-08-14
+
+**Aplicadas: 24 de las 67.** Ola 0 completa salvo el `push`, Ola 1 completa, Ola 2 con 13 de 17.
+Olas 3 y 4 sin empezar.
+
+**Lo que cambió respecto de lo que el plan predecía**, y que hay que tener presente al leer el resto:
+
+| # | Lo que decía el plan | Lo que había en realidad |
+|---|---|---|
+| 1 | `master` está `ahead 2` | `ahead 3` — falta `57b1c87` en la lista de O0.7 |
+| 2 | O0.6 versiona `sql/13-15` | falta `sql/16_pbi_grants.sql`, y `PLAN_TECNICO.md` no está en ningún commit |
+| 3 | `pbi_bnpl` tiene **18** vistas | **19** desde `21_concurso_clientes.sql`. El plan lo dice mal en cinco sitios |
+| 4 | O1.5 toca 5 ocurrencias de `textos_a_mano.py` | son **6**; la 6ª con otra redacción y partida entre líneas, invisible a una búsqueda literal — y la verificación del plan daba luz verde igual |
+| 5 | O1.5 no menciona `conocimiento.py` | `conocimiento.py:75` metía `SIN_GRID` en `bnpl_loss_rates_with_lead`, justo la tabla cuya relación restaura la acción |
+| 6 | O2.3 parte de `if not solo:` | el código ya trae `if not solo or rebuild:` — alguien lo arregló a medias |
+| 7 | O2.2 pone el `raise` tras el bucle | ahí deja a `pbi_gateway` sin permisos sobre las vistas sanas: `16_pbi_grants.sql` nunca corre |
+| 8 | O2.8 y O2.14 no se pisan | sí: O2.8 agrega un `print` que O2.14 tiene que convertir |
+| 9 | Verificación de O2.10: «23 renglones»; de O2.13: «9 chequeos» | **24**, aplicadas en el orden que manda el plan |
+| 10 | O2.6/O2.7 «pueden mover cifras» | hoy no: los `CREATE UNIQUE INDEX` garantizan que ya no hay duplicados |
+| 11 | O0.4d/O0.4e verifican sobre `pbi\` | residuo del renombre cancelado; se aplicó sobre `pbi_new\` |
+| 12 | Verificación de O1.1 «sin tocar Mongo» | `run()` aplica DDL contra Postgres en su línea 480 antes de fallar |
+
+**Cambio de operación no previsto por el plan:** la tarea `\BNPL Pipeline` se movió de `13:30` UTC
+(07:30 CDMX) a **`06:00` UTC (00:00 CDMX)**. El margen contra el refresh de las 08:30 pasa de 40 min
+a 8 h 30 min. `README.md` y `plan_implementacion.md` ya lo reflejan.
+
+**Pendiente y con dueño:**
+
+- `git push` de los commits (bloqueado por el clasificador de permisos de la sesión).
+- Las verificaciones que necesitan Power BI Desktop (O1.3 a O1.7) y las que necesitan la base
+  (O1.8, O1.9, O2.5, O2.6, O2.7, O2.10): ninguna se corrió, por el riel de no tocar la base.
+- Decidir sobre O2.3.
 
 ---
 
