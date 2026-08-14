@@ -1,4 +1,6 @@
-from postgres_local_extractor import extract_sql
+from postgres_local_client import extract_sql
+
+DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
 print("=== los 276 huerfanos: se rescatan por marketplaceOrderId = credit_order.orderId? ===")
 print(extract_sql("""
@@ -17,7 +19,7 @@ print(extract_sql("""
     from huerfanos h
     left join (select distinct "orderId" from mongo_bnpl.credit_order_production) o2
            on h."marketplaceOrderId" = o2."orderId"
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n=== y si la llave fuera transactionId contra orderId? ===")
 print(extract_sql("""
@@ -33,4 +35,4 @@ print(extract_sql("""
     from huerfanos h
     left join (select distinct "orderId" from mongo_bnpl.credit_order_production) o2
            on h."transactionId" = o2."orderId"
-""").to_string(index=False))
+""", db=DB).to_string(index=False))

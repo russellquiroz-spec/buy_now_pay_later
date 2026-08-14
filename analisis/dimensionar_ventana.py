@@ -1,5 +1,7 @@
 """Cuanto pesaria cada ventana de reproceso en credit-order."""
-from postgres_local_extractor import extract_sql
+from postgres_local_client import extract_sql
+
+DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
 FINALES = "('COMPLETED', 'REJECTED', 'CANCELLED', 'NO_VISITED')"
 
@@ -12,7 +14,7 @@ print(extract_sql(f"""
     from mongo_bnpl.credit_order_production c
     cross join (values (15), (30), (45), (60), (90)) as d(dias)
     group by d.dias order by d.dias
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n=== ordenes en estado NO final fuera de la ventana de 60d (habria que refrescarlas aparte) ===")
 print(extract_sql(f"""
@@ -21,7 +23,7 @@ print(extract_sql(f"""
     where "orderStatus" not in {FINALES}
       and "createdAt" < (extract(epoch from now() - interval '60 days') * 1000)
     group by 1 order by 2 desc
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n=== y cuantas quedarian congeladas (estado final + fuera de la ventana) ===")
 print(extract_sql(f"""
@@ -30,7 +32,7 @@ print(extract_sql(f"""
     from mongo_bnpl.credit_order_production
     where "orderStatus" in {FINALES}
       and "createdAt" < (extract(epoch from now() - interval '60 days') * 1000)
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n=== tamano en disco del staging ===")
 print(extract_sql("""
@@ -39,4 +41,4 @@ print(extract_sql("""
     from information_schema.tables
     where table_schema = 'mongo_bnpl'
     order by pg_total_relation_size(('mongo_bnpl.' || quote_ident(table_name))::regclass) desc
-""").to_string(index=False))
+""", db=DB).to_string(index=False))

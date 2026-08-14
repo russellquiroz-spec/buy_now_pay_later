@@ -4,15 +4,9 @@ Resultado 2026-08-12: la ventana y el lookup por salesOrderId usan Index Only Sc
 pagos-ordenes usa hash join (no necesita indice); localizar los estados no finales hace seq
 scan de 455 ms porque un B-tree no sirve para un NOT IN.
 """
-import os
-from pathlib import Path
+from postgres_local_client import extract_sql
 
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
-
-BASE = Path(__file__).resolve().parent.parent
-load_dotenv(BASE / ".env")
-engine = create_engine(os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\""))
+DB = "mongo_bnpl"  # alias de solo lectura: EXPLAIN ANALYZE de un SELECT pasa la guarda
 
 CONSULTAS = {
     "1. localizar ordenes en estado no final fuera de la ventana": """
@@ -37,10 +31,9 @@ CONSULTAS = {
     """,
 }
 
-with engine.connect() as conn:
-    for titulo, sql in CONSULTAS.items():
-        print(f"\n{'=' * 74}\n{titulo}")
-        for linea in conn.execute(text(f"EXPLAIN (ANALYZE, BUFFERS) {sql}")).fetchall():
-            texto = linea[0]
-            if any(k in texto for k in ("Scan", "Time:", "Join", "Aggregate", "Sort ")):
-                print(f"   {texto.strip()}")
+for titulo, sql in CONSULTAS.items():
+    print(f"\n{'=' * 74}\n{titulo}")
+    plan = extract_sql(f"EXPLAIN (ANALYZE, BUFFERS) {sql}", db=DB)
+    for texto in plan.iloc[:, 0]:
+        if any(k in texto for k in ("Scan", "Time:", "Join", "Aggregate", "Sort ")):
+            print(f"   {texto.strip()}")

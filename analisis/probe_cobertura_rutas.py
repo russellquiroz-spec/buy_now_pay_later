@@ -1,20 +1,14 @@
 """Cobertura de rutas en Redshift para el universo BNPL."""
-import os
-
-import pandas as pd
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from postgres_local_client import extract_sql as pg_extract_sql
 from redshift_extractor import extract_sql
 
 DB = "data-rabbit-prod"
-load_dotenv(".env")
-pg = create_engine(os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\""))
+PG_DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
-with pg.connect() as c:
-    ids = [r[0] for r in c.execute(text("""
-        select distinct "netsuiteId" from mongo_bnpl.fintech_credit_approval_production
-        where "netsuiteId" is not null
-    """)).fetchall()]
+ids = pg_extract_sql("""
+    select distinct "netsuiteId" from mongo_bnpl.fintech_credit_approval_production
+    where "netsuiteId" is not null
+""", db=PG_DB)["netsuiteId"].tolist()
 print(f"clientes BNPL aprobados: {len(ids)}")
 
 print("\n=== columnas cat_estructura_comercial_v3 ===")

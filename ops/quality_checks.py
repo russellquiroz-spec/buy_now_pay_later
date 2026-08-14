@@ -5,10 +5,9 @@ eso deja visible que a la extraccion le falta un campo.
 """
 from datetime import datetime, timedelta, timezone
 
-from postgres_local_extractor import extract_sql
-from sqlalchemy import text
+from postgres_local_client import extract_sql, transaction
 
-from config import STAGING_SCHEMA, TZ_OFFSET_HOURS, get_engine
+from config import DB_OPS_RW, DB_STAGING, STAGING_SCHEMA, TZ_OFFSET_HOURS
 
 S = STAGING_SCHEMA
 
@@ -114,7 +113,7 @@ def _columnas_por_tabla() -> dict:
         select table_name, column_name
         from information_schema.columns
         where table_schema = '{S}'
-    """)
+    """, db=DB_STAGING)
     return {tabla: set(g["column_name"]) for tabla, g in df.groupby("table_name")}
 
 
@@ -138,7 +137,7 @@ def correr_checks() -> list:
             })
             continue
 
-        n = int(extract_sql(check["sql"])["n"].iloc[0])
+        n = int(extract_sql(check["sql"], db=DB_STAGING)["n"].iloc[0])
         filas.append({
             "checked_at": checked_at,
             "check_name": check["name"],
@@ -151,24 +150,23 @@ def correr_checks() -> list:
     return filas
 
 
-def persistir(engine, filas: list) -> None:
+def persistir(filas: list) -> None:
     cols = ["checked_at", "check_name", "tabla", "n_filas", "severidad", "resultado", "detalle"]
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                f"INSERT INTO bnpl_ops.data_quality_checks ({', '.join(cols)}) "
-                f"VALUES ({', '.join(':' + c for c in cols)}) "
-                f"ON CONFLICT (checked_at, check_name) DO NOTHING"
-            ),
-            filas,
-        )
+    sql = (
+        f"INSERT INTO bnpl_ops.data_quality_checks ({', '.join(cols)}) "
+        f"VALUES ({', '.join(':' + c for c in cols)}) "
+        f"ON CONFLICT (checked_at, check_name) DO NOTHING"
+    )
+    # Fila por fila dentro de una transaccion: execute_sql no tiene executemany y el
+    # DO NOTHING descarta upsert_dataframe, que siempre genera DO UPDATE.
+    with transaction(db=DB_OPS_RW) as tx:
+        for fila in filas:
+            tx.execute_sql(sql, {c: fila[c] for c in cols})
 
 
 def run() -> list:
-    engine = get_engine()
     filas = correr_checks()
-    persistir(engine, filas)
-    engine.dispose()
+    persistir(filas)
 
     print(f"\n{'check':<45} {'filas':>10} {'resultado':>13} {'sev':>5}")
     for f in filas:

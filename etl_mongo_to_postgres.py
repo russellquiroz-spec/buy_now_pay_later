@@ -24,17 +24,26 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
-from dotenv import load_dotenv
 from mongo_extractor import extract_aggregate
-from sqlalchemy import create_engine, inspect, text
+from postgres_local_client import (
+    execute_sql,
+    extract_sql,
+    load_dataframe,
+    table_exists,
+    transaction,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env")
-PG_URL = os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\"")
-engine = create_engine(PG_URL)
 
 SCHEMA = "mongo_bnpl"
 OPS_SCHEMA = "bnpl_ops"
+
+# Alias de postgres_local_client. El staging se escribe y se dropea, asi que necesita
+# el alias con ALLOW_DDL; la bitacora vive en bnpl_ops y va por el suyo.
+DB_STAGING = "mongo_bnpl"
+DB_STAGING_RW = "mongo_bnpl_rw"
+DB_OPS = "bnpl_ops"
+DB_OPS_RW = "bnpl_ops_rw"
 MONGO_PROFILE = "bnpl"
 VENTANA_DIAS = 60
 FULL_CADA_DIAS = 30
@@ -339,20 +348,21 @@ def _ahora_mx() -> datetime:
 
 
 def _tabla_existe(nombre: str) -> bool:
-    return inspect(engine).has_table(nombre, schema=SCHEMA)
+    return table_exists(nombre, db=DB_STAGING, schema=SCHEMA)
 
 
 def _dias_desde_ultimo_full(tabla: str):
     """Dias desde la ultima recarga completa de la tabla; None si nunca hubo una."""
-    with engine.connect() as conn:
-        ultimo = conn.execute(
-            text(
-                f"SELECT max(started_at) FROM {OPS_SCHEMA}.etl_runs "
-                f"WHERE tabla = :tabla AND modo = 'full'"
-            ),
-            {"tabla": f"{SCHEMA}.{tabla}"},
-        ).scalar()
-    return None if ultimo is None else (_ahora_mx() - ultimo).days
+    df = extract_sql(
+        f"SELECT max(started_at) AS ultimo FROM {OPS_SCHEMA}.etl_runs "
+        f"WHERE tabla = :tabla AND modo = 'full'",
+        params={"tabla": f"{SCHEMA}.{tabla}"},
+        db=DB_OPS,
+    )
+    ultimo = df["ultimo"].iloc[0]
+    # max() sobre cero filas devuelve una fila con NULL, que pandas puede entregar como
+    # None o como NaT segun el dtype: pd.isna cubre los dos.
+    return None if pd.isna(ultimo) else (_ahora_mx() - ultimo).days
 
 
 def _llaves_no_finales(defn: dict, corte_ms) -> list:
@@ -365,27 +375,29 @@ def _llaves_no_finales(defn: dict, corte_ms) -> list:
     marcadores = ", ".join(f":e{i}" for i in range(len(finales)))
     params = {f"e{i}": estado for i, estado in enumerate(finales)}
     params["corte"] = corte_ms
-    with engine.connect() as conn:
-        filas = conn.execute(
-            text(
-                f'SELECT DISTINCT "{llave}" FROM {SCHEMA}."{tabla}" '
-                f'WHERE ("{campo_estado}" IS NULL OR "{campo_estado}" NOT IN ({marcadores})) '
-                f'  AND "{defn["campo_ventana"]}" < :corte '
-                f'  AND "{llave}" IS NOT NULL AND trim("{llave}") <> \'\''
-            ),
-            params,
-        ).fetchall()
-    return [f[0] for f in filas]
+    df = extract_sql(
+        f'SELECT DISTINCT "{llave}" FROM {SCHEMA}."{tabla}" '
+        f'WHERE ("{campo_estado}" IS NULL OR "{campo_estado}" NOT IN ({marcadores})) '
+        f'  AND "{defn["campo_ventana"]}" < :corte '
+        f'  AND "{llave}" IS NOT NULL AND trim("{llave}") <> \'\'',
+        params=params,
+        db=DB_STAGING,
+    )
+    return df[llave].tolist()
 
 
 def _aplicar_ddl(tablas_a_recrear: list = None) -> None:
     """Aplica el DDL. Si se piden tablas a recrear, las dropea antes para que el .sql las
     vuelva a crear con los tipos declarados."""
-    with engine.begin() as conn:
+    # Los dos .sql van en la misma transaccion, como antes: si el DDL del staging falla
+    # despues de dropear las tablas, el DROP tiene que revertirse tambien. Van por el
+    # alias del staging (el que tiene ALLOW_DDL y es el dueno de los DROP); el de ops
+    # crea objetos en su propio schema, siempre calificado dentro del .sql.
+    with transaction(db=DB_STAGING_RW) as tx:
         for tabla in tablas_a_recrear or []:
-            conn.execute(text(f'DROP TABLE IF EXISTS {SCHEMA}."{tabla}"'))
-        conn.execute(text((BASE_DIR / "sql" / "00_bnpl_ops.sql").read_text(encoding="utf-8")))
-        conn.execute(text((BASE_DIR / "sql" / "01_staging.sql").read_text(encoding="utf-8")))
+            tx.execute_sql(f'DROP TABLE IF EXISTS {SCHEMA}."{tabla}"')
+        tx.execute_sql((BASE_DIR / "sql" / "00_bnpl_ops.sql").read_text(encoding="utf-8"))
+        tx.execute_sql((BASE_DIR / "sql" / "01_staging.sql").read_text(encoding="utf-8"))
 
 
 def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
@@ -401,51 +413,47 @@ def _preparar_destino(defn: dict, full: bool, corte_ms) -> tuple:
             completa = True
 
     if completa:
-        with engine.begin() as conn:
-            conn.execute(text(f'TRUNCATE {SCHEMA}."{tabla}"'))
+        execute_sql(f'TRUNCATE {SCHEMA}."{tabla}"', db=DB_STAGING_RW)
         return "full", []
 
     if defn["modo"] == "ventana":
         campo = defn["campo_ventana"]
         llaves = _llaves_no_finales(defn, corte_ms)
-        with engine.begin() as conn:
-            conn.execute(
-                text(f'DELETE FROM {SCHEMA}."{tabla}" WHERE "{campo}" >= :corte'),
-                {"corte": corte_ms},
+        # Los dos DELETE siguen compartiendo transaccion: borrar la ventana sin borrar
+        # las llaves atrasadas dejaria el staging a medio refrescar.
+        with transaction(db=DB_STAGING_RW) as tx:
+            tx.execute_sql(
+                f'DELETE FROM {SCHEMA}."{tabla}" WHERE "{campo}" >= :corte',
+                {"corte": int(corte_ms)},
             )
             if llaves:
-                conn.execute(
-                    text(
-                        f'DELETE FROM {SCHEMA}."{tabla}" '
-                        f'WHERE "{defn["llave_refresco"]}" = ANY(:llaves)'
-                    ),
+                tx.execute_sql(
+                    f'DELETE FROM {SCHEMA}."{tabla}" '
+                    f'WHERE "{defn["llave_refresco"]}" = ANY(:llaves)',
                     {"llaves": llaves},
                 )
         return "ventana", llaves
 
-    with engine.begin() as conn:
-        conn.execute(text(f'TRUNCATE {SCHEMA}."{tabla}"'))
+    execute_sql(f'TRUNCATE {SCHEMA}."{tabla}"', db=DB_STAGING_RW)
     return "full", []
 
 
 def _registrar_corrida(tabla: str, modo: str, filas: int, segundos: float, inicio) -> None:
     # Con el schema por delante, igual que el resto del pipeline: la bitacora queda consultable
     # con un solo criterio (tabla LIKE 'mongo_bnpl.%').
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                f"INSERT INTO {OPS_SCHEMA}.etl_runs (started_at, tabla, modo, filas, segundos) "
-                f"VALUES (:inicio, :tabla, :modo, :filas, :segundos) "
-                f"ON CONFLICT (started_at, tabla) DO NOTHING"
-            ),
-            {
-                "inicio": inicio,
-                "tabla": f"{SCHEMA}.{tabla}",
-                "modo": modo,
-                "filas": filas,
-                "segundos": round(segundos, 1),
-            },
-        )
+    execute_sql(
+        f"INSERT INTO {OPS_SCHEMA}.etl_runs (started_at, tabla, modo, filas, segundos) "
+        f"VALUES (:inicio, :tabla, :modo, :filas, :segundos) "
+        f"ON CONFLICT (started_at, tabla) DO NOTHING",
+        {
+            "inicio": inicio,
+            "tabla": f"{SCHEMA}.{tabla}",
+            "modo": modo,
+            "filas": int(filas),
+            "segundos": round(segundos, 1),
+        },
+        db=DB_OPS_RW,
+    )
 
 
 def run(full: bool = False, solo: list = None, recrear: bool = False) -> None:
@@ -484,13 +492,11 @@ def run(full: bool = False, solo: list = None, recrear: bool = False) -> None:
         filas = len(df)
         if filas:
             df = _flatten(df)
-            df.to_sql(defn["table"], engine, schema=SCHEMA, if_exists="append", index=False)
+            load_dataframe(df, defn["table"], schema=SCHEMA, db=DB_STAGING_RW)
 
         segundos = time.time() - t0
         _registrar_corrida(defn["table"], modo, filas, segundos, inicio)
         print(f"  -> {SCHEMA}.{defn['table']}: {filas:,} filas en {segundos:.0f}s ({modo})")
-
-    engine.dispose()
 
 
 if __name__ == "__main__":

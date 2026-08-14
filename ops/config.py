@@ -1,15 +1,15 @@
 """Configuracion de la capa de operacion (frescura y calidad) del pipeline BNPL."""
-import os
 from pathlib import Path
-
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SQL_DIR = BASE_DIR / "sql"
 
-load_dotenv(BASE_DIR / ".env")
-PG_URL = os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\"")
+# Alias de postgres_local_client. La conexion ya no se arma aca: la libreria resuelve
+# host, credenciales y schema por alias desde su propio .env, y cada alias trae su
+# nivel de permiso. Los `_rw` son los unicos que aceptan escritura y DDL.
+DB_OPS = "bnpl_ops"
+DB_OPS_RW = "bnpl_ops_rw"
+DB_STAGING = "mongo_bnpl"
 
 MONGO_PROFILE = "bnpl"
 OPS_SCHEMA = "bnpl_ops"
@@ -36,6 +36,7 @@ FUENTES_CRITICAS = [
 
 # Tolerancia de desfase del staging respecto a Mongo, como fraccion de los documentos.
 FALTANTES_WARN_PCT = 0.01
+
 
 # Definicion de cada fuente:
 #   tabla        tabla espejo en el staging
@@ -79,7 +80,3 @@ FUENTES = {
         "campo_update": None,
     },
 }
-
-
-def get_engine():
-    return create_engine(PG_URL)

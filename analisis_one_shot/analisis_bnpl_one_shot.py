@@ -2,8 +2,12 @@
 DEPRECADO — reemplazado por run.py + módulos separados.
 Ver README.md para instrucciones.
 """
-raise SystemExit("Usar run.py en su lugar.")
+# `from __future__` tiene que ir antes de cualquier otra sentencia, incluido el raise:
+# con el raise por delante el archivo ni siquiera compilaba (SyntaxError), asi que un
+# compileall del repo fallaba aunque el resto estuviera bien.
 from __future__ import annotations
+
+raise SystemExit("Usar run.py en su lugar.")
 
 import os
 import sys

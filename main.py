@@ -32,8 +32,8 @@ sys.path.insert(0, str(BASE_DIR / "ops"))
 import build_bnpl
 import etl_mongo_to_postgres
 import etl_redshift_to_postgres
-from config import FUENTES_CRITICAS, TZ_OFFSET_HOURS, get_engine
-from sqlalchemy import text
+from config import DB_OPS_RW, FUENTES_CRITICAS, TZ_OFFSET_HOURS
+from postgres_local_client import execute_sql
 
 import check_freshness
 import quality_checks
@@ -82,17 +82,13 @@ def _configurar_log() -> Path:
 
 
 def _registrar_corrida(inicio, segundos: float, resultado: str) -> None:
-    engine = get_engine()
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                "INSERT INTO bnpl_ops.etl_runs (started_at, tabla, modo, filas, segundos) "
-                "VALUES (:inicio, 'pipeline', :modo, NULL, :segundos) "
-                "ON CONFLICT (started_at, tabla) DO NOTHING"
-            ),
-            {"inicio": inicio, "modo": resultado, "segundos": round(segundos, 1)},
-        )
-    engine.dispose()
+    execute_sql(
+        "INSERT INTO bnpl_ops.etl_runs (started_at, tabla, modo, filas, segundos) "
+        "VALUES (:inicio, 'pipeline', :modo, NULL, :segundos) "
+        "ON CONFLICT (started_at, tabla) DO NOTHING",
+        {"inicio": inicio, "modo": resultado, "segundos": round(segundos, 1)},
+        db=DB_OPS_RW,
+    )
 
 
 def _revisar_frescura(log) -> bool:

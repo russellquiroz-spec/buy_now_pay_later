@@ -8,10 +8,11 @@ from datetime import datetime, timedelta, timezone
 
 from bson import ObjectId
 from mongo_extractor import extract_aggregate
-from postgres_local_extractor import extract_sql
-from sqlalchemy import text
+from postgres_local_client import execute_sql, extract_sql, transaction
 
 from config import (
+    DB_OPS_RW,
+    DB_STAGING,
     FALTANTES_WARN_PCT,
     FUENTES,
     LAG_CRIT_HORAS,
@@ -20,7 +21,6 @@ from config import (
     SQL_DIR,
     STAGING_SCHEMA,
     TZ_OFFSET_HOURS,
-    get_engine,
 )
 
 
@@ -39,10 +39,9 @@ def _epoch_ms_a_mx(epoch_ms):
     return (utc + timedelta(hours=TZ_OFFSET_HOURS)).replace(tzinfo=None)
 
 
-def aplicar_ddl(engine) -> None:
+def aplicar_ddl() -> None:
     ddl = (SQL_DIR / "00_bnpl_ops.sql").read_text(encoding="utf-8")
-    with engine.begin() as conn:
-        conn.execute(text(ddl))
+    execute_sql(ddl, db=DB_OPS_RW)
 
 
 def sondear_mongo() -> dict:
@@ -112,7 +111,7 @@ def sondear_staging() -> dict:
         select table_name, column_name
         from information_schema.columns
         where table_schema = '{STAGING_SCHEMA}'
-    """)
+    """, db=DB_STAGING)
     existentes = {}
     for tabla, grupo in columnas.groupby("table_name"):
         existentes[tabla] = set(grupo["column_name"])
@@ -130,7 +129,7 @@ def sondear_staging() -> dict:
 
     resultado = {}
     if bloques:
-        df = extract_sql(" union all ".join(bloques))
+        df = extract_sql(" union all ".join(bloques), db=DB_STAGING)
         for row in df.to_dict("records"):
             resultado[row["tabla"]] = {
                 "docs_staging": int(row["n"]),
@@ -191,35 +190,34 @@ def construir_filas(mongo: dict, staging: dict, checked_at: datetime) -> list:
     return filas
 
 
-def persistir(engine, filas: list) -> None:
+def persistir(filas: list) -> None:
     cols = [
         "coleccion", "tabla_staging", "docs_mongo", "docs_staging", "docs_faltantes",
         "last_write_mongo", "last_dato_staging", "lag_fuente_horas", "semaforo_fuente",
         "semaforo_staging", "checked_at",
     ]
     cols_hist = [c for c in cols if c != "tabla_staging"]
-    with engine.begin() as conn:
-        conn.execute(text("TRUNCATE bnpl_ops.source_freshness"))
-        conn.execute(
-            text(
-                f"INSERT INTO bnpl_ops.source_freshness ({', '.join(cols)}) "
-                f"VALUES ({', '.join(':' + c for c in cols)})"
-            ),
-            filas,
-        )
-        conn.execute(
-            text(
-                f"INSERT INTO bnpl_ops.freshness_history ({', '.join(cols_hist)}) "
-                f"VALUES ({', '.join(':' + c for c in cols_hist)}) "
-                f"ON CONFLICT (checked_at, coleccion) DO NOTHING"
-            ),
-            filas,
-        )
+    sql_snapshot = (
+        f"INSERT INTO bnpl_ops.source_freshness ({', '.join(cols)}) "
+        f"VALUES ({', '.join(':' + c for c in cols)})"
+    )
+    sql_hist = (
+        f"INSERT INTO bnpl_ops.freshness_history ({', '.join(cols_hist)}) "
+        f"VALUES ({', '.join(':' + c for c in cols_hist)}) "
+        f"ON CONFLICT (checked_at, coleccion) DO NOTHING"
+    )
+    # Fila por fila: la libreria no tiene executemany (params es un dict, no una lista).
+    # upsert_dataframe no sirve de reemplazo porque siempre genera DO UPDATE, y aca el
+    # historico necesita DO NOTHING. La transaccion mantiene el todo-o-nada del TRUNCATE.
+    with transaction(db=DB_OPS_RW) as tx:
+        tx.execute_sql("TRUNCATE bnpl_ops.source_freshness")
+        for fila in filas:
+            tx.execute_sql(sql_snapshot, {c: fila[c] for c in cols})
+            tx.execute_sql(sql_hist, {c: fila[c] for c in cols_hist})
 
 
 def run() -> list:
-    engine = get_engine()
-    aplicar_ddl(engine)
+    aplicar_ddl()
 
     print("Sondeando Mongo...")
     mongo = sondear_mongo()
@@ -228,8 +226,7 @@ def run() -> list:
 
     checked_at = _ahora_mx()
     filas = construir_filas(mongo, staging, checked_at)
-    persistir(engine, filas)
-    engine.dispose()
+    persistir(filas)
 
     print(f"\n{'coleccion':<45} {'mongo':>10} {'staging':>10} {'ultima escritura':>17} {'fuente':>7} {'staging':>8}")
     for f in filas:

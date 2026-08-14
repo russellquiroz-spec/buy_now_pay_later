@@ -1,5 +1,7 @@
 """Unicidad de las llaves candidatas: decide PK vs indice."""
-from postgres_local_extractor import extract_sql
+from postgres_local_client import extract_sql
+
+DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
 CANDIDATAS = [
     ("credit_order_production", '"salesOrderId", "productId"'),
@@ -32,7 +34,7 @@ for tabla, llave in CANDIDATAS:
                     group by {llave} having count(*) > 1
                ) d) as claves_repetidas
         from mongo_bnpl."{tabla}"
-    """).iloc[0]
+    """, db=DB).iloc[0]
     veredicto = (
         "PK" if r["con_nulo"] == 0 and r["claves_repetidas"] == 0
         else f"indice (nulos={r['con_nulo']:,}, repetidas={r['claves_repetidas']:,})"

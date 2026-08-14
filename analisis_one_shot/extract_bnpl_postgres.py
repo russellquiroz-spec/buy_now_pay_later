@@ -13,17 +13,9 @@ import tempfile
 from pathlib import Path
 
 import pandas as pd
-import sqlalchemy as sa
-from config import PG_URL, LC_EXCEL_PATH, LC_EXCEL_SHEET
+from postgres_local_client import extract_sql
 
-_engine: sa.Engine | None = None
-
-
-def _get_engine() -> sa.Engine:
-    global _engine
-    if _engine is None:
-        _engine = sa.create_engine(PG_URL)
-    return _engine
+from config import PG_DB, LC_EXCEL_PATH, LC_EXCEL_SHEET
 
 
 def get_enrolled_clients() -> pd.DataFrame:
@@ -37,14 +29,11 @@ def get_enrolled_clients() -> pd.DataFrame:
         DataFrame 1:1 por netsuite_id.
         Columnas: netsuite_id (str), linea_credito (int)
     """
-    with _get_engine().connect() as conn:
-        df = pd.read_sql(
-            sa.text(
-                'SELECT "netsuiteId" AS netsuite_id, "creditLimit" AS linea_credito '
-                "FROM mongo_bnpl.fintech_credit_approval_production"
-            ),
-            conn,
-        )
+    df = extract_sql(
+        'SELECT "netsuiteId" AS netsuite_id, "creditLimit" AS linea_credito '
+        "FROM mongo_bnpl.fintech_credit_approval_production",
+        db=PG_DB,
+    )
 
     df["netsuite_id"] = df["netsuite_id"].astype(str).str.strip()
     df = df[df["netsuite_id"].str.match(r"^\d+$")]  # excluir IDs basura
@@ -114,17 +103,14 @@ def get_bnpl_orders() -> pd.DataFrame:
         DataFrame sin duplicados en (netsuite_id, sales_order_id).
         Columnas: netsuite_id (str), sales_order_id (str)
     """
-    with _get_engine().connect() as conn:
-        df = pd.read_sql(
-            sa.text(
-                'SELECT "netsuiteId" AS netsuite_id, "salesOrderId" AS sales_order_id '
-                "FROM mongo_bnpl.credit_order_production "
-                "WHERE \"orderStatus\" IN ('COMPLETED', 'CREATED', 'IN_DELIVERY') "
-                "  AND \"salesOrderId\" IS NOT NULL "
-                "  AND trim(\"salesOrderId\") <> ''"
-            ),
-            conn,
-        )
+    df = extract_sql(
+        'SELECT "netsuiteId" AS netsuite_id, "salesOrderId" AS sales_order_id '
+        "FROM mongo_bnpl.credit_order_production "
+        "WHERE \"orderStatus\" IN ('COMPLETED', 'CREATED', 'IN_DELIVERY') "
+        "  AND \"salesOrderId\" IS NOT NULL "
+        "  AND trim(\"salesOrderId\") <> ''",
+        db=PG_DB,
+    )
 
     df["netsuite_id"] = df["netsuite_id"].astype(str).str.strip()
     df["sales_order_id"] = df["sales_order_id"].astype(str).str.strip()

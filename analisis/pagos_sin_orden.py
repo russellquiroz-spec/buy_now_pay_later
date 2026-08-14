@@ -1,4 +1,6 @@
-from postgres_local_extractor import extract_sql
+from postgres_local_client import extract_sql
+
+DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
 print("=== los 276 pagos sin orden: por año y estado ===")
 print(extract_sql("""
@@ -9,7 +11,7 @@ print(extract_sql("""
            on p."transactionId" = o."salesOrderId"
     where o."salesOrderId" is null
     group by 1, 2 order by 1, 3 desc
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n=== muestra de transactionId ===")
 print(extract_sql("""
@@ -20,4 +22,4 @@ print(extract_sql("""
            on p."transactionId" = o."salesOrderId"
     where o."salesOrderId" is null
     order by p."movementDate" desc limit 8
-""").to_string(index=False))
+""", db=DB).to_string(index=False))

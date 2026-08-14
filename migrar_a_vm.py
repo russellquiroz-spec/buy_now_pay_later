@@ -1,4 +1,19 @@
-"""Migra los datos BNPL de la base local a la VM rabbit-bi-local.
+"""DEPRECADO — la migracion que este script hacia ya ocurrio y su origen ya no existe.
+
+Copiaba las tablas base de la base local (`postgres_local_extractor`, localhost:9558) a la
+VM `rabbit-bi-local`. Hoy no queda ninguna de las dos mitades de esa operacion:
+
+  * `postgres_local_extractor` fue sustituida por `postgres_local_client` y ya no se instala.
+  * El PostgreSQL de origen en el 9558 no existe: el unico servicio es postgresql-x64-17 en
+    localhost:9553, que sirve `rabbit-bi-local` — el DESTINO de esta migracion, no el origen.
+
+Migrar sus imports a `postgres_local_client` haria que origen y destino fueran la misma base
+y el script se copiaria encima de si mismo. Por eso se detiene aca en vez de traducirse.
+
+El codigo queda como referencia de como se hizo la carga del 2026-08-12 (COPY por lotes,
+`credit_order_production` por meses para no repetir los 2.5 GB de RAM). Si alguna vez hay
+que mover datos entre dos bases distintas, se revive definiendo dos alias separados en
+`.env.postgres_local_client` y pasando `db=` a cada llamada.
 
     python migrar_a_vm.py --ddl        solo aplica el DDL en la VM (schemas, tablas, indices)
     python migrar_a_vm.py --datos      solo copia los datos de las tablas base
@@ -6,10 +21,7 @@
     python migrar_a_vm.py --validar    solo compara conteos origen vs destino
     python migrar_a_vm.py              todo, en ese orden
 
-Lee del origen con postgres_local_extractor y escribe en la VM con postgres_local_client
-(COPY sobre el tunel SSH). El alias de escritura necesita ALLOW_DDL=true.
-
-Lo que NO se copia y por que:
+Lo que NO se copiaba y por que:
   * Las 11 vistas materializadas de `bnpl` (663 MB). Son datos derivados: se recrean desde los
     .sql y se materializan en la VM en ~1 minuto. Mandarlas por el tunel seria gastar ancho de
     banda en algo que se calcula solo.
@@ -19,13 +31,17 @@ Lo que NO se copia y por que:
 `credit_order_production` se copia por meses: son 1.19M filas y 498 MB, y traerla entera a
 pandas consumio 2.5 GB de RAM durante el ETL.
 """
+raise SystemExit(__doc__.splitlines()[0])
+
 import argparse
 import time
 from pathlib import Path
 
 import pandas as pd
 from postgres_local_client import execute_sql, extract_sql as vm_sql, load_dataframe
-from postgres_local_extractor import extract_sql as local_sql
+# El origen se leia con `from postgres_local_extractor import extract_sql as local_sql`.
+# Esa libreria ya no existe y no tiene reemplazo: no queda una segunda base que leer.
+local_sql = None
 
 TIPOS_ENTEROS = ("bigint", "integer", "smallint")
 

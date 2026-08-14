@@ -1,5 +1,7 @@
 """Cuanto tiempo despues de creado sigue cambiando un documento, por tabla."""
-from postgres_local_extractor import extract_sql
+from postgres_local_client import extract_sql
+
+DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
 print("=" * 78)
 print("1. credit-order: dias entre createdAt y deliveryAt")
@@ -16,7 +18,7 @@ print(extract_sql("""
            round(percentile_cont(0.9999) within group (order by dias)::numeric, 1) as p9999,
            round(max(dias)::numeric, 1) as maximo
     from d where dias >= 0
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("2. credit-order: estados no finales por antiguedad (los que aun pueden cambiar)")
@@ -29,7 +31,7 @@ print(extract_sql("""
                     then 1 else 0 end) as con_mas_de_60d
     from mongo_bnpl.credit_order_production
     group by 1 order by 2 desc
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("3. payment-report: dias entre movementDate y el pago efectivo (paymentDateFromPaid)")
@@ -49,7 +51,7 @@ print(extract_sql("""
            round(percentile_cont(0.9999) within group (order by extract(epoch from delta)/86400)::numeric, 1) as p9999,
            round((max(extract(epoch from delta))/86400)::numeric, 1) as maximo
     from d
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("4. payment-report: estados no finales por antiguedad")
@@ -61,7 +63,7 @@ print(extract_sql("""
                     then 1 else 0 end) as con_mas_de_60d
     from mongo_bnpl.payment_report_production
     group by 1 order by 2 desc
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("5. propaga-transaction: dias entre createdAt y updatedAt (mutabilidad directa)")
@@ -79,7 +81,7 @@ print(extract_sql("""
            round(percentile_cont(0.99) within group (order by dias)::numeric, 1) as p99,
            round(max(dias)::numeric, 1) as maximo
     from d
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("6. credit-limit-history: antiguedad de la ultima actualizacion de linea")
@@ -90,7 +92,7 @@ print(extract_sql("""
            sum(case when "creditLimitUpdateDate" >= (extract(epoch from now() - interval '60 days') * 1000)
                     then 1 else 0 end) as actualizados_ultimos_60d
     from mongo_bnpl.credit_limit_history_management
-""").to_string(index=False))
+""", db=DB).to_string(index=False))
 
 print("\n" + "=" * 78)
 print("7. Volumen por año: cuanto pesa el historico congelable")
@@ -100,4 +102,4 @@ print(extract_sql("""
            count(distinct "salesOrderId") as sos
     from mongo_bnpl.credit_order_production
     group by 1 order by 1
-""").to_string(index=False))
+""", db=DB).to_string(index=False))

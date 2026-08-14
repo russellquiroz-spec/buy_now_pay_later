@@ -1,35 +1,30 @@
 """Viabilidad de una dim de ruta historica (SCD) para el universo BNPL."""
-import os
-
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from postgres_local_client import extract_sql as pg_extract_sql
 from redshift_extractor import extract_sql
 
 DB = "data-rabbit-prod"
-load_dotenv(".env")
-pg = create_engine(os.environ["BD_ENGINE_RABBIT_LOCAL"].strip("'\""))
+PG_DB = "mongo_bnpl"  # alias de solo lectura sobre el staging
 
-with pg.connect() as c:
-    rango = c.execute(text("""
-        select to_timestamp(min("createdAt")/1000)::date as primera_orden,
-               to_timestamp(max("createdAt")/1000)::date as ultima_orden,
-               count(*) as filas
-        from mongo_bnpl.credit_order_production
-    """)).fetchone()
-    print(f"ordenes BNPL en staging: {rango.primera_orden} -> {rango.ultima_orden} ({rango.filas} filas)")
+rango = pg_extract_sql("""
+    select to_timestamp(min("createdAt")/1000)::date as primera_orden,
+           to_timestamp(max("createdAt")/1000)::date as ultima_orden,
+           count(*) as filas
+    from mongo_bnpl.credit_order_production
+""", db=PG_DB).iloc[0]
+print(f"ordenes BNPL en staging: {rango.primera_orden} -> {rango.ultima_orden} ({rango.filas} filas)")
 
-    porano = c.execute(text("""
-        select extract(year from to_timestamp("createdAt"/1000)) as anio,
-               count(distinct "salesOrderId") as sos
-        from mongo_bnpl.credit_order_production
-        group by 1 order by 1
-    """)).fetchall()
-    print("SOs por año:", {int(r.anio): r.sos for r in porano})
+porano = pg_extract_sql("""
+    select extract(year from to_timestamp("createdAt"/1000)) as anio,
+           count(distinct "salesOrderId") as sos
+    from mongo_bnpl.credit_order_production
+    group by 1 order by 1
+""", db=PG_DB)
+print("SOs por año:", {int(r.anio): r.sos for r in porano.itertuples()})
 
-    ids = [r[0] for r in c.execute(text("""
-        select distinct "netsuiteId" from mongo_bnpl.fintech_credit_approval_production
-        where "netsuiteId" is not null
-    """)).fetchall()]
+ids = pg_extract_sql("""
+    select distinct "netsuiteId" from mongo_bnpl.fintech_credit_approval_production
+    where "netsuiteId" is not null
+""", db=PG_DB)["netsuiteId"].tolist()
 
 lista = ",".join(f"'{i}'" for i in ids)
 
