@@ -99,8 +99,8 @@
                 }
               },
               "queryRef": "vintage_analysis.par60RateCustomers",
-              "nativeQueryRef": "PAR 60+ Rate",
-              "displayName": "PAR 60+ Rate",
+              "nativeQueryRef": "PAR 60+ Rate over Activated Customers",
+              "displayName": "PAR 60+ Rate over Activated Customers",
               "format": "0.00 %;-0.00 %;0.00 %"
             }
           ]
@@ -361,7 +361,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'PAR 60 Rate per Enrollment Cohort'"
+                  "Value": "'PAR 60+ Rate per Enrollment Cohort (over Activated Customers)'"
                 }
               }
             },

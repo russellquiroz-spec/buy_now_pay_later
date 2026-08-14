@@ -412,7 +412,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'PAR 30+ Customers Over Ever Activated Customers'"
+                  "Value": "'PAR 60+ outstanding balance per cohort (amount, not a rate)'"
                 }
               }
             },

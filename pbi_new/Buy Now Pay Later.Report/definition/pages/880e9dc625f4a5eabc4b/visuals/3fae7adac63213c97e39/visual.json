@@ -17,17 +17,54 @@
           "projections": [
             {
               "field": {
-                "Column": {
+                "HierarchyLevel": {
                   "Expression": {
-                    "SourceRef": {
-                      "Entity": "grid_bnpl"
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "grid_bnpl"
+                            }
+                          },
+                          "Name": "Variación",
+                          "Property": "bnplActivatedAt"
+                        }
+                      },
+                      "Hierarchy": "Jerarquía de fechas"
                     }
                   },
-                  "Property": "bnplActivatedAt"
+                  "Level": "Año"
                 }
               },
               "queryRef": "grid_bnpl.bnplActivatedAt.Variación.Jerarquía de fechas.Año",
               "nativeQueryRef": "bnplActivatedAt Año",
+              "active": true
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "grid_bnpl"
+                            }
+                          },
+                          "Name": "Variación",
+                          "Property": "bnplActivatedAt"
+                        }
+                      },
+                      "Hierarchy": "Jerarquía de fechas"
+                    }
+                  },
+                  "Level": "Mes"
+                }
+              },
+              "queryRef": "grid_bnpl.bnplActivatedAt.Variación.Jerarquía de fechas.Mes",
+              "nativeQueryRef": "bnplActivatedAt Mes",
               "active": true
             }
           ]

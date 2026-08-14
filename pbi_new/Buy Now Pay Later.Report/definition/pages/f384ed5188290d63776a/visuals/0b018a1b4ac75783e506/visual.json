@@ -152,7 +152,7 @@
                 }
               },
               "queryRef": "Sum(grid_bnpl.5)",
-              "nativeQueryRef": "Promedio de 51",
+              "nativeQueryRef": "Promedio de 5",
               "displayName": "5",
               "format": "0.00 %;-0.00 %;0.00 %"
             },
@@ -278,7 +278,7 @@
                 }
               },
               "queryRef": "Sum(grid_bnpl.15)",
-              "nativeQueryRef": "Promedio de 151",
+              "nativeQueryRef": "Promedio de 15",
               "displayName": "15",
               "format": "0.00 %;-0.00 %;0.00 %"
             },
@@ -299,7 +299,7 @@
                 }
               },
               "queryRef": "Sum(grid_bnpl.20)",
-              "nativeQueryRef": "Promedio de 201",
+              "nativeQueryRef": "Promedio de 20",
               "displayName": "20",
               "format": "0.00 %;-0.00 %;0.00 %"
             },
@@ -907,7 +907,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Funnel Distribution per Number Of Orders'"
+                  "Value": "'Funnel Distribution per Number Of Orders (% of Customers by Cohort)'"
                 }
               }
             },
@@ -938,7 +938,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Percentage of the enrolled customers'"
+                  "Value": "'Percentage of the enrolled customers of each cohort. No tenure filter.'"
                 }
               }
             },

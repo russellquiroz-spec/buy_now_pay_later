@@ -99,8 +99,8 @@
                 }
               },
               "queryRef": "vintage_analysis.par60RateAmount",
-              "nativeQueryRef": "PAR 60+ Rate",
-              "displayName": "PAR 60+ Rate",
+              "nativeQueryRef": "PAR 60+ Rate over Deployed Capital",
+              "displayName": "PAR 60+ Rate over Deployed Capital",
               "format": "0.00 %;-0.00 %;0.00 %"
             }
           ]
@@ -361,7 +361,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'PAR 60+ Rate per Enrollment Cohort'"
+                  "Value": "'PAR 60+ Rate per Enrollment Cohort (over Deployed Capital)'"
                 }
               }
             },

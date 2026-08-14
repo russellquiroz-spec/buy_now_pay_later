@@ -86,36 +86,20 @@ CREATE TABLE IF NOT EXISTS archivos_bnpl.bnpl_cac (
     cac               double precision
 );
 
--- ── Vistas para Power BI ────────────────────────────────────────────────────────────────
+-- ── Vistas para Power BI: NO van aqui ───────────────────────────────────────────────────
 --
--- Las tablas de arriba guardan en snake_case, que es la convencion del staging. Estas vistas
--- hacen la traduccion a los nombres EXACTOS que espera el modelo — incluidos '%good', '%bad' y
--- 'Id cliente' con su espacio — para que el paso M en Power Query sea:
+-- La traduccion de snake_case a los nombres exactos del modelo ('%good', '%bad', 'Id cliente'
+-- con su espacio) vive en sql/pbi/14 a 17 y la publica build_bnpl.py como pbi_bnpl.*, igual que
+-- las otras tablas del tablero. Este archivo tuvo cuatro vistas v_pbi_* con esa misma
+-- traduccion; se borraron porque el mismo SQL en dos lugares es exactamente lo que sql/15 dice
+-- que el proyecto no hace, y ademas nadie las consumia: PASOS_M.md apunta a pbi_bnpl.
 --
---     Value.NativeQuery(Origen, "select * from archivos_bnpl.v_pbi_odds_combinations")
+-- Para tirarlas de una base que ya las tiene:
 --
--- y no haya que escapar una sola comilla. Es la misma consulta que hay en sql/pbi/14 a 17; ahi
--- estan documentadas y aqui viven materializadas para que el tablero no tenga que cargarlas.
-
-CREATE OR REPLACE VIEW archivos_bnpl.v_pbi_odds_combinations AS
-SELECT loan_disbursement_index_range AS "loanDisbursementIndexRange",
-       flag AS "flag", atr1 AS "atr1", atr2 AS "atr2",
-       atr1_rank AS "atr1Rank", atr2_rank AS "atr2Rank",
-       events AS "events", good AS "good", bad AS "bad",
-       br AS "br", bad_rate AS "bad_rate",
-       pct_good AS "%good", pct_bad AS "%bad", woe AS "woe", iv AS "iv"
-FROM archivos_bnpl.odds_combinations;
-
-CREATE OR REPLACE VIEW archivos_bnpl.v_pbi_atr_combinations_iv AS
-SELECT loan_disbursement_index_range AS "loanDisbursementIndexRange",
-       flag AS "flag", combination AS "combination",
-       number_of_combinations AS "number_of_combinations", iv AS "iv"
-FROM archivos_bnpl.atr_combinations_iv;
-
-CREATE OR REPLACE VIEW archivos_bnpl.v_pbi_ps_transactional_profile AS
-SELECT id_cliente AS "Id cliente", transactional_profile AS "transactionalProfile"
-FROM archivos_bnpl.ps_transactional_profile;
-
-CREATE OR REPLACE VIEW archivos_bnpl.v_pbi_bnpl_cac AS
-SELECT enrollment_cohort AS "enrollmentCohort", cac AS "cac"
-FROM archivos_bnpl.bnpl_cac;
+--     DROP VIEW IF EXISTS archivos_bnpl.v_pbi_odds_combinations;
+--     DROP VIEW IF EXISTS archivos_bnpl.v_pbi_atr_combinations_iv;
+--     DROP VIEW IF EXISTS archivos_bnpl.v_pbi_ps_transactional_profile;
+--     DROP VIEW IF EXISTS archivos_bnpl.v_pbi_bnpl_cac;
+--
+-- El DROP no va dentro de este archivo a proposito: carga_archivos_bnpl.py lo ejecuta en cada
+-- carga manual y un DROP repetido ahi no aporta nada. Se corre una vez a mano sobre la VM.

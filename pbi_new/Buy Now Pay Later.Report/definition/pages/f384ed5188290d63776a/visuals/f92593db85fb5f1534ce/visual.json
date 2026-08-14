@@ -1084,7 +1084,38 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Funnel Distribution per Number Of Orders'"
+                  "Value": "'Funnel Distribution per Number Of Orders (Customers by Cohort)'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Enrolled customers by number of BNPL orders. All cohorts, no tenure filter.'"
                 }
               }
             },

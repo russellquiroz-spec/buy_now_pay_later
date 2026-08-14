@@ -99,8 +99,8 @@
                 }
               },
               "queryRef": "vintage_analysis.par30RateCustomers",
-              "nativeQueryRef": "PAR 30+ Rate",
-              "displayName": "PAR 30+ Rate",
+              "nativeQueryRef": "PAR 30+ Rate over Activated Customers",
+              "displayName": "PAR 30+ Rate over Activated Customers",
               "format": "0.00 %;-0.00 %;0.00 %"
             }
           ]
@@ -405,7 +405,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'PAR 30 Rate per Enrollment Cohort'"
+                  "Value": "'PAR 30+ Rate per Enrollment Cohort (over Activated Customers)'"
                 }
               }
             },

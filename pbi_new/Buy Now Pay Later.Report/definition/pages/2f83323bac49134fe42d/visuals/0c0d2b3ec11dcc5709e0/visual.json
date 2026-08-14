@@ -412,7 +412,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'PAR 30+ Customers Over Ever Activated Customers'"
+                  "Value": "'Number of customers in PAR 30+ (count, not a rate)'"
                 }
               }
             },

@@ -6,27 +6,7 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-/// Errores en las consultas cargadas en 28/06/2024 01:21:01 a. m..
-queryGroup 'Errores en las consultas: 28/06/2024 01:21:01 a  m'
-
-	annotation PBI_QueryGroupOrder = 0
-
-/// Errores en las consultas cargadas en 07/08/2024 11:51:29 a. m..
-queryGroup 'Errores en las consultas: 07/08/2024 11:51:29 a  m'
-
-	annotation PBI_QueryGroupOrder = 1
-
-/// Errores en las consultas cargadas en 12/09/2024 12:31:24 p. m..
-queryGroup 'Errores en las consultas: 12/09/2024 12:31:24 p  m'
-
-	annotation PBI_QueryGroupOrder = 2
-
-/// Errores en las consultas cargadas en 12/09/2024 11:48:52 p. m..
-queryGroup 'Errores en las consultas: 12/09/2024 11:48:52 p  m'
-
-	annotation PBI_QueryGroupOrder = 3
-
-annotation PBI_QueryOrder = ["bnpl_grouped_orders","grid_bnpl","bnpl_loss_rates","bnpl_par","Errores en bnpl_grouped_orders","vintage_analysis","Errores en grid_bnpl","Errores en grid_bnpl (2)","loans_matured_default_profile","vars_and_iv","odds_combinations","odds_table","atr_combinations_iv","months_closes","ps_transactional_profile","seasonality_delta","overall_prev_post_bnpl_sales","bnpl_audiencia_agg","bnpl_cac","bnpl_cosechas_agg"]
+annotation PBI_QueryOrder = ["bnpl_grouped_orders","grid_bnpl","bnpl_loss_rates","bnpl_par","vintage_analysis","loans_matured_default_profile","vars_and_iv","odds_combinations","odds_table","atr_combinations_iv","months_closes","ps_transactional_profile","seasonality_delta","overall_prev_post_bnpl_sales","bnpl_audiencia_agg","bnpl_cac","bnpl_cosechas_agg"]
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
