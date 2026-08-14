@@ -218,11 +218,12 @@ table months_closes
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column totalAmountDefault
-		dataType: int64
-		formatString: 0
+		dataType: double
 		lineageTag: 12faf484-5640-4618-9ebb-c291d1772348
 		summarizeBy: sum
 		sourceColumn: totalAmountDefault
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 		annotation SummarizationSetBy = Automatic
 
@@ -235,7 +236,8 @@ table months_closes
 		annotation SummarizationSetBy = Automatic
 
 	column paymentDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: 129c9fdb-59f8-4f21-ad3a-290a3c53a8db
 		summarizeBy: none
 		sourceColumn: paymentDate

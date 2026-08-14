@@ -3,7 +3,7 @@
   "name": "e61d48d8360b398620ad",
   "position": {
     "x": 1000,
-    "y": 96.666666666666671,
+    "y": 96.66666666666667,
     "z": 9000,
     "height": 200,
     "width": 248.33333333333334,
@@ -202,7 +202,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla no tiene relación con el grid: los slicers de oficina, ruta, edad y género de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
                 }
               }
             }
@@ -235,7 +235,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla no tiene relación con el grid: los slicers de oficina, ruta, edad y género de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
                 }
               }
             }

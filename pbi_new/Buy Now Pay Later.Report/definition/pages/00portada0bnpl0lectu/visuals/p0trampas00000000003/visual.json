@@ -222,7 +222,7 @@
                     }
                   },
                   {
-                    "value": "Los slicers de oficina, ruta, edad y género salen del grid de clientes. Alcanzan las gráficas de mora, pero no las de cosechas, audiencias ni roll rates, que no tienen relación con el grid. El tooltip de cada gráfica lo indica.",
+                    "value": "Los slicers de oficina, ruta, edad y género salen del grid de clientes. Alcanzan las gráficas de mora y las de roll rates, pero no las de cosechas ni audiencias, que no tienen relación con el grid. El tooltip de cada gráfica lo indica.",
                     "textStyle": {
                       "fontSize": "11pt",
                       "color": "#3B3B3B"

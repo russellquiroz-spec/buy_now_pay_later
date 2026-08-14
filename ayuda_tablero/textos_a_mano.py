@@ -184,8 +184,8 @@ restar uno del otro.
 Universo y corte: Las definiciones no son las que sugieren los nombres. 'Amount Of Disbursed
 Loans' no es todo lo desembolsado: es el saldo solo de las filas en etapa 'Ongoing', las que aun
 no vencen. 'Amount Of Paid Loans' suma las filas cuya etapa SIGUIENTE es 'Paid'. El porcentaje
-es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla no
-tiene relacion con el grid, asi que los slicers de la pagina no la afectan.
+es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla si
+se filtra con los slicers del grid (oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).
 """,
@@ -194,8 +194,7 @@ pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).
 Que mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.
 Universo y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, asi que un
 mismo pedido aparece en varias etapas. 'Pedidos pagados' son los que llegaron a la etapa 'Paid'.
-La tabla no tiene relacion con el grid: los slicers de oficina, ruta, edad y genero de la pagina
-no la afectan.
+La tabla si se filtra con los slicers del grid (oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates.
 """,
@@ -204,7 +203,7 @@ pbi_bnpl.bnpl_loss_rates.
 Que mide: Cuántos clientes pasan de una etapa de mora a la siguiente (roll rates).
 Universo y corte: Cada pedido se despliega en una fila por etapa alcanzada; las columnas son la
 etapa SIGUIENTE del mismo pedido. Cuenta pedidos distintos, no clientes, pese al subtitulo.
-La tabla no tiene relacion con el grid: los slicers de la pagina no la afectan.
+La tabla si se filtra con los slicers del grid (oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates.
 """,
@@ -212,8 +211,8 @@ pbi_bnpl.bnpl_loss_rates.
 "bee6d8c159bacc355305": """
 Que mide: Qué porcentaje de los que estaban en una etapa de mora pasa a cada etapa siguiente.
 Universo y corte: El porcentaje es sobre el total de la etapa anterior (la fila). Cada pedido se
-despliega en una fila por etapa alcanzada. La tabla no tiene relacion con el grid: los slicers
-de la pagina no la afectan.
+despliega en una fila por etapa alcanzada. La tabla si se filtra con los slicers del grid
+(oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates.
 """,
@@ -221,8 +220,8 @@ pbi_bnpl.bnpl_loss_rates.
 "cbceea75131872e0738b": """
 Que mide: Cuánto monto pasa de una etapa de mora a la siguiente (roll rates por capital).
 Universo y corte: Suma el monto financiado de los pedidos desplegados por etapa alcanzada; las
-columnas son la etapa siguiente del mismo pedido. La tabla no tiene relacion con el grid: los
-slicers de la pagina no la afectan.
+columnas son la etapa siguiente del mismo pedido. La tabla si se filtra con los slicers del grid
+(oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates.
 """,
@@ -230,7 +229,7 @@ pbi_bnpl.bnpl_loss_rates.
 "c1dd49270127c6c601ca": """
 Que mide: Qué porcentaje del monto que estaba en una etapa de mora pasa a cada etapa siguiente.
 Universo y corte: El porcentaje es sobre el monto total de la etapa anterior (la fila). La tabla
-no tiene relacion con el grid: los slicers de la pagina no la afectan.
+si se filtra con los slicers del grid (oficina, ruta, edad y genero) por netsuiteId.
 De donde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de
 pbi_bnpl.bnpl_loss_rates.
 """,

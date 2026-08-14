@@ -389,3 +389,11 @@ relationship AutoDetected_6265ddac-ae80-4117-9530-2d40b886dec5
 	fromColumn: overall_prev_post_bnpl_sales.netsuiteId
 	toColumn: grid_bnpl.netsuiteId
 
+relationship ec74a7f6-1c6d-bad4-f6a3-35e92f5e362f
+	fromColumn: grid_bnpl.bnplEnrolledAt
+	toColumn: enrollment_dates.Date
+
+relationship eef16e8f-1e0e-de16-83c2-3deae3d69a3f
+	fromColumn: bnpl_loss_rates_with_lead.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+

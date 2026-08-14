@@ -6,13 +6,12 @@ table bnpl_audiencia_agg
 			VAR med = SELECTEDVALUE('Medidas Audiencia'[Medidas Audiencia Orden])
 			RETURN
 			SWITCH(med,
+			    0, SUM(bnpl_audiencia_agg[Clientes]),
 			    1, SUM(bnpl_audiencia_agg[Gross Sales]),
-			    2, SUM(bnpl_audiencia_agg[Clientes]),
-			    SUM(bnpl_audiencia_agg[Clientes])
+			    BLANK()
 			    )
+		formatString: #,0
 		lineageTag: 9b0ce37c-a766-44c1-996c-cae7588fe4d0
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column ordenes
 		dataType: int64

@@ -72,7 +72,7 @@ T = {
     grano="una fila por pedido y por etapa de mora alcanzada",
     fuente="una tabla calculada en DAX sobre pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7)",
     notas=["'lead_stage' es la etapa siguiente del mismo pedido: de ahi salen las tasas de transicion.",
-           SIN_GRID]),
+           "Se filtra con los slicers del grid (oficina, ruta, edad y genero) por netsuiteId."]),
  "odds_table": dict(grano="una fila por atributo y rango (18)",
     fuente="la vista pbi_bnpl.odds_table, sobre bnpl.loss_rates y bnpl.grid_bnpl",
     notas=["Es la salida de un analisis de riesgo (WOE/IV), no una extraccion.",

@@ -477,7 +477,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Qué porcentaje del monto que estaba en una etapa de mora pasa a cada etapa siguiente.\nUniverso y corte: El porcentaje es sobre el monto total de la etapa anterior (la fila). La tabla no tiene relación con el grid: los slicers de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                  "Value": "'Qué mide: Qué porcentaje del monto que estaba en una etapa de mora pasa a cada etapa siguiente.\nUniverso y corte: El porcentaje es sobre el monto total de la etapa anterior (la fila). La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
                 }
               }
             }
@@ -490,7 +490,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Qué porcentaje del monto que estaba en una etapa de mora pasa a cada etapa siguiente.\nUniverso y corte: El porcentaje es sobre el monto total de la etapa anterior (la fila). La tabla no tiene relación con el grid: los slicers de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                  "Value": "'Qué mide: Qué porcentaje del monto que estaba en una etapa de mora pasa a cada etapa siguiente.\nUniverso y corte: El porcentaje es sobre el monto total de la etapa anterior (la fila). La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
                 }
               }
             }

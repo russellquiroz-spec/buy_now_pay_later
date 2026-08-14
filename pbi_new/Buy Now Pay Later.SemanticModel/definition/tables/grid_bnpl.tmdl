@@ -121,7 +121,7 @@ table grid_bnpl
 
 		annotation SummarizationSetBy = Automatic
 
-	column bnplMinimumTenure = IF(DATEDIFF([bnplEnrolledAt], TODAY(), MONTH) > 4, 1, 0)
+	column bnplMinimumTenure = IF(ISBLANK([bnplEnrolledAt]), 0, IF(DATEDIFF([bnplEnrolledAt], TODAY(), MONTH) > 4, 1, 0))
 		formatString: 0
 		lineageTag: c3286926-b147-4ef1-a651-e06ac342a780
 		summarizeBy: sum

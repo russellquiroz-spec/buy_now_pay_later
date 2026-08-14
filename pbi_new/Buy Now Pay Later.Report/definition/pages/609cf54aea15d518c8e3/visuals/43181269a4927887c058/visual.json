@@ -186,7 +186,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Saldo en pedidos vigentes, saldo que llego a pagado, y el porcentaje que resulta de restar uno del otro.\nUniverso y corte: Las definiciones no son las que sugieren los nombres. ''Amount Of Disbursed Loans'' no es todo lo desembolsado: es el saldo solo de las filas en etapa ''Ongoing'', las que aún no vencen. ''Amount Of Paid Loans'' suma las filas cuya etapa SIGUIENTE es ''Paid''. El porcentaje es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla no tiene relación con el grid, así que los slicers de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).'"
+                  "Value": "'Qué mide: Saldo en pedidos vigentes, saldo que llego a pagado, y el porcentaje que resulta de restar uno del otro.\nUniverso y corte: Las definiciones no son las que sugieren los nombres. ''Amount Of Disbursed Loans'' no es todo lo desembolsado: es el saldo solo de las filas en etapa ''Ongoing'', las que aún no vencen. ''Amount Of Paid Loans'' suma las filas cuya etapa SIGUIENTE es ''Paid''. El porcentaje es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).'"
                 }
               }
             }
@@ -219,7 +219,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Qué mide: Saldo en pedidos vigentes, saldo que llego a pagado, y el porcentaje que resulta de restar uno del otro.\nUniverso y corte: Las definiciones no son las que sugieren los nombres. ''Amount Of Disbursed Loans'' no es todo lo desembolsado: es el saldo solo de las filas en etapa ''Ongoing'', las que aún no vencen. ''Amount Of Paid Loans'' suma las filas cuya etapa SIGUIENTE es ''Paid''. El porcentaje es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla no tiene relación con el grid, así que los slicers de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).'"
+                  "Value": "'Qué mide: Saldo en pedidos vigentes, saldo que llego a pagado, y el porcentaje que resulta de restar uno del otro.\nUniverso y corte: Las definiciones no son las que sugieren los nombres. ''Amount Of Disbursed Loans'' no es todo lo desembolsado: es el saldo solo de las filas en etapa ''Ongoing'', las que aún no vencen. ''Amount Of Paid Loans'' suma las filas cuya etapa SIGUIENTE es ''Paid''. El porcentaje es 1 menos pagado entre vigente, con numerador y denominador de universos distintos. La tabla si se filtra con los slicers del grid (oficina, ruta, edad y género) por netsuiteId.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates (columnas stage1 a stage7).'"
                 }
               }
             }

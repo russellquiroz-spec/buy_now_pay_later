@@ -318,7 +318,7 @@ table bnpl_cosechas_agg
 			VAR Y0 =
 			    CALCULATE(
 			        DIVIDE( SUM( bnpl_cosechas_agg[gross_sales] ), SUM( bnpl_cosechas_agg[ordenes] ) ),
-			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesInicio )
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesInicio && bnpl_cosechas_agg[flg_cte_bnpl] = "N" )
 			    )
 			
 			-- Yref: valor del indicador en MesReferencia (antes del primer enrolamiento)
