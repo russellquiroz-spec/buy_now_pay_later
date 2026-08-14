@@ -45,21 +45,39 @@ def _ahora_mx() -> datetime:
     return (datetime.now(timezone.utc) + timedelta(hours=TZ_OFFSET_HOURS)).replace(tzinfo=None)
 
 
+def _hora_mx(segundos: float) -> time.struct_time:
+    """Convertidor para logging: estampa hora Mexico y no la del reloj del sistema."""
+    return (
+        datetime.fromtimestamp(segundos, timezone.utc) + timedelta(hours=TZ_OFFSET_HOURS)
+    ).timetuple()
+
+
 def _configurar_log() -> Path:
     LOG_DIR.mkdir(exist_ok=True)
     archivo = LOG_DIR / f"pipeline_{_ahora_mx():%Y-%m}.log"
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s  %(levelname)-7s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[
-            logging.FileHandler(archivo, encoding="utf-8"),
-            # A stdout, no al stderr por defecto: PowerShell trata todo lo que llega por stderr
-            # como error y marca la corrida como fallida aunque haya ido bien.
-            logging.StreamHandler(sys.stdout),
-        ],
-        force=True,
-    )
+    # El asctime de logging usa el reloj del SO, que en la VM esta en UTC. Sin el converter el
+    # log estampaba 12:53 el mismo evento que _ahora_mx() guarda como 06:53 en etl_runs: seis
+    # horas de diferencia entre las dos cosas que se leen lado a lado al depurar. El nombre del
+    # archivo ya iba en hora Mexico, asi que el log tampoco coincidia con su propio nombre.
+    formato = logging.Formatter("%(asctime)s  %(levelname)-7s %(message)s", "%Y-%m-%d %H:%M:%S")
+    formato.converter = _hora_mx
+    manejadores = [
+        logging.FileHandler(archivo, encoding="utf-8"),
+        # A stdout, no al stderr por defecto: PowerShell trata todo lo que llega por stderr
+        # como error y marca la corrida como fallida aunque haya ido bien.
+        logging.StreamHandler(sys.stdout),
+    ]
+    # El formatter va puesto antes de basicConfig: solo se lo asigna a los handlers que no
+    # traigan uno, asi que ponerlo aca es lo que evita que lo pise con el de por defecto.
+    for manejador in manejadores:
+        manejador.setFormatter(formato)
+    logging.basicConfig(level=logging.INFO, handlers=manejadores, force=True)
+    # postgres_local_client emite un INFO por cada llamada (config_loaded, query_start,
+    # query_done, tx_begin/commit) y config_loaded vuelca la lista entera de alias. Medido
+    # con 3 de 10 colecciones: 110 de 142 lineas del log eran suyas. El log del pipeline es
+    # lo que se lee para saber que paso, asi que se sube el umbral de esa libreria a WARNING.
+    # Se ajusta aca y no en su .env (que es compartido con los otros proyectos) ni tocandola.
+    logging.getLogger("postgres_local_client").setLevel(logging.WARNING)
     return archivo
 
 
