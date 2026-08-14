@@ -1,0 +1,27 @@
+-- Schema `pbi_bnpl`: la capa que consume Power BI. Una vista por tabla del modelo.
+--
+-- No tiene logica propia. Cada vista es, literalmente, el contenido de un archivo de sql/pbi/
+-- envuelto en un CREATE VIEW — las construye build_bnpl.py leyendo esos archivos, para que no
+-- exista el mismo SQL en dos lugares y no puedan separarse con el tiempo.
+--
+-- ── Por que existe ──────────────────────────────────────────────────────────────────────
+--
+-- Antes cada tabla del tablero llevaba su consulta pegada dentro del .pbix. Eso obliga a escapar
+-- cada comilla del SQL, y sobre todo entierra la logica en un binario de 122 MB: para corregir un
+-- filtro habia que abrir Power BI, editar el paso M y republicar. Con las vistas, el paso M queda
+-- en una linea y la correccion es un cambio de .sql que viaja por git y se aplica con el pipeline.
+--
+--     Value.NativeQuery(Origen, "select * from pbi_bnpl.grid_bnpl")
+--
+-- ── Vistas simples, no materializadas ───────────────────────────────────────────────────
+--
+-- A proposito. Casi todas son proyecciones delgadas sobre las materializadas de `bnpl`, que ya
+-- pagaron el costo de calcularse; volver a materializarlas duplicaria ~3.4M filas y agregaria un
+-- paso de refresh que puede quedar desfasado del de abajo. Con vistas simples, lo que Power BI
+-- lee siempre es consistente con la capa de negocio.
+--
+-- Si algun dia el refresh de Power BI se aprieta contra su ventana, las tres pesadas (bnpl_par,
+-- months_closes y overall_prev_post_bnpl_sales, ~24s cada una) se pueden materializar cambiando
+-- CREATE VIEW por CREATE MATERIALIZED VIEW y agregandolas al refresh. Hoy no hace falta.
+
+CREATE SCHEMA IF NOT EXISTS pbi_bnpl;
