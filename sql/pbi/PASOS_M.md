@@ -18,24 +18,28 @@ Ver también: [agregar una tabla nueva](README.md#agregar-una-tabla-nueva-al-tab
 [cuando falla el refresh](README.md#cuando-falla-el-refresh). Al agregar una tabla, agrega aquí su
 paso M y su renglón en la tabla de abajo.
 
-Filas y columnas verificadas contra la base el 2026-08-14.
+Filas y columnas leídas contra la base el 2026-08-14 por la tarde, **como `pbi_gateway`**. Las filas
+son una foto: se mueven con cada corrida del pipeline, y `concurso_base` además crece sola cada día
+hasta que cierre la ventana del concurso. Sirven para detectar un orden de magnitud equivocado, no
+para cuadrar al número.
 
 | Tabla del modelo | Filas | Cols |
 |---|---|---|
 | `atr_combinations_iv` | 468 | 5 |
 | `bnpl_audiencia_agg` | 214 | 5 |
 | `bnpl_cac` | 25 | 2 |
-| `bnpl_cosechas_agg` | 51,721 | 11 |
-| `bnpl_grouped_orders` | 99,019 | 31 |
-| `bnpl_loss_rates` | 92,009 | 37 |
-| `bnpl_par` | 1,061,120 | 32 |
-| `concurso_base` | 1,098 | 44 |
+| `bnpl_cosechas_agg` | 51,737 | 11 |
+| `bnpl_grouped_orders` | 99,187 | 31 |
+| `bnpl_loss_rates` | 92,162 | 37 |
+| `bnpl_par` | 1,061,273 | 32 |
+| `concurso_base` | 1,266 | 44 |
+| `concurso_clientes` | 51,294 | 7 |
 | `grid_bnpl` | 146,542 | 55 |
-| `loans_matured_default_profile` | 90,262 | 50 |
-| `months_closes` | 1,061,120 | 31 |
+| `loans_matured_default_profile` | 90,405 | 50 |
+| `months_closes` | 1,061,273 | 31 |
 | `odds_combinations` | 84,986 | 15 |
 | `odds_table` | 18 | 14 |
-| `overall_prev_post_bnpl_sales` | 1,293,358 | 22 |
+| `overall_prev_post_bnpl_sales` | 1,294,443 | 22 |
 | `ps_transactional_profile` | 100,793 | 2 |
 | `seasonality_delta` | 132 | 10 |
 | `vars_and_iv` | 6 | 4 |
@@ -135,6 +139,18 @@ let
         PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
                             [CreateNavigationProperties=false]),
         "select * from pbi_bnpl.concurso_base", null, [EnableFolding=true])
+in
+    Origen
+```
+
+## concurso_clientes
+
+```m
+let
+    Origen = Value.NativeQuery(
+        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+                            [CreateNavigationProperties=false]),
+        "select * from pbi_bnpl.concurso_clientes", null, [EnableFolding=true])
 in
     Origen
 ```
