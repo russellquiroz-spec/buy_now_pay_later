@@ -12,7 +12,16 @@ DROP MATERIALIZED VIEW IF EXISTS bnpl.grouped_orders CASCADE;
 CREATE MATERIALIZED VIEW bnpl.grouped_orders AS
 WITH enrolados AS (
     -- Clientes con credito aprobado. Es la base del cohort de enrolamiento.
-    SELECT
+    --
+    -- DISTINCT ON por dos razones distintas, las dos reales:
+    --   1. Este CTE entra como LEFT JOIN contra con_indices (linea 114). Un cliente con dos
+    --      aprobaciones duplica TODAS sus ordenes y hace fallar CREATE UNIQUE INDEX
+    --      ix_grouped_orders_pk (linea 123), que es de cinco columnas y no incluye la aprobacion.
+    --   2. `cohortes` cuenta count(*) sobre este CTE para enrolled_customers. Sin deduplicar,
+    --      un cliente con dos aprobaciones cuenta dos veces en el denominador del cohort.
+    -- Se toma la PRIMERA aprobacion: el cohort de enrolamiento es la fecha en que el cliente
+    -- entro al producto, no la de su ultimo ajuste.
+    SELECT DISTINCT ON ("netsuiteId")
         "netsuiteId"                                             AS netsuite_id,
         bnpl.iso_a_mx("createdAt")                               AS bnpl_enrolled_at,
         to_char(bnpl.iso_a_mx("createdAt"), 'YYYY-MM')           AS enrollment_cohort,
@@ -21,6 +30,7 @@ WITH enrolados AS (
     FROM mongo_bnpl.fintech_credit_approval_production
     WHERE status = 'APPROVED'
       AND "netsuiteId" IS NOT NULL
+    ORDER BY "netsuiteId", bnpl.iso_a_mx("createdAt") ASC NULLS LAST, "approvalId"
 ),
 cohortes AS (
     SELECT
@@ -109,7 +119,14 @@ SELECT
     r.tipo,
     -- La vigencia diaria arranca en 2025-01-01. Para ordenes anteriores se usa el primer tramo
     -- conocido del cliente, y queda marcado como inferido.
-    (o.created_at::date < r.vigencia_real_desde)           AS ruta_inferida
+    --
+    -- El coalesce(..., true) cubre el tercer hueco, que antes salia como NULL: clientes que no
+    -- tienen NINGUN tramo en dim_ruta_cliente_scd, porque la extraccion filtra `and ruta is not
+    -- null` (etl_redshift_to_postgres.py:66) o porque el cliente no esta en la vigencia diaria.
+    -- Con NULL, sql/pbi/20:64 hacia coalesce(bool_or(ruta_inferida), false) y esas ordenes
+    -- terminaban marcadas como ruta FIRME con aliado 'SIN RUTA'. No saber la ruta es el caso
+    -- mas inferido de todos, no el menos.
+    coalesce(o.created_at::date < r.vigencia_real_desde, true) AS ruta_inferida
 FROM con_indices o
 LEFT JOIN enrolados e   ON o.netsuite_id = e.netsuite_id
 LEFT JOIN cohortes c    ON e.enrollment_cohort = c.enrollment_cohort

@@ -2,10 +2,16 @@
 -- Fuente:    bnpl.par_snapshot  +  bnpl.loss_rates  (la MISMA fuente que 03_bnpl_par.sql)
 -- Grano:     orden x corte mensual  (~1.06M filas)
 --
--- months_closes y bnpl_par son la misma tabla con otra ropa. Diferencias, todas cosmeticas:
+-- months_closes y bnpl_par son la misma tabla con otra ropa. Diferencias, todas de presentacion:
 --   * la columna del bucket se llama dqBucket en vez de PAR
 --   * month es una FECHA (primer dia del mes del corte), no el texto 'YYYY-MM'
 --   * no trae limitToReceiveOrdersInMont
+--
+-- Los TIPOS de las columnas compartidas son identicos a los de 03_bnpl_par.sql, y tienen que
+-- serlo: son la misma columna de bnpl.par_snapshot leida dos veces. Hasta ahora no lo eran —
+-- totalAmountDefault salia ::bigint aqui y double alla (redondeando los centavos de la mora, o
+-- sea perdiendo dinero en una de las dos tablas) y paymentDate salia ::text aqui y timestamp
+-- alla. Si hace falta cambiar el tipo de una, se cambian LAS DOS en el mismo commit.
 --
 -- Se dejan las dos consultas porque el modelo tiene relaciones y medidas colgando de cada una
 -- (months_closes.dqBucket -> dq_order.PAR, months_closes.salesOrderId ->
@@ -54,9 +60,9 @@ SELECT
     p.total_amount_to_pay                               AS "totalAmountToPay",
     p.total_amount                                      AS "totalAmount",
     p.interests                                         AS "interests",
-    p.total_amount_default::bigint                      AS "totalAmountDefault",
+    p.total_amount_default                              AS "totalAmountDefault",
     p.movement_date::text                               AS "movementDate",
-    p.payment_date::text                                AS "paymentDate",
+    p.payment_date                                      AS "paymentDate",
     p.paid_date::date                                         AS "paidDate",
     p.expected_payment_date::date                             AS "expectedPaymentDate",
     p.end_of_month_expected_payment_date::date                AS "endOfTheMonthexpectedPaymentDate",

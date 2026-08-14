@@ -66,24 +66,41 @@ pagos AS (
     GROUP BY 1
 ),
 enrolados AS (
-    SELECT
+    -- UNA aprobacion por cliente: la PRIMERA, porque de ella sale bnpl_enrolled_at y el cohort.
+    -- Sin el DISTINCT ON un cliente con dos aprobaciones duplica su fila y hace fallar
+    -- CREATE UNIQUE INDEX ix_grid_bnpl_pk (linea 181), o sea el rebuild entero. Se parece al que
+    -- reporta ops/quality_checks.approval_netsuite_id_duplicado, que cuenta sobre TODAS las
+    -- aprobaciones y no solo sobre status='APPROVED', que hoy es WARN y corre DESPUES del build:
+    -- avisa cuando ya fallo.
+    SELECT DISTINCT ON ("netsuiteId")
         "netsuiteId"                                        AS netsuite_id,
         bnpl.iso_a_mx("createdAt")                          AS bnpl_enrolled_at,
         "creditLimit"                                       AS credit_limit,
         origin                                              AS enrollment_channel
     FROM mongo_bnpl.fintech_credit_approval_production
     WHERE status = 'APPROVED' AND "netsuiteId" IS NOT NULL
+    ORDER BY "netsuiteId", bnpl.iso_a_mx("createdAt") ASC NULLS LAST, "approvalId"
 ),
 preautorizados AS (
-    SELECT
+    -- Misma regla: la PRIMERA preautorizacion, que es la que define bnpl_eligible_at.
+    SELECT DISTINCT ON ("netsuiteId")
         "netsuiteId"                                        AS netsuite_id,
         bnpl.iso_a_mx("authorizationDate")                  AS bnpl_eligible_at,
         "preAuthorized"                                     AS pre_authorized_by
     FROM mongo_bnpl.fintech_pre_authorization_status_production
     WHERE "netsuiteId" IS NOT NULL
+    ORDER BY "netsuiteId", bnpl.iso_a_mx("authorizationDate") ASC NULLS LAST,
+             "preAuthorizationId"
 ),
 lineas AS (
-    SELECT
+    -- credit_limit_history_management es un snapshot por cliente (la historia va dentro de la
+    -- columna "creditHistory", sql/01:267), no un log de movimientos: HOY no tiene netsuiteId
+    -- repetidos, y no puede tenerlos sin que el rebuild falle antes — el LEFT JOIN de abajo
+    -- multiplicaria filas y con eso CREATE UNIQUE INDEX ix_grid_bnpl_pk (linea 181).
+    -- El DISTINCT ON es blindaje: si el dia que la fuente empiece a versionar la linea el grid
+    -- se queda con el ajuste MAS RECIENTE, que es el estado vigente que pide esta vista, en vez
+    -- de tumbar el pipeline entero.
+    SELECT DISTINCT ON ("netsuiteId")
         "netsuiteId"                                        AS netsuite_id,
         "originalCreditLimit"                               AS original_credit_limit,
         "currentCreditLimit"                                AS current_credit_limit,
@@ -91,6 +108,7 @@ lineas AS (
         "customerStatus"                                    AS customer_status
     FROM mongo_bnpl.credit_limit_history_management
     WHERE "netsuiteId" IS NOT NULL
+    ORDER BY "netsuiteId", "creditLimitUpdateDate" DESC NULLS LAST, "customerId"
 )
 SELECT
     c."customerId"                                          AS customer_id,
@@ -109,18 +127,23 @@ SELECT
     c."address_zipCode"                                     AS shop_zip_code,
     c."address_town"                                        AS shop_town,
     c."address_state"                                       AS shop_state,
-    nullif(c."address_latitude", '')::double precision      AS shop_latitude,
-    nullif(c."address_longitude", '')::double precision     AS shop_longitude,
+    bnpl.a_coord(c."address_latitude", 90)                  AS shop_latitude,
+    bnpl.a_coord(c."address_longitude", 180)                AS shop_longitude,
     r.name                                                  AS customer_name,
     r."lastNames"                                           AS customer_last_names,
     coalesce(nullif(r.gender, 'NOT_DEFINED'), nullif(c.gender, 'NOT_DEFINED')) AS gender,
-    r.birthdate::date                                       AS customer_birthdate,
-    (bnpl.hoy_mx() - r.birthdate::date) / 365               AS customer_age,
-    (pa.bnpl_eligible_at::date - r.birthdate::date) / 365   AS customer_age_at_eligibility,
-    (en.bnpl_enrolled_at::date - r.birthdate::date) / 365   AS customer_age_at_enrollment,
+    -- birthdate, latitude y longitude son TEXT en el staging (sql/01:131-132, :152) y llegan de
+    -- captura libre. Van por las funciones guardadas de sql/02 por la misma razon que iso_a_mx():
+    -- un solo valor invalido no puede tumbar el rebuild de la vista maestra del producto.
+    bnpl.a_fecha(r.birthdate)                               AS customer_birthdate,
+    (bnpl.hoy_mx() - bnpl.a_fecha(r.birthdate)) / 365       AS customer_age,
+    (pa.bnpl_eligible_at::date - bnpl.a_fecha(r.birthdate)) / 365
+                                                            AS customer_age_at_eligibility,
+    (en.bnpl_enrolled_at::date - bnpl.a_fecha(r.birthdate)) / 365
+                                                            AS customer_age_at_enrollment,
     c."phoneNumber"                                         AS customer_phone_number,
-    nullif(r.latitude, '')::double precision                AS customer_latitude,
-    nullif(r.longitude, '')::double precision               AS customer_longitude,
+    bnpl.a_coord(r.latitude, 90)                            AS customer_latitude,
+    bnpl.a_coord(r.longitude, 180)                          AS customer_longitude,
     c."hasMarketplace"                                      AS has_marketplace,
     c."hasPresales"                                         AS has_presales,
     -- Embudo

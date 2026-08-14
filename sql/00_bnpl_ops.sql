@@ -52,8 +52,15 @@ CREATE TABLE IF NOT EXISTS bnpl_ops.etl_runs (
     modo       text,
     filas      bigint,
     segundos   numeric(10,1),
+    commit_sha text,
+    sql_sha256 text,
     PRIMARY KEY (started_at, tabla)
 );
+
+-- La tabla ya existe en la VM, y CREATE TABLE IF NOT EXISTS no agrega columnas: estas
+-- dos lineas son las que la migran. Son idempotentes, pueden quedarse en el archivo.
+ALTER TABLE bnpl_ops.etl_runs ADD COLUMN IF NOT EXISTS commit_sha text;
+ALTER TABLE bnpl_ops.etl_runs ADD COLUMN IF NOT EXISTS sql_sha256 text;
 
 CREATE INDEX IF NOT EXISTS ix_etl_runs_tabla_modo
     ON bnpl_ops.etl_runs (tabla, modo, started_at DESC);

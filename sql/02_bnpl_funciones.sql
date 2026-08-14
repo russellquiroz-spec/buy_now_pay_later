@@ -87,6 +87,41 @@ CREATE OR REPLACE FUNCTION bnpl.iso_a_mx(valor text) RETURNS timestamp
                 THEN (valor::timestamptz AT TIME ZONE 'UTC') - interval '6 hours' END
 $$;
 
+-- Texto -> date, con la MISMA guarda que iso_a_mx(). Existe porque esa guarda se puso en
+-- createdAt y authorizationDate pero no en birthdate, que en el staging tambien es text
+-- (sql/01:152) y viene de captura libre. Un solo '00/00/0000' en una fila de
+-- fintech-credit-request tumba el rebuild entero de bnpl.grid_bnpl.
+--
+-- Se valida el rango ademas del patron: to_date() no falla con '2024-13-45', lo desborda al
+-- año siguiente, y una edad calculada sobre eso pasa desapercibida.
+CREATE OR REPLACE FUNCTION bnpl.a_fecha(valor text) RETURNS date
+    LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
+BEGIN
+    RETURN CASE
+        WHEN valor ~ '^\d{4}-\d{2}-\d{2}'
+             AND left(valor, 10)::date BETWEEN '1900-01-01'::date AND '2100-01-01'::date
+        THEN left(valor, 10)::date
+    END;
+EXCEPTION WHEN others THEN
+    RETURN NULL;
+END
+$$;
+
+-- Texto -> coordenada. `maximo` es 90 para latitud y 180 para longitud. Devuelve NULL si el
+-- texto no es numerico o si cae fuera del rango: en el staging latitude/longitude son text
+-- (sql/01:131-132, :152) y ahi han llegado cadenas vacias, comas decimales y ceros.
+CREATE OR REPLACE FUNCTION bnpl.a_coord(valor text, maximo double precision)
+    RETURNS double precision
+    LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
+DECLARE v double precision;
+BEGIN
+    v := nullif(trim(valor), '')::double precision;
+    RETURN CASE WHEN v BETWEEN -maximo AND maximo AND v <> 0 THEN v END;
+EXCEPTION WHEN others THEN
+    RETURN NULL;
+END
+$$;
+
 -- Si la fecha de pago cae en fin de semana se corre al lunes siguiente.
 CREATE OR REPLACE FUNCTION bnpl.mover_a_lunes(f timestamp) RETURNS timestamp
     LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$
