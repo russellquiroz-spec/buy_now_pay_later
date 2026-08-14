@@ -1,0 +1,294 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "50dfc6d7335208e5470d",
+  "position": {
+    "x": 294,
+    "y": 1154,
+    "z": 3000,
+    "height": 306,
+    "width": 1300,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "loanDisbursementIndexRange"
+                }
+              },
+              "queryRef": "Sum(odds_table.loanDisbursementIndexRange)",
+              "nativeQueryRef": "loanDisbursementIndexRange"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "flag"
+                }
+              },
+              "queryRef": "odds_table.flag",
+              "nativeQueryRef": "flag"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "attribute"
+                }
+              },
+              "queryRef": "odds_table.attribute",
+              "nativeQueryRef": "attribute"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "bin"
+                }
+              },
+              "queryRef": "odds_table.bin",
+              "nativeQueryRef": "bin"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "min_value"
+                }
+              },
+              "queryRef": "odds_table.min_value",
+              "nativeQueryRef": "min_value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "max_value"
+                }
+              },
+              "queryRef": "odds_table.max_value",
+              "nativeQueryRef": "max_value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "events"
+                }
+              },
+              "queryRef": "Sum(odds_table.events)",
+              "nativeQueryRef": "events"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "bad"
+                }
+              },
+              "queryRef": "Sum(odds_table.bad)",
+              "nativeQueryRef": "bad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "%bad"
+                }
+              },
+              "queryRef": "Sum(odds_table.%bad)",
+              "nativeQueryRef": "%bad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_table"
+                    }
+                  },
+                  "Property": "bad_rate"
+                }
+              },
+              "queryRef": "Sum(odds_table.bad_rate)",
+              "nativeQueryRef": "bad_rate"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "odds_table"
+                        }
+                      },
+                      "Property": "iv"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(odds_table.iv)",
+              "nativeQueryRef": "Suma de iv"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "odds_table"
+                  }
+                },
+                "Property": "loanDisbursementIndexRange"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "334.26394926905715D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "odds_table.attribute"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "93D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(odds_table.iv)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "130D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(odds_table.bad_rate)"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, attribute y 8 columnas más.\nUniverso y corte: El grano es una fila por atributo y rango (18). Es la salida de un analisis de riesgo (WOE/IV), no una extracción. El corte del bin esta congelado del archivo original.\nDe dónde sale: Sale de la vista pbi_bnpl.odds_table, sobre bnpl.loss_rates y bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, attribute y 8 columnas más.\nUniverso y corte: El grano es una fila por atributo y rango (18). Es la salida de un analisis de riesgo (WOE/IV), no una extracción. El corte del bin esta congelado del archivo original.\nDe dónde sale: Sale de la vista pbi_bnpl.odds_table, sobre bnpl.loss_rates y bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

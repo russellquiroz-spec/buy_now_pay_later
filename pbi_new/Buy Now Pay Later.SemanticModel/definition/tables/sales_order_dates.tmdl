@@ -1,0 +1,30 @@
+table sales_order_dates
+	lineageTag: c6e8c754-ed5b-49e6-b9b8-c01fd9cb6152
+
+	column Date
+		formatString: Long Date
+		lineageTag: c631018b-1c1b-48c8-aff4-b591728068c6
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: 573d1e64-0105-431a-9788-f7535b483310
+			defaultHierarchy: LocalDateTable_d65c2873-ca42-4a79-ac0b-b1045fe991ba.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition sales_order_dates = calculated
+		mode: import
+		source =
+				
+				CALENDAR(
+				    MIN('bnpl_grouped_orders'[createdAt]),
+				    MAX('bnpl_grouped_orders'[createdAt])
+				)
+
+	annotation PBI_Id = 2b661b7ac93344b3a97d191217f806c3
+

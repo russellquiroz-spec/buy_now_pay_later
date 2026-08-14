@@ -1,0 +1,178 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "68f9e84f7f43baff9374",
+  "position": {
+    "x": 1178.75,
+    "y": 0,
+    "z": 2000,
+    "height": 95,
+    "width": 191.25,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "bnpl_audiencia_agg"
+                        }
+                      },
+                      "Property": "createdAtMonth"
+                    }
+                  },
+                  "Function": 4
+                }
+              },
+              "queryRef": "Min(bnpl_audiencia_agg.createdAtMonth)",
+              "nativeQueryRef": "Mes de actualización",
+              "displayName": "Mes de actualización"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Aggregation": {
+                "Expression": {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "bnpl_audiencia_agg"
+                      }
+                    },
+                    "Property": "createdAtMonth"
+                  }
+                },
+                "Function": 4
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El máximo de created at month.\nUniverso y corte: El grano es un panel de cliente por mes (214 filas agregadas). Clasifica con ''tipoActual'', la ruta vigente. Dormant, Inactivo y Dropped son clientes que NO compraron ese mes. No tiene relación con el grid, así que los slicers de oficina, ruta, edad o género de la página no la afectan.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_audiencia_agg, derivada de bnpl.grouped_orders.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El máximo de created at month.\nUniverso y corte: El grano es un panel de cliente por mes (214 filas agregadas). Clasifica con ''tipoActual'', la ruta vigente. Dormant, Inactivo y Dropped son clientes que NO compraron ese mes. No tiene relación con el grid, así que los slicers de oficina, ruta, edad o género de la página no la afectan.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_audiencia_agg, derivada de bnpl.grouped_orders.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

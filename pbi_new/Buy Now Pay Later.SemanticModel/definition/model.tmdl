@@ -1,0 +1,139 @@
+model Model
+	culture: es-MX
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-MX
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+/// Errores en las consultas cargadas en 28/06/2024 01:21:01 a. m..
+queryGroup 'Errores en las consultas: 28/06/2024 01:21:01 a  m'
+
+	annotation PBI_QueryGroupOrder = 0
+
+/// Errores en las consultas cargadas en 07/08/2024 11:51:29 a. m..
+queryGroup 'Errores en las consultas: 07/08/2024 11:51:29 a  m'
+
+	annotation PBI_QueryGroupOrder = 1
+
+/// Errores en las consultas cargadas en 12/09/2024 12:31:24 p. m..
+queryGroup 'Errores en las consultas: 12/09/2024 12:31:24 p  m'
+
+	annotation PBI_QueryGroupOrder = 2
+
+/// Errores en las consultas cargadas en 12/09/2024 11:48:52 p. m..
+queryGroup 'Errores en las consultas: 12/09/2024 11:48:52 p  m'
+
+	annotation PBI_QueryGroupOrder = 3
+
+annotation PBI_QueryOrder = ["bnpl_grouped_orders","grid_bnpl","bnpl_loss_rates","bnpl_par","Errores en bnpl_grouped_orders","vintage_analysis","Errores en grid_bnpl","Errores en grid_bnpl (2)","loans_matured_default_profile","vars_and_iv","odds_combinations","odds_table","atr_combinations_iv","months_closes","ps_transactional_profile","seasonality_delta","overall_prev_post_bnpl_sales","bnpl_audiencia_agg","bnpl_cac","bnpl_cosechas_agg"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["WebModelingEdit","DevMode"]
+
+ref table bnpl_grouped_orders
+ref table DateTableTemplate_2ec7fb04-5bf5-4e9d-99ce-e786b8b7d349
+ref table LocalDateTable_08b9fefb-5985-4c90-b1e9-44acc74ab892
+ref table grid_bnpl
+ref table enrollment_dates
+ref table dynamic_enrollment_dates
+ref table LocalDateTable_ffe9d113-efe9-40e5-9772-ab2147534f8a
+ref table LocalDateTable_eec174df-9081-4f96-ac66-6dbe25ead100
+ref table bnpl_loss_rates
+ref table LocalDateTable_1cc3ce3a-bce2-4186-8553-409bf791966a
+ref table LocalDateTable_88abab70-a0b9-4e67-bf1d-f08c224fc553
+ref table LocalDateTable_b938a08b-7500-43f1-be65-07ea416132c6
+ref table LocalDateTable_0caa8d7f-8683-4ed2-924a-9434e43485e8
+ref table LocalDateTable_fe907c67-6e33-4d46-b255-82d2483b52f6
+ref table LocalDateTable_3e4e340c-69d5-41a8-a24f-1210e44fc2e4
+ref table bnpl_par
+ref table LocalDateTable_28f68b36-bdbf-4c8d-a027-5d82e8a54c99
+ref table LocalDateTable_9f1ea388-5620-4e1d-b2f8-700172ac2c01
+ref table LocalDateTable_81998036-a306-47b0-a041-c907b9ebbb51
+ref table LocalDateTable_e0859ef2-7d82-4460-b82d-ca44428e363b
+ref table LocalDateTable_4a07ed5e-d20e-4535-b82b-27c7e94f198f
+ref table LocalDateTable_be14593d-9cea-4768-a207-34bc52b7b458
+ref table LocalDateTable_28106b25-dc5e-4d2c-bd85-02afe24fbd32
+ref table LocalDateTable_90079f80-db32-46a8-b070-1ce0eb1464b7
+ref table LocalDateTable_ed6214a8-20ab-4da2-a6ed-bc643d2f6ab9
+ref table LocalDateTable_cff3913a-3cd0-4905-bbd1-740cda059795
+ref table dq_order
+ref table vintage_analysis
+ref table sales_order_dates
+ref table LocalDateTable_d65c2873-ca42-4a79-ac0b-b1045fe991ba
+ref table dynamic_sales_orders_dates
+ref table LocalDateTable_573040a7-606d-4d2f-9d8e-b17c653bfc75
+ref table bnpl_loss_rates_with_lead
+ref table dq_order_roll_rates
+ref table dq_order_roll_rates_lead
+ref table bnpl_loss_rates_temp_table
+ref table LocalDateTable_b9de75ae-2b41-465c-add6-dda0fccca935
+ref table LocalDateTable_585a5919-b1a4-45e5-baab-a1c90c912c5d
+ref table loans_matured_default_profile
+ref table LocalDateTable_1207ba48-485f-4c59-9f98-191ba113f238
+ref table LocalDateTable_74f78b1f-8b45-4401-ac52-8f52d433855d
+ref table LocalDateTable_b6918e14-3ba8-4515-9ce5-9ac108b6725c
+ref table LocalDateTable_1ccebd3e-f249-4e1b-8d84-9fab87b295e4
+ref table LocalDateTable_0bc62bfc-a6cb-4aad-a8d0-df7d9979b065
+ref table vars_and_iv
+ref table odds_combinations
+ref table odds_table
+ref table atr_combinations_iv
+ref table months_closes
+ref table LocalDateTable_fd43405d-3eea-4bc3-b65f-df2e8e664f76
+ref table LocalDateTable_5f6aad8d-ded8-494e-98d7-4dabf3874d0c
+ref table LocalDateTable_9d08fa84-d1e6-4d08-bb36-ee5246a68739
+ref table LocalDateTable_8e2483b8-4698-4286-a96f-edb8a8b6c634
+ref table LocalDateTable_2ca2ffa4-aebd-479e-a371-cfd793613429
+ref table LocalDateTable_8fec5ba7-5dd4-4648-a8e9-048e0edfdfee
+ref table LocalDateTable_3fb3c8ea-7289-4bf2-baf9-01c95153ec94
+ref table LocalDateTable_eb9ffa29-8306-4661-a6e6-680791be986d
+ref table LocalDateTable_272a2513-534e-4255-9424-feb6bb62146d
+ref table ps_transactional_profile
+ref table LocalDateTable_734a736a-5453-4772-aa97-e41b98effb36
+ref table LocalDateTable_85a39f4a-2d1b-4db2-acc1-c4010c351031
+ref table Top100InactiveCustomers
+ref table LocalDateTable_d0c7c93f-04c8-49f9-8725-311e326ff1d1
+ref table overall_prev_post_bnpl_sales
+ref table LocalDateTable_96057a76-d93d-4973-a608-d63833df1313
+ref table LocalDateTable_d0bccf4c-188a-4509-9de8-d36c4fd875a9
+ref table seasonality_delta
+ref table CacTable
+ref table bnpl_cac
+ref table LocalDateTable_04051958-743b-4315-a155-ef599b8eff37
+ref table revenue_view_selector
+ref table LocalDateTable_e4239dcb-69ba-4278-9090-7b2c61713b8b
+ref table Clientes_Mensual
+ref table LocalDateTable_1f5c33d1-6555-4404-93a9-89efe3080eaa
+ref table bnpl_audiencia_agg
+ref table 'Medidas Audiencia'
+ref table bnpl_cosechas_agg
+ref table LocalDateTable_0747c98b-7c87-4578-a162-e1db87ea3c5d
+ref table LocalDateTable_e1e05c87-3805-40ca-8d80-24682331dbf3
+ref table LocalDateTable_e2049985-ccac-412a-be9e-ffd25de2a1e4
+ref table 'Cosecha Enrolamiento'
+ref table 'Cosecha activación'
+ref table cohort_type
+ref table x_axis_type
+ref table 'X Axis Type'
+ref table 'Cohort Type'
+ref table 'Cohort X Axis Type'
+ref table TablaParaGrafica
+ref table 'Cohorte (Total)'
+ref table LocalDateTable_fb3349d4-406a-49b7-a2b2-fc0e71cad147
+ref table LocalDateTable_83e9d541-9c9d-4bbe-a69e-688d405f5115
+ref table LocalDateTable_32c5c766-ad16-4bf3-877b-641e0f14ff96
+ref table LocalDateTable_ca0db2c4-011c-451f-8404-3a3705b52441
+ref table LocalDateTable_31eae466-3f3c-428e-bc2a-7274e8954aa2
+ref table LocalDateTable_6ab58225-cbab-4b90-a54d-1d28facc564a
+ref table LocalDateTable_c7aff579-7674-4355-9b1d-503accd93c3c
+ref table LocalDateTable_fbb444f8-254e-4fcb-bac0-490fe7318d50
+ref table LocalDateTable_6903207c-d21e-430f-9dff-2d4e98481e39
+ref table LocalDateTable_1b940f1c-2eae-4fd8-8637-ed958c6ccae4
+ref table LocalDateTable_e20cbdde-8e3d-48e0-be88-16cfa3fb7d54
+ref table LocalDateTable_ea6906a7-55f5-4666-9531-a05bc53bd6b0
+ref table LocalDateTable_705dde30-e8fe-4cfb-ab13-0f5af43568c5
+
+ref cultureInfo es-MX
+

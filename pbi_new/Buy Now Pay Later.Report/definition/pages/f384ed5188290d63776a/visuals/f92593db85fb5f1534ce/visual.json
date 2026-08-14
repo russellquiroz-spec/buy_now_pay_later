@@ -1,0 +1,1154 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "f92593db85fb5f1534ce",
+  "position": {
+    "x": 300,
+    "y": 1117,
+    "z": 3000,
+    "height": 350,
+    "width": 812,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "grid_bnpl"
+                    }
+                  },
+                  "Property": "enrollment_cohort"
+                }
+              },
+              "queryRef": "grid_bnpl.enrollment_cohort",
+              "nativeQueryRef": "Enrollment Cohort",
+              "displayName": "Enrollment Cohort"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "0"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.0)",
+              "nativeQueryRef": "0",
+              "displayName": "0",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "1"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.1)",
+              "nativeQueryRef": "1",
+              "displayName": "1",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "2"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.2)",
+              "nativeQueryRef": "2",
+              "displayName": "2",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "3"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.3)",
+              "nativeQueryRef": "3",
+              "displayName": "3",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "4"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.4)",
+              "nativeQueryRef": "4",
+              "displayName": "4",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "5"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.5)",
+              "nativeQueryRef": "5",
+              "displayName": "5",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "6"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.6)",
+              "nativeQueryRef": "6",
+              "displayName": "6",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "7"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.7)",
+              "nativeQueryRef": "7",
+              "displayName": "7",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "8"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.8)",
+              "nativeQueryRef": "8",
+              "displayName": "8",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "9"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.9)",
+              "nativeQueryRef": "9",
+              "displayName": "9"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "10"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.10)",
+              "nativeQueryRef": "10",
+              "displayName": "10"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "15"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.15)",
+              "nativeQueryRef": "15",
+              "displayName": "15"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "20"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.20)",
+              "nativeQueryRef": "20",
+              "displayName": "20"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "grid_bnpl"
+                        }
+                      },
+                      "Property": "30"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(grid_bnpl.30)",
+              "nativeQueryRef": "30",
+              "displayName": "30"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "fontColorPrimary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            },
+            "fontColorSecondary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            },
+            "backColorSecondary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "11D"
+                }
+              }
+            },
+            "wordWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "49.685638817347915D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.0)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "46.85714223891464D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.1)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "51.99999951915583D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.2)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "51.14285631855285D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.3)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "49.714284958673446D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.4)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "50.30391770692661D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.5)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "48.89575176536762D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.6)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "52.11416892856049D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.7)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "50.285713267663255D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.8)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "47.42857053029111D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.9)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "43.71428540844264D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.10)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "52.28571381304772D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.15)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "45.14285680921016D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.20)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "45.14285680921016D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.30)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "88D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "grid_bnpl.enrollment_cohort"
+          }
+        }
+      ],
+      "grid": [
+        {
+          "properties": {
+            "gridHorizontalColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.30)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.0)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.1)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.2)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.3)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.4)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.5)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.6)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.7)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.8)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.9)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.10)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.15)"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Sum(grid_bnpl.20)"
+          }
+        },
+        {
+          "properties": {
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "grid_bnpl.enrollment_cohort"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Funnel Distribution per Number Of Orders'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La cohorte de enrolamiento, La suma de 0, La suma de 1 y 12 columnas más.\nUniverso y corte: El grano es una fila por cliente (146,542). La ruta, el supervisor y la oficina son los vigentes: quien atiende la cuenta hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.grid_bnpl, sobre bnpl.grid_bnpl más bnpl.dim_ruta_actual.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La cohorte de enrolamiento, La suma de 0, La suma de 1 y 12 columnas más.\nUniverso y corte: El grano es una fila por cliente (146,542). La ruta, el supervisor y la oficina son los vigentes: quien atiende la cuenta hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.grid_bnpl, sobre bnpl.grid_bnpl más bnpl.dim_ruta_actual.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

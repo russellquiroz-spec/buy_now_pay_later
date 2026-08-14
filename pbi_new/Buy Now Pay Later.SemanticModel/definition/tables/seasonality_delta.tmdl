@@ -1,0 +1,114 @@
+table seasonality_delta
+	lineageTag: 0acf0170-af43-47a5-9acb-445452f350dd
+
+	column fromMonth
+		dataType: string
+		lineageTag: f8a08659-73c2-4a22-ad7b-957d367831f4
+		summarizeBy: none
+		sourceColumn: fromMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column toMonth
+		dataType: string
+		lineageTag: b0529451-d403-45c9-a29b-16f1c198d530
+		summarizeBy: none
+		sourceColumn: toMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column fromMonthAvgGrossSales
+		dataType: double
+		lineageTag: df53cfc2-8ce7-4022-8c74-8635790076c2
+		summarizeBy: sum
+		sourceColumn: fromMonthAvgGrossSales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column fromcAvgMonthlyVolume
+		dataType: double
+		lineageTag: 047b1080-af26-4524-8c76-a1e1fb763380
+		summarizeBy: sum
+		sourceColumn: fromcAvgMonthlyVolume
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column toMonthAvgGrossSales
+		dataType: double
+		lineageTag: 94aef317-8975-48d8-8d67-3c85b95323b5
+		summarizeBy: sum
+		sourceColumn: toMonthAvgGrossSales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column toAvgMonthlyVolume
+		dataType: double
+		lineageTag: ff4db41d-7f58-41c3-b042-2511913c3e94
+		summarizeBy: sum
+		sourceColumn: toAvgMonthlyVolume
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column seasonalityDeltaTicket
+		dataType: double
+		lineageTag: 51388946-5c6e-44bf-9757-5c35e12c8440
+		summarizeBy: sum
+		sourceColumn: seasonalityDeltaTicket
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column seasonalityDeltaTicketRate
+		dataType: double
+		lineageTag: 4128aede-ea9c-4074-9091-ad15183962d0
+		summarizeBy: sum
+		sourceColumn: seasonalityDeltaTicketRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column seasonalityDeltaVolume
+		dataType: double
+		lineageTag: 20fd111c-1f4f-49e7-8457-592bbe0ff8eb
+		summarizeBy: sum
+		sourceColumn: seasonalityDeltaVolume
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column seasonalityDeltaVolumeRate
+		dataType: double
+		lineageTag: e9a7d87c-353a-4ca6-8998-9cf8e3259395
+		summarizeBy: sum
+		sourceColumn: seasonalityDeltaVolumeRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition seasonality_delta = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.seasonality_delta", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

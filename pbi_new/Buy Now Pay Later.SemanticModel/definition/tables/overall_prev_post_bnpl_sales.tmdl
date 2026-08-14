@@ -1,0 +1,281 @@
+table overall_prev_post_bnpl_sales
+	lineageTag: 97b6277d-48c7-45c5-a869-38abddd387bb
+
+	measure frequencyOP = DISTINCTCOUNT(overall_prev_post_bnpl_sales[salesOrderId]) / DISTINCTCOUNT(overall_prev_post_bnpl_sales[netsuiteId])
+		lineageTag: f109dc87-98fe-4573-9a13-f597f5cee3aa
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure MonthlyGrossSales = sum(overall_prev_post_bnpl_sales[grossSales])/DISTINCTCOUNT(overall_prev_post_bnpl_sales[monthsToOrSinceEnrollment])/DISTINCTCOUNT(overall_prev_post_bnpl_sales[netsuiteId])
+		lineageTag: 3e103f59-fb7e-47f9-acc3-4d084e000cb1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure grossSalesMetric = sum(overall_prev_post_bnpl_sales[grossSales]) / DISTINCTCOUNT(overall_prev_post_bnpl_sales[netsuiteId])
+		lineageTag: 2cadacf0-6526-4f77-b11b-9363cf659d61
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure MaxMonthsSinceEnrollmentPostBNPLMetric =
+			
+			CALCULATE(
+			    MAXX(
+			        FILTER(
+			            ALL(overall_prev_post_bnpl_sales),
+			            overall_prev_post_bnpl_sales[treshold] = "post BNPL"
+			        ),
+			        overall_prev_post_bnpl_sales[monthsToOrSinceEnrollment]
+			    ),
+			    REMOVEFILTERS(overall_prev_post_bnpl_sales[treshold])
+			)
+		formatString: 0
+		lineageTag: f3fe155a-4f3c-4e80-af24-1c30c40d58cd
+
+	measure historicalFrequency = COUNT(overall_prev_post_bnpl_sales[salesOrderId]) / DISTINCTCOUNT(overall_prev_post_bnpl_sales[netsuiteId])
+		lineageTag: a98ab5e6-5a59-4881-b3fb-9bb69f052de3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column netsuiteId
+		dataType: int64
+		formatString: 0
+		lineageTag: fea085ff-a065-44f3-9a70-2a1bb0f72f0e
+		summarizeBy: none
+		sourceColumn: netsuiteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		dataType: string
+		lineageTag: a5027eb2-6ae8-43c3-ab69-90c5d994feaf
+		summarizeBy: none
+		sourceColumn: salesOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderStatus
+		dataType: string
+		lineageTag: 63c84b63-5df9-45f2-9d4d-8bec6749df1c
+		summarizeBy: none
+		sourceColumn: orderStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAt
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e0d4a642-9df7-4a67-9320-89406e870b3d
+		summarizeBy: none
+		sourceColumn: createdAt
+
+		variation Variación
+			isDefault
+			relationship: 54f5bcb8-1955-4647-a7ca-3b45462e2b5a
+			defaultHierarchy: LocalDateTable_96057a76-d93d-4973-a608-d63833df1313.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsToOrSinceEnrollment
+		dataType: int64
+		formatString: 0
+		lineageTag: f15fa58f-abff-4fcf-9412-405b608bbfc3
+		summarizeBy: sum
+		sourceColumn: monthsToOrSinceEnrollment
+
+		annotation SummarizationSetBy = Automatic
+
+	column skus
+		dataType: int64
+		formatString: 0
+		lineageTag: e4ff61dd-60c6-42a7-946e-09a3f0296061
+		summarizeBy: sum
+		sourceColumn: skus
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 767935ba-ce85-44ea-8ca0-60575d9d7720
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d7eb2fa-df48-4a9a-a8d2-1c1414203461
+		summarizeBy: sum
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column treshold
+		dataType: string
+		lineageTag: 3d0ed96e-4b3f-4ce4-86df-36ebdd987074
+		summarizeBy: none
+		sourceColumn: treshold
+
+		annotation SummarizationSetBy = Automatic
+
+	column comparable
+		dataType: string
+		lineageTag: 7c978fb6-5d01-4942-a96a-48191271d59b
+		summarizeBy: none
+		sourceColumn: comparable
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaxMonthsSinceEnrollmentPostBNPL = ```
+			
+			CALCULATE(
+			    MAX(overall_prev_post_bnpl_sales[monthsToOrSinceEnrollment]),
+			    FILTER(
+			        overall_prev_post_bnpl_sales, 
+			        overall_prev_post_bnpl_sales[treshold] = "post BNPL"
+			    )
+			)
+			```
+		formatString: 0
+		lineageTag: a9f959a8-5a1e-4b35-9cf4-e08c4d9691e1
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column validMonths = IF(overall_prev_post_bnpl_sales[monthsToOrSinceEnrollment] <= overall_prev_post_bnpl_sales[MaxMonthsSinceEnrollmentPostBNPLMetric], 1, 0)
+		formatString: 0
+		lineageTag: b2f0bbc0-5161-40d2-87df-0b16ed0938e5
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEnrolledAt
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0a490416-5389-4080-b09e-e51c9fc9cece
+		summarizeBy: none
+		sourceColumn: bnplEnrolledAt
+
+		variation Variación
+			isDefault
+			relationship: 97e93a38-9678-429a-8b80-ffa642dad4c2
+			defaultHierarchy: LocalDateTable_d0bccf4c-188a-4509-9de8-d36c4fd875a9.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrollment_cohort
+		dataType: string
+		lineageTag: 5ef6497a-6301-43d0-b771-a08b8c2ba608
+		summarizeBy: none
+		sourceColumn: enrollment_cohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column maxMonthPostBNPL
+		dataType: int64
+		formatString: 0
+		lineageTag: 5e645406-641e-417a-b3d1-76d6c888ed83
+		summarizeBy: sum
+		sourceColumn: maxMonthPostBNPL
+
+		annotation SummarizationSetBy = Automatic
+
+	column validMonth
+		dataType: int64
+		formatString: 0
+		lineageTag: a8d771a4-7f2c-4ab5-a845-9bfa55c9b341
+		summarizeBy: sum
+		sourceColumn: validMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 2ef274b5-107f-4d07-b9ee-bdbb3eba6e49
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column externalId
+		dataType: string
+		lineageTag: 36f6b432-717a-4b9d-a35c-65e4332c965a
+		summarizeBy: none
+		sourceColumn: externalId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruta
+		dataType: string
+		lineageTag: 540c30c0-9316-40fa-bca8-4df9c52ee2d1
+		summarizeBy: none
+		sourceColumn: ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		dataType: string
+		lineageTag: 36d706cd-aeb2-4cf5-92d5-499b8e762ba1
+		summarizeBy: none
+		sourceColumn: supervisor
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		dataType: string
+		lineageTag: 6018bc10-f1e7-43e4-a99a-c6cfd914df80
+		summarizeBy: none
+		sourceColumn: oficina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		dataType: string
+		lineageTag: 0f7b7b83-0c47-4442-aa6e-81022c1ce7e3
+		summarizeBy: none
+		sourceColumn: tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Period = FORMAT(overall_prev_post_bnpl_sales[createdAt], "YYYY-MM")
+		lineageTag: 32c7525e-a8bb-401b-924e-bfdce8f0b9da
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column grossSales
+		dataType: double
+		lineageTag: 09125a7e-11bd-48af-adca-890c8fc842c4
+		summarizeBy: sum
+		sourceColumn: grossSales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column finalPrice
+		dataType: double
+		lineageTag: 2a04c424-bf7d-4274-a4c3-d40c8f895f75
+		summarizeBy: sum
+		sourceColumn: finalPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition overall_prev_post_bnpl_sales = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.overall_prev_post_bnpl_sales", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

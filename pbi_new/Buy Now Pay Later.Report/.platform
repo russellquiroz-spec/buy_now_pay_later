@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Buy Now Pay Later"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f30e8b64-0e3d-4e28-bb99-d3bf4e5808f6"
+  }
+}

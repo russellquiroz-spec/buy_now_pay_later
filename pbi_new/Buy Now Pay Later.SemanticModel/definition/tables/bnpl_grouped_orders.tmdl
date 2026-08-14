@@ -1,0 +1,705 @@
+table bnpl_grouped_orders
+	lineageTag: 7a6babf1-c878-4cfc-9ff7-dab6e00fba65
+
+	measure avgMonthSale = SUM(bnpl_grouped_orders[orderGrossSales]) / DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+		formatString: #,0.00
+		lineageTag: e68b7b4e-a213-497b-a7d4-f436a35a9846
+
+	measure locPenetration = sum(bnpl_grouped_orders[orderGrossSales])/SUM(bnpl_grouped_orders[creditLimit])
+		formatString: 0.000\ %;-0.000\ %;0.000\ %
+		lineageTag: 54dabf2e-86eb-42b9-a099-761ff25966b3
+
+	measure AverageTotalActiveCustomersRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [totalActiveCustomers],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [totalActiveCustomers]
+			    )
+			)
+			```
+		lineageTag: 168fc438-534e-42d6-b602-020f30cfebe2
+
+	measure totalActiveCustomers = DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+		formatString: 0
+		lineageTag: 13c7263c-9d82-467c-aaa5-f170cd28b7e3
+
+	measure AverageNumberOfTransactionsRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [totalNumberOfTransactions],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [totalNumberOfTransactions]
+			    )
+			)
+			```
+		lineageTag: 606b6a1c-c9e8-4c01-9004-8abcc849391f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure totalNumberOfTransactions = COUNT(bnpl_grouped_orders[netsuiteId])
+		formatString: 0
+		lineageTag: b2402c20-2319-4946-835a-f37084b813e7
+
+	measure totalGrossSales = SUM(bnpl_grouped_orders[orderGrossSales])
+		lineageTag: 83689682-3c08-4c84-b7d4-379d0833da4e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure AverageTotalGrossSalesRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [totalGrossSales],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [totalGrossSales]
+			    )
+			)
+			```
+		lineageTag: a1015697-abaf-420a-b491-366657baf4c4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure frequency = COUNT(bnpl_grouped_orders[salesOrderId]) / DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+		lineageTag: cbcbab9b-9dc3-499f-8247-e6a1d39d27fd
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure EnrolledCustomersMetric = ```
+			
+			CALCULATE(
+			    COUNTROWS(grid_bnpl), // Contar los clientes enrolados en 'grid_bnpl'
+			    FILTER(
+			        ALL(grid_bnpl), // Ignorar todos los filtros sobre 'grid_bnpl'
+			        grid_bnpl[enrollment_cohort] = SELECTEDVALUE(bnpl_grouped_orders[enrollment_cohort]) && // Filtrar por la cohorte seleccionada en la matriz
+			        grid_bnpl[oficina] IN VALUES(bnpl_grouped_orders[oficina]) && 
+			        grid_bnpl[isEnrolled] = 1
+			    )
+			)
+			```
+		formatString: 0
+		lineageTag: 9dfcaa0a-54cc-4afb-b10e-b0e459b71e71
+
+	measure activeCusomerRate = DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])/[EnrolledCustomersMetric]
+		lineageTag: 137bc389-bec9-4f80-9c07-31634d3979bf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure ActiveCustomerRateRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [activeCusomerRate],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [activeCusomerRate]
+			    )
+			)
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: be48ed2b-9dbe-4bab-b51a-c005fbb17479
+
+	measure avgNumberOfTransactionsCustomer = COUNT(bnpl_grouped_orders[salesOrderId])/DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+		lineageTag: 5ce8fd81-b24e-4ce0-ac89-09deb7faa7da
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgNumberOfTransactionsCustomerRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [avgNumberOfTransactionsCustomer],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [avgNumberOfTransactionsCustomer]
+			    )
+			)
+			```
+		lineageTag: 2b65d8cb-98fd-4a90-ad7f-da112009b269
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgGrossSalesCustomer = sum(bnpl_grouped_orders[orderGrossSales]) / DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+		lineageTag: 2582395b-8948-4146-88e5-ddb16b468eed
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgGrossSalesCustomerRow = ```
+			
+			IF(
+			    ISINSCOPE('bnpl_grouped_orders'[enrollment_cohort]) && ISINSCOPE('bnpl_grouped_orders'[monthsSinceEnrollment]),
+			    [avgGrossSalesCustomer],
+			    AVERAGEX(
+			        SUMMARIZE(
+			            'bnpl_grouped_orders', 
+			            'bnpl_grouped_orders'[enrollment_cohort], 
+			            'bnpl_grouped_orders'[monthsSinceEnrollment]
+			        ), 
+			        [avgGrossSalesCustomer]
+			    )
+			)
+			```
+		lineageTag: 3b7ac721-b527-4111-a552-81176aed37aa
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgTicket = sum(bnpl_grouped_orders[orderGrossSales]) / DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+		lineageTag: e82a4981-4ce6-4bc2-9f3c-7508b187ee95
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgTicketTotal = ```
+			
+			CALCULATE(
+			    DIVIDE(
+			        SUM(bnpl_grouped_orders[orderGrossSales]), 
+			        DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+			    ),
+			    ALLSELECTED(bnpl_grouped_orders[enrollment_cohort])
+			)
+			```
+		lineageTag: 72598788-ac11-417f-b35e-9b6b7f91e641
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgSkus = sum(bnpl_grouped_orders[skus]) / DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+		lineageTag: c4266501-9c04-4161-9bf2-32dcc5be82e2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure avgItems = sum(bnpl_grouped_orders[quantity]) / DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+		lineageTag: 2205e5f7-6dbd-4c06-8cc5-946c504ce2a5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure activeCustomers =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId]),
+			    NOT(ISBLANK(bnpl_grouped_orders[createdAt]) && bnpl_grouped_orders[deliveryStatus] = "COMPLETED")
+			)
+		formatString: 0
+		lineageTag: beaa2984-0f28-4d68-b8cb-60bf448fe027
+
+	measure activeCustomersOverCumulativeEnrolledCustomersRate = ```
+			
+			DIVIDE(
+			    [activeCustomers],
+			    [cumulativeEnrolledCustomers]
+			)
+			
+			```
+		lineageTag: 170fe632-cde8-4880-877d-4591a018c269
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 2activeCustomerRate =
+			
+			VAR Numerador = DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+			VAR CohorteActual = SELECTEDVALUE(bnpl_grouped_orders[enrollment_cohort])
+			VAR Denominador_Fijo =
+			    CALCULATE(
+			        DISTINCTCOUNT(grid_bnpl[netsuiteId]),
+			        ALL(grid_bnpl),
+			        grid_bnpl[isEnrolled] = 1,
+			        grid_bnpl[enrollment_cohort] = CohorteActual,
+			        KEEPFILTERS(bnpl_grouped_orders[oficina])
+			    )
+			RETURN DIVIDE(Numerador, Denominador_Fijo)
+		lineageTag: 79ac8df8-58a6-43e5-9753-bfe543de23b4
+
+	measure 2EnrolledCustomersMetric =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(grid_bnpl[netsuiteId]),
+			    FILTER(
+			        ALL(grid_bnpl),
+			        grid_bnpl[enrollment_cohort] IN VALUES(bnpl_grouped_orders[enrollment_cohort]) &&
+			        grid_bnpl[oficina] IN VALUES(bnpl_grouped_orders[oficina]) &&
+			        grid_bnpl[isEnrolled] = 1
+			    )
+			)
+		formatString: 0
+		lineageTag: a28318cf-a70d-4b2f-a31e-2f22bdf15fb9
+
+	measure '2Promedio Global Rate' =
+			
+			DIVIDE(
+			    SUMX(VALUES(bnpl_grouped_orders[enrollment_cohort]), [2activeCustomerRate] * [2EnrolledCustomersMetric]),
+			    SUMX(VALUES(bnpl_grouped_orders[enrollment_cohort]), [2EnrolledCustomersMetric])
+			)
+		lineageTag: f5cf51d7-ddac-4e5a-9197-6948dee86456
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure TasaSupervivencia =
+			
+			VAR __CohortSel = SELECTEDVALUE('Cohorte (Total)'[enrollment_cohort])
+			RETURN
+			IF(
+			    __CohortSel = "WAVG",
+			    /* === TOTAL (promedio ponderado por inscritos) === */
+			    DIVIDE(
+			        SUMX(
+			            -- quita SOLO el filtro de cohorte pero respeta el resto (fechas, status, etc.)
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                [2activeCustomerRate] * [2EnrolledCustomersMetric]
+			                -- KEEPFILTERS(VALUES(bnpl_grouped_orders[deliveryStatus]))  -- opcional si manejas múltiples estados
+			            )
+			        ),
+			        SUMX(
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                [2EnrolledCustomersMetric]
+			                -- KEEPFILTERS(VALUES(bnpl_grouped_orders[deliveryStatus]))
+			            )
+			        )
+			    ),
+			    /* === COHORTE INDIVIDUAL (Numerador/Denominador) === */
+			    VAR __Numerador =
+			        CALCULATE(
+			            DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId]),
+			            TREATAS({ __CohortSel }, bnpl_grouped_orders[enrollment_cohort])
+			            -- aquí NO usamos ALL(...) para no romper el slicer de fechas ni otros filtros
+			        )
+			    VAR __Denominador =
+			        CALCULATE(
+			            DISTINCTCOUNT(grid_bnpl[netsuiteId]),
+			            grid_bnpl[isEnrolled] = 1,
+			            TREATAS({ __CohortSel }, grid_bnpl[enrollment_cohort])
+			        )
+			    RETURN DIVIDE(__Numerador, __Denominador)
+			)
+		lineageTag: 928eca03-5be8-4ae8-87b1-65669c612a18
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure frecuencyPlot = ```
+			
+			VAR __CohortSel = SELECTEDVALUE('Cohorte (Total)'[enrollment_cohort])
+			RETURN
+			IF(
+			    __CohortSel = "WAVG",
+			    DIVIDE(
+			        SUMX(
+			            
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+			            )
+			        ),
+			        SUMX(
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId])
+			            )
+			        )
+			    ),
+			    /* === COHORTE INDIVIDUAL (Numerador/Denominador) === */
+			    VAR __Numerador =
+			        CALCULATE(
+			            DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId]),
+			            TREATAS({ __CohortSel }, bnpl_grouped_orders[enrollment_cohort])
+			            -- aquí NO usamos ALL(...) para no romper el slicer de fechas ni otros filtros
+			        )
+			    VAR __Denominador =
+			        CALCULATE(
+			            DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId]),
+			            TREATAS({ __CohortSel }, bnpl_grouped_orders[enrollment_cohort])
+			        )
+			    RETURN DIVIDE(__Numerador, __Denominador)
+			)
+			```
+		lineageTag: 569857fd-73a3-485f-a8c1-2546d4540383
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure dropSizePlot = ```
+			
+			VAR __CohortSel = SELECTEDVALUE('Cohorte (Total)'[enrollment_cohort])
+			RETURN
+			IF(
+			    __CohortSel = "WAVG",
+			    DIVIDE(
+			        SUMX(
+			            
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                SUM(bnpl_grouped_orders[totalPrice])
+			            )
+			        ),
+			        SUMX(
+			            ALLSELECTED(bnpl_grouped_orders[enrollment_cohort]),
+			            CALCULATE(
+			                DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId])
+			            )
+			        )
+			    ),
+			    /* === COHORTE INDIVIDUAL (Numerador/Denominador) === */
+			    VAR __Numerador =
+			        CALCULATE(
+			            sum(bnpl_grouped_orders[totalPrice]),
+			            TREATAS({ __CohortSel }, bnpl_grouped_orders[enrollment_cohort])
+			            -- aquí NO usamos ALL(...) para no romper el slicer de fechas ni otros filtros
+			        )
+			    VAR __Denominador =
+			        CALCULATE(
+			            DISTINCTCOUNT(bnpl_grouped_orders[salesOrderId]),
+			            TREATAS({ __CohortSel }, bnpl_grouped_orders[enrollment_cohort])
+			        )
+			    RETURN DIVIDE(__Numerador, __Denominador)
+			)
+			```
+		lineageTag: 59e338ed-b969-4a3c-8c09-6ef580552914
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column netsuiteId
+		dataType: string
+		lineageTag: f9ab0f65-8471-4542-b7e6-7dab956ba53b
+		summarizeBy: none
+		sourceColumn: netsuiteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		dataType: string
+		lineageTag: b387ff94-22d7-43fb-bd77-97c580647d40
+		summarizeBy: none
+		sourceColumn: salesOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderStatus
+		dataType: string
+		lineageTag: ef357c86-ce8f-4311-a9f3-450f12f3ba05
+		summarizeBy: none
+		sourceColumn: orderStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 224d1425-4666-4068-9fad-bd40ca99fe3a
+		summarizeBy: none
+		sourceColumn: createdAt
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderGrossSales
+		dataType: double
+		formatString: #,0.00
+		lineageTag: d944ac03-a75b-4177-8045-8e9c60ef2c4a
+		summarizeBy: sum
+		sourceColumn: orderGrossSales
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: aebfbd20-919c-45cb-9143-6b08b3c68b8f
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3ac35b88-9b40-4927-ae06-429e3e9cdc8a
+		summarizeBy: none
+		sourceColumn: deliveryAt
+
+		variation Variación
+			isDefault
+			relationship: 1ff4cba8-0b07-4ffe-a25f-8f1ed4576b78
+			defaultHierarchy: LocalDateTable_08b9fefb-5985-4c90-b1e9-44acc74ab892.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column creditLimit
+		dataType: double
+		formatString: #,0.00
+		lineageTag: c5294713-53d2-4bb4-9792-c725093f0e5a
+		summarizeBy: sum
+		sourceColumn: creditLimit
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEnrolledAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c2fceff8-43ec-45dd-bd37-bd0889f5f793
+		summarizeBy: none
+		sourceColumn: bnplEnrolledAt
+
+		variation Variación
+			isDefault
+			relationship: b14c6eee-7593-4e2c-a2aa-cedcbadd2976
+			defaultHierarchy: LocalDateTable_eec174df-9081-4f96-ac66-6dbe25ead100.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrollment_cohort
+		dataType: string
+		lineageTag: 2f92822f-2fee-4cd4-bafd-abbb720a76f3
+		summarizeBy: none
+		sourceColumn: enrollment_cohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnrolledCustomers
+		dataType: int64
+		lineageTag: 69217851-7568-44c7-b93c-413dd6b3591b
+		summarizeBy: sum
+		sourceColumn: EnrolledCustomers
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column enrolledCreditLimit
+		dataType: double
+		lineageTag: 94fe4461-83e7-4ae2-a356-63ab17b7e23c
+		summarizeBy: sum
+		sourceColumn: enrolledCreditLimit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column monthsSinceEnrollment
+		dataType: int64
+		lineageTag: 45d09b5a-4fb4-48f9-aa7e-1a6a5ee4c939
+		summarizeBy: sum
+		sourceColumn: monthsSinceEnrollment
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column monthCreatedAt
+		dataType: string
+		lineageTag: 9e5c6529-f4a0-4a92-b565-8f9fccafe56c
+		summarizeBy: none
+		sourceColumn: monthCreatedAt
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAtClean = DATE(YEAR(bnpl_grouped_orders[createdAt]), MONTH(bnpl_grouped_orders[createdAt]), DAY(bnpl_grouped_orders[createdAt]))
+		formatString: General Date
+		lineageTag: 2da8f0e1-4683-4396-a35e-f54814be6dd4
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 0a2dd2c2-bd53-48d6-8d16-5d17f4e45111
+			defaultHierarchy: LocalDateTable_573040a7-606d-4d2f-9d8e-b17c653bfc75.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderId
+		dataType: string
+		lineageTag: d573eb31-ef76-4aea-83f8-54761cfba133
+		summarizeBy: none
+		sourceColumn: orderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruta
+		dataType: string
+		lineageTag: dced7c64-d807-4154-b6cd-cf496896f632
+		summarizeBy: none
+		sourceColumn: ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		dataType: string
+		lineageTag: d6271796-9ca1-414e-9676-5a8e4d1e7788
+		summarizeBy: none
+		sourceColumn: supervisor
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		dataType: string
+		lineageTag: e7bccb7e-ac0d-4377-9fdf-0b83854a1f91
+		summarizeBy: none
+		sourceColumn: oficina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		dataType: string
+		lineageTag: 4df002bc-a627-4a35-ac7a-bb4849d4cc02
+		summarizeBy: none
+		sourceColumn: tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAtTimestamp
+		dataType: double
+		lineageTag: a0a62208-88cd-43c1-8311-dadabc8893d6
+		summarizeBy: sum
+		sourceColumn: createdAtTimestamp
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerOrderTryIndex
+		dataType: int64
+		formatString: 0
+		lineageTag: ce02ce4d-b840-463d-8f93-9d576db64215
+		summarizeBy: sum
+		sourceColumn: customerOrderTryIndex
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerCompletedOrderIndex
+		dataType: int64
+		formatString: 0
+		lineageTag: af9f7a7a-8d2f-4ecd-a9ea-3acb4c430682
+		summarizeBy: sum
+		sourceColumn: customerCompletedOrderIndex
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalPrice
+		dataType: double
+		lineageTag: 74c4b8fa-d80c-4b2c-b56b-245dd18c9ee1
+		summarizeBy: sum
+		sourceColumn: totalPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column skus
+		dataType: int64
+		formatString: 0
+		lineageTag: 6b7a1c41-7e9a-43f7-87a8-a151e96c0225
+		summarizeBy: sum
+		sourceColumn: skus
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplActivatedAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d98e0d4a-3e33-44cf-8ef9-ef51f623fced
+		summarizeBy: none
+		sourceColumn: bnplActivatedAt
+
+		variation Variación
+			isDefault
+			relationship: dd3aa574-ee7e-4648-859b-9832900c0e85
+			defaultHierarchy: LocalDateTable_04051958-743b-4315-a155-ef599b8eff37.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column activatedCohort
+		dataType: string
+		lineageTag: 89ef6c62-1d74-46a1-883b-9fd4a03a6664
+		summarizeBy: none
+		sourceColumn: activatedCohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsSinceActivation
+		dataType: int64
+		formatString: 0
+		lineageTag: 34ab45aa-5ce9-43dc-9889-9ebfd66f48bf
+		summarizeBy: sum
+		sourceColumn: monthsSinceActivation
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryStatus
+		dataType: string
+		lineageTag: b833194a-ac24-44b4-ac63-e2a565b011a4
+		summarizeBy: none
+		sourceColumn: deliveryStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesChannel
+		dataType: string
+		lineageTag: e653b233-e711-4f37-9124-9cd1f3ba8242
+		summarizeBy: none
+		sourceColumn: salesChannel
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7f8de87a-babb-4041-8c95-d36ca3ac29d8
+		summarizeBy: none
+		sourceColumn: deliveryDate
+
+		variation Variación
+			isDefault
+			relationship: 3249ca1a-459e-4c91-8597-29a8c37f1085
+			defaultHierarchy: LocalDateTable_e4239dcb-69ba-4278-9090-7b2c61713b8b.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipoActual
+		dataType: string
+		lineageTag: 1e2b4374-f512-4cb6-a56c-25d9eaea54cc
+		summarizeBy: none
+		sourceColumn: tipoActual
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Agrupación Cosecha Total' = "Total"
+		lineageTag: 3bd50249-0141-443a-9604-92d1fb172f33
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_grouped_orders = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_grouped_orders", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

@@ -1,0 +1,655 @@
+table bnpl_loss_rates
+	lineageTag: 2cefecbe-b98d-462a-81da-add2a0a26734
+
+	measure revenueAfterTaxes = SUM(bnpl_loss_rates[rabbitRevenue]) / 1.16
+		lineageTag: bf6e0bd0-0c5a-4bf3-9f77-dfc2ef2e9931
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure revenueBeforeTaxes = SUM(bnpl_loss_rates[rabbitRevenue])
+		lineageTag: d8872648-d6f1-4333-b871-e6c2c9cf8a8b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure dynamicRevenue = ```
+			
+			    VAR selectedView = SELECTEDVALUE('revenue_view_selector'[ViewType], "Sin IVA")
+			    RETURN
+			        SWITCH(
+			            selectedView,
+			            "Sin IVA", [revenueAfterTaxes],
+			            "Con IVA", [revenueBeforeTaxes],
+			            [revenueAfterTaxes]
+			        )
+			```
+		lineageTag: ae810a4e-1307-4382-8d42-095c991c62d7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure dynamicTotalRevenue = ```
+			
+			    VAR selectedView = SELECTEDVALUE('revenue_view_selector'[ViewType], "After Taxes")
+			    RETURN
+			        SWITCH(
+			            selectedView,
+			            "After Taxes", SUM(bnpl_loss_rates[totalRevenue]) / 1.16,
+			            "Before Taxes", SUM(bnpl_loss_rates[totalRevenue]),
+			            SUM(bnpl_loss_rates[totalRevenue])
+			        )
+			```
+		lineageTag: 693ba3f4-c695-4917-939b-7f8320bd7f36
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column netsuiteId
+		dataType: int64
+		formatString: 0
+		lineageTag: c30e01d4-095f-44b0-90e1-3db7cb6b2a8c
+		summarizeBy: none
+		sourceColumn: netsuiteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		dataType: string
+		lineageTag: ad216c01-68ea-4e5a-9ac2-70dcb5ffa875
+		summarizeBy: none
+		sourceColumn: salesOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderStatus
+		dataType: string
+		lineageTag: 3a8973e0-d01c-4a36-9ed6-7758ea355715
+		summarizeBy: none
+		sourceColumn: orderStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7c0e7e5f-e439-4c14-8160-486b8bdaeb15
+		summarizeBy: none
+		sourceColumn: createdAt
+
+		variation Variación
+			isDefault
+			relationship: c68ffc25-e20b-44e2-8647-e4cd9db71e43
+			defaultHierarchy: LocalDateTable_1cc3ce3a-bce2-4186-8553-409bf791966a.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderGrossSales
+		dataType: double
+		lineageTag: 6eb80e0b-4955-40bf-9379-5c9936ee31dd
+		summarizeBy: sum
+		sourceColumn: orderGrossSales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 18e43f26-4a7b-421e-b89c-70ec7f609978
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: da20d58d-613b-44c4-ad45-0bd258850373
+		summarizeBy: none
+		sourceColumn: deliveryAt
+
+		variation Variación
+			isDefault
+			relationship: 93ad61a4-7a57-4309-a563-6c6f0405b62f
+			defaultHierarchy: LocalDateTable_88abab70-a0b9-4e67-bf1d-f08c224fc553.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEnrolledAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1a7a2661-b4ca-4d73-b3a8-8a0c368ae8d6
+		summarizeBy: none
+		sourceColumn: bnplEnrolledAt
+
+		variation Variación
+			isDefault
+			relationship: 67c48ae9-ab52-4d38-8fb7-5f1fe10996b2
+			defaultHierarchy: LocalDateTable_b938a08b-7500-43f1-be65-07ea416132c6.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrollment_cohort
+		dataType: string
+		lineageTag: 92936fda-f0d3-4b59-9678-d34e9cfb020d
+		summarizeBy: none
+		sourceColumn: enrollment_cohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnrolledCustomers
+		dataType: int64
+		formatString: 0
+		lineageTag: 38bab0d6-eada-4a2c-b57b-fb0804b686af
+		summarizeBy: sum
+		sourceColumn: EnrolledCustomers
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrolledCreditLimit
+		dataType: int64
+		formatString: 0
+		lineageTag: ef5a3ee8-d906-4e37-9cdc-c8fadc60c10b
+		summarizeBy: sum
+		sourceColumn: enrolledCreditLimit
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsSinceEnrollment
+		dataType: int64
+		formatString: 0
+		lineageTag: 01faf0c1-d369-492a-8f0a-91c3f5d7b7fd
+		summarizeBy: sum
+		sourceColumn: monthsSinceEnrollment
+
+		annotation SummarizationSetBy = Automatic
+
+	column rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 88b7d46b-f2f0-4017-90c5-d45289cadd17
+		summarizeBy: sum
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column transaction_id
+		dataType: string
+		lineageTag: ff22ec4e-a1b6-4066-82de-eb7312f76016
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalAmountToPay
+		dataType: double
+		lineageTag: 321ebe76-9f89-4edc-8762-82baf78f7f01
+		summarizeBy: sum
+		sourceColumn: totalAmountToPay
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalAmount
+		dataType: double
+		lineageTag: 89d350d3-880b-45c8-9b31-533534c93deb
+		summarizeBy: sum
+		sourceColumn: totalAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column interests
+		dataType: double
+		lineageTag: bc642bb7-b761-4ed6-bd07-932e00a58c6a
+		summarizeBy: sum
+		sourceColumn: interests
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalAmountDefault
+		dataType: int64
+		formatString: 0
+		lineageTag: ef709481-f08d-4c19-a713-a88b0a9d125b
+		summarizeBy: sum
+		sourceColumn: totalAmountDefault
+
+		annotation SummarizationSetBy = Automatic
+
+	column movementDate
+		dataType: string
+		lineageTag: 5dded7f8-cb31-49bb-9fdb-fc3f2f103481
+		summarizeBy: none
+		sourceColumn: movementDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column paymentDate
+		dataType: string
+		lineageTag: 68937bd6-9853-4b5e-b40e-078bff20d31e
+		summarizeBy: none
+		sourceColumn: paymentDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column paidDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 12ca6591-809e-444c-82c4-792f279c8786
+		summarizeBy: none
+		sourceColumn: paidDate
+
+		variation Variación
+			isDefault
+			relationship: 832e6aed-50c1-4c7e-be31-e9b384c1b30a
+			defaultHierarchy: LocalDateTable_0caa8d7f-8683-4ed2-924a-9434e43485e8.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column expectedPaymentDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 173d4684-ea37-4ecf-8748-60b6a85c69d2
+		summarizeBy: none
+		sourceColumn: expectedPaymentDate
+
+		variation Variación
+			isDefault
+			relationship: 925de0d2-d629-416a-b602-0b4218f8ee39
+			defaultHierarchy: LocalDateTable_fe907c67-6e33-4d46-b255-82d2483b52f6.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column endOfTheMonthexpectedPaymentDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 048f2a55-ae2e-41a6-a6f0-19e5dcae0c1a
+		summarizeBy: none
+		sourceColumn: endOfTheMonthexpectedPaymentDate
+
+		variation Variación
+			isDefault
+			relationship: de218ed4-a205-43e8-8f9c-86cd385e68b9
+			defaultHierarchy: LocalDateTable_3e4e340c-69d5-41a8-a24f-1210e44fc2e4.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column month
+		dataType: string
+		lineageTag: a83516a4-e7b3-465c-9711-1ceda34efff0
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	column paidOnMonth
+		dataType: int64
+		formatString: 0
+		lineageTag: eadd58a0-4ce9-47c3-b143-0c94faeb3e08
+		summarizeBy: sum
+		sourceColumn: paidOnMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column daysPastDue
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f8a91dc-fd40-45b3-85ce-604039fa2e7a
+		summarizeBy: sum
+		sourceColumn: daysPastDue
+
+		annotation SummarizationSetBy = Automatic
+
+	column daysPastDueEndOfTheMonth
+		dataType: int64
+		formatString: 0
+		lineageTag: ebbfc653-87ec-4c83-b299-c7feb075844b
+		summarizeBy: sum
+		sourceColumn: daysPastDueEndOfTheMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAR
+		dataType: string
+		lineageTag: 0e5d2511-c612-4aab-a81b-ad69f2e271b3
+		summarizeBy: none
+		sourceColumn: PAR
+		sortByColumn: dqOrder2
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column creditLimit
+		dataType: double
+		lineageTag: 46e5a0e7-1429-47b5-99c2-72026c50ac2b
+		summarizeBy: sum
+		sourceColumn: creditLimit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column defaultInterest
+		dataType: double
+		lineageTag: f8b24df4-8e8c-46d6-8a09-95d60a9449be
+		summarizeBy: sum
+		sourceColumn: defaultInterest
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalRevenue
+		dataType: double
+		lineageTag: 0cbb2d42-c779-4b50-a148-1c7a74a63312
+		summarizeBy: sum
+		sourceColumn: totalRevenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column rabbitRevenue
+		dataType: double
+		lineageTag: 70b58277-03ca-42d2-b35f-8d8868df41e5
+		summarizeBy: sum
+		sourceColumn: rabbitRevenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column revenueShare = ```
+			bnpl_loss_rates[interests]*.142 
+			```
+		lineageTag: 8359298a-75d0-4164-aad6-c19c313c3c7f
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column dqOrder2 = RELATED(dq_order[dqOrder])
+		formatString: 0
+		lineageTag: ce7c9c42-3304-480e-a25f-4802e7f07b9c
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column amountReachedMaturityDate =
+			IF(
+			    bnpl_loss_rates[PAR] = "Ongoing",
+			    0,
+			    bnpl_loss_rates[totalAmount]
+			)
+		lineageTag: 9f078e01-a24a-4b93-b04a-4ea73ede5ff4
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ruta
+		dataType: string
+		lineageTag: a7abf3eb-39a6-4219-b89a-6ecb03146228
+		summarizeBy: none
+		sourceColumn: ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		dataType: string
+		lineageTag: 7f65ed76-86e4-498e-aab4-8418b3510fa6
+		summarizeBy: none
+		sourceColumn: supervisor
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		dataType: string
+		lineageTag: 335aa193-51a8-4655-875c-6964bf0934f9
+		summarizeBy: none
+		sourceColumn: oficina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		dataType: string
+		lineageTag: 88fd3f6c-a847-4c77-a77a-73eb61c03020
+		summarizeBy: none
+		sourceColumn: tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage1 = IF(bnpl_loss_rates[deliveryAt] <= TODAY() - 115, "Ongoing", BLANK())
+		lineageTag: 468e00f4-b3d1-4c02-8ed4-7df80a5d1750
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage2 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 1, 
+			        "DQ 1-6", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 5aeb837c-9d6d-4fb9-8f9c-f04ab794247c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage3 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 7, 
+			        "DQ 7-14", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 486d9a67-ea5f-4502-abf6-8c46b31c3dc7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage4 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 15, 
+			        "DQ 15-29", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 9a5651b0-ac34-4cd5-a378-937866ce11fb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage5 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 30, 
+			        "DQ 30-59", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 6b98bd77-44e5-4419-bec1-a72a3feea444
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage6 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 60, 
+			        "DQ 60-89", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 8e771fce-f791-4765-b214-4ced08cb3229
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage7 = ```
+			
+			IF(
+			    bnpl_loss_rates[deliveryAt] <= TODAY() - 115, 
+			    IF(
+			        [daysPastDue] >= 90, 
+			        "DQ 90+", 
+			        "Paid"
+			    ), 
+			    BLANK()
+			)
+			```
+		lineageTag: 71866e8f-2aef-4ff3-ac65-6f1712a52d15
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column loanDisbursementIndex =
+			
+			SWITCH(
+			    TRUE(),
+			    bnpl_loss_rates[rank] <= 3, FORMAT(bnpl_loss_rates[rank], "0"),  -- Convertir número a texto
+			    bnpl_loss_rates[rank] >= 4, "4+"  -- Devolver "3+" como texto
+			)
+		lineageTag: 8a06f737-4eec-4796-81ab-d2e296d3d677
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAgeRangeAtEligibility =
+			
+			LOOKUPVALUE(
+			    grid_bnpl[customerAgeRangeAtEligibility],
+			    grid_bnpl[netsuiteId], bnpl_loss_rates[netsuiteId])
+		lineageTag: b7a68e8b-d4dc-44f8-bfa2-6e2c40175c9b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column everActivatedCustomers
+		dataType: int64
+		formatString: 0
+		lineageTag: 4ab1ed9f-73bd-4463-a179-73943f4e6d00
+		summarizeBy: sum
+		sourceColumn: everActivatedCustomers
+
+		annotation SummarizationSetBy = Automatic
+
+	column firstOrderGrossSales = ```
+			
+			CALCULATE(
+			    MAX(bnpl_loss_rates[orderGrossSales]),
+			    FILTER(
+			        bnpl_loss_rates, 
+			        bnpl_loss_rates[netsuiteId] = EARLIER(bnpl_loss_rates[netsuiteId]) && bnpl_loss_rates[rank] = 1
+			    )
+			)
+			```
+		lineageTag: d9fbf889-8081-4ce6-a32c-eae839e6b59a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column enrollmentMonth = MID(bnpl_loss_rates[enrollment_cohort], 6, 2)
+		lineageTag: 5ff81ca7-ef51-4b75-8dbd-07e4f5035817
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsSinceEnrollmentText = FORMAT(bnpl_loss_rates[monthsSinceEnrollment], "00")
+		lineageTag: 8812b0a9-563f-4c44-8130-760335d70b10
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column seasonalityDeltaVolume =
+			
+			LOOKUPVALUE(
+			    seasonality_delta[seasonalityDeltaVolume],    -- Columna de Tabla B que deseas traer
+			    seasonality_delta[fromMonth], bnpl_loss_rates[enrollmentMonth],    -- Matchear la columna From con monthsSinceEnrollmentText
+			    seasonality_delta[toMonth], bnpl_loss_rates[monthsSinceEnrollmentText]                 -- Matchear la columna To con enrollmentMonth
+			)
+		lineageTag: 44d86bea-922e-4250-af51-80699546ba15
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cac = LOOKUPVALUE(bnpl_cac[cac], bnpl_cac[enrollmentCohort], bnpl_loss_rates[enrollment_cohort])
+		lineageTag: f5ef2cac-8eb3-4c7d-8ad1-7c2e0ced0b67
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalInterestClean = bnpl_loss_rates[totalAmountToPay]-bnpl_loss_rates[totalAmount]
+		lineageTag: a7c9e43c-2c76-49af-bafd-72a16c34c6f5
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column paidAmount = IF(bnpl_loss_rates[PAR] = "Paid", bnpl_loss_rates[totalAmount],0)
+		lineageTag: 3bc68c84-293b-4bee-9c77-4663b9923add
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column lossAmount = IF(bnpl_loss_rates[PAR] IN {"DQ 15-29", "DQ 30-59", "60-89", "DQ 90+"}, bnpl_loss_rates[totalAmount],0)
+		lineageTag: 887bc315-2ffa-40cf-ba22-5c7722156638
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition bnpl_loss_rates = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_loss_rates", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

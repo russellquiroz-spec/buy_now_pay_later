@@ -1,0 +1,81 @@
+table bnpl_audiencia_agg
+	lineageTag: ea20008c-7523-492b-a1a1-63998d0beeea
+
+	measure valor =
+			
+			VAR med = SELECTEDVALUE('Medidas Audiencia'[Medidas Audiencia Orden])
+			RETURN
+			SWITCH(med,
+			    1, SUM(bnpl_audiencia_agg[Gross Sales]),
+			    2, SUM(bnpl_audiencia_agg[Clientes]),
+			    SUM(bnpl_audiencia_agg[Clientes])
+			    )
+		lineageTag: 9b0ce37c-a766-44c1-996c-cae7588fe4d0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordenes
+		dataType: int64
+		formatString: 0
+		lineageTag: 2e0ed6b1-5966-4346-90f8-a3b756065ba4
+		summarizeBy: sum
+		sourceColumn: ordenes
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAtMonth
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 66ac7f86-3cac-44de-b4f0-22635553f27d
+		summarizeBy: none
+		sourceColumn: createdAtMonth
+
+		variation Variación
+			isDefault
+			relationship: 34137d59-5920-4cba-ae1b-8528a9927eb1
+			defaultHierarchy: LocalDateTable_fb3349d4-406a-49b7-a2b2-fc0e71cad147.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipoActual
+		dataType: string
+		lineageTag: 93b03245-176a-426b-abf7-f1fb150223b6
+		summarizeBy: none
+		sourceColumn: tipoActual
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Gross Sales'
+		dataType: double
+		lineageTag: 3dc3b42a-a0bc-4bbe-83fa-a88058d00d6e
+		summarizeBy: sum
+		sourceColumn: Gross Sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Clientes
+		dataType: int64
+		formatString: 0
+		lineageTag: d57d97c5-4013-4700-96e5-311c9837b1e7
+		summarizeBy: sum
+		sourceColumn: Clientes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_audiencia_agg = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_audiencia_agg", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

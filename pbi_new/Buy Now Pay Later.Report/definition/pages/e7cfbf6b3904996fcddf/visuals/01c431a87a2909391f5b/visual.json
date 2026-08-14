@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "01c431a87a2909391f5b",
+  "position": {
+    "x": 0,
+    "y": 59.294117647058819,
+    "z": 1000,
+    "height": 124.23529411764706,
+    "width": 299.29411764705878,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textFilter25A4896A83E0487089E2B90C9AE57C8A",
+    "query": {
+      "queryState": {
+        "field": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "grid_bnpl"
+                    }
+                  },
+                  "Property": "customerPhoneNumber"
+                }
+              },
+              "queryRef": "grid_bnpl.customerPhoneNumber",
+              "nativeQueryRef": "customerPhoneNumber"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

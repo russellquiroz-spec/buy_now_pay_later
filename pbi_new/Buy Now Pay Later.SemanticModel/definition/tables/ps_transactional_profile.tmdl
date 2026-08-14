@@ -1,0 +1,35 @@
+table ps_transactional_profile
+	lineageTag: f28a8556-9bc5-4d02-a578-b5ffb1ee29a3
+
+	column 'Id cliente'
+		dataType: int64
+		formatString: 0
+		lineageTag: 40bcfd0c-f8b5-49e7-b2ab-c10d9ccb1a48
+		summarizeBy: sum
+		sourceColumn: Id cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	column transactionalProfile
+		dataType: string
+		lineageTag: fc03898c-b975-4883-9406-b7f0edd5b712
+		summarizeBy: none
+		sourceColumn: transactionalProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ps_transactional_profile = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.ps_transactional_profile", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

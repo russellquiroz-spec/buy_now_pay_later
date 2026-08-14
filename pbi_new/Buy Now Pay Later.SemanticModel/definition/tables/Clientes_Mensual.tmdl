@@ -1,0 +1,85 @@
+table Clientes_Mensual
+	lineageTag: 98d5ce8b-bbc8-4887-8c2e-ea7cc5386b05
+
+	column netsuiteId
+		lineageTag: 6e1bcb62-8f7b-4493-8db5-f8c3cfa2fa61
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: bnpl_grouped_orders[netsuiteId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cliente
+		lineageTag: 2fea7131-1eff-4ca6-a0de-bb9446d8c061
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Cliente]
+
+		annotation SummarizationSetBy = Automatic
+
+	column InicioMes
+		formatString: General Date
+		lineageTag: 9d2b7099-75b6-400e-a139-4a0da1c4e99c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [InicioMes]
+
+		variation Variación
+			isDefault
+			relationship: 40d7ec80-ddeb-4ef6-8506-83cf0b0d44ed
+			defaultHierarchy: LocalDateTable_1f5c33d1-6555-4404-93a9-89efe3080eaa.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Monto
+		lineageTag: cd6a7dd4-19b5-41ef-b951-44258a6b8bd9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Monto]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Clientes_Mensual = calculated
+		mode: import
+		source =
+				
+				VAR Clientes = VALUES ( bnpl_grouped_orders[netsuiteId] )
+				VAR FechaMaxGlobal = EOMONTH ( TODAY(), 0 )
+				
+				RETURN
+				ADDCOLUMNS (
+				    GENERATE (
+				        Clientes,
+				        VAR ClienteActual = [netsuiteId]
+				        VAR FechaMinCliente =
+				            CALCULATE (
+				                EOMONTH ( MIN ( bnpl_grouped_orders[createdAt] ), 0 ),
+				                bnpl_grouped_orders[netsuiteId] = ClienteActual
+				            )
+				        VAR ListaMeses =
+				            ADDCOLUMNS (
+				                CALENDAR ( FechaMinCliente, FechaMaxGlobal ),
+				                "InicioMes", DATE ( YEAR ( [Date] ), MONTH ( [Date] ), 1 )
+				            )
+				        RETURN
+				            SELECTCOLUMNS (
+				                ListaMeses,
+				                "Cliente", ClienteActual,
+				                "InicioMes", [InicioMes]
+				            )
+				    ),
+				    "Monto",
+				    CALCULATE (
+				        SUM ( bnpl_grouped_orders[orderGrossSales] ),
+				        FILTER (
+				            bnpl_grouped_orders,
+				            bnpl_grouped_orders[netsuiteId] = [netsuiteId]
+				            && DATE ( YEAR ( bnpl_grouped_orders[createdAt] ), MONTH ( bnpl_grouped_orders[createdAt] ), 1 ) = [InicioMes]
+				        )
+				    )
+				)
+
+	annotation PBI_Id = 46af80b9a6074bebaa0cc9bb0e35c4aa
+

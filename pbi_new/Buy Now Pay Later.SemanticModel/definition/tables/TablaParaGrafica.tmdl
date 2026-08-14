@@ -1,0 +1,130 @@
+table TablaParaGrafica
+	lineageTag: 6a8d84f7-4b66-4cee-8f02-cbe72e8ec75b
+
+	column enrollment_cohort
+		lineageTag: c3b3d080-2459-4704-b713-c8b7ff9e7c24
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [enrollment_cohort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsSinceEnrollment
+		formatString: 0
+		lineageTag: 00be4986-760f-41e5-b4f0-e12c853c4bb8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [monthsSinceEnrollment]
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryStatus
+		lineageTag: a3fbf030-53ab-4db9-9ae9-c309f7900361
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [deliveryStatus]
+
+		annotation SummarizationSetBy = Automatic
+
+	column TasaSupervivencia
+		lineageTag: b650e240-7f28-4d96-81e9-7487ffe47c6e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [TasaSupervivencia]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column period
+		lineageTag: 75057477-a16d-4a81-a2f2-d3a5f60a9f7b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [period]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition TablaParaGrafica = calculated
+		mode: import
+		source =
+				
+				VAR CohortesYMeses =
+				    SELECTCOLUMNS(
+				        CROSSJOIN(
+				            VALUES(bnpl_grouped_orders[enrollment_cohort]),
+				            VALUES(bnpl_grouped_orders[monthsSinceEnrollment]),
+				            VALUES(bnpl_grouped_orders[monthCreatedAt]),
+				            VALUES(bnpl_grouped_orders[deliveryStatus])
+				        ),
+				        "enrollment_cohort", [enrollment_cohort],
+				        "monthsSinceEnrollment", [monthsSinceEnrollment],
+				        "period", [monthCreatedAt],
+				        "deliveryStatus", [deliveryStatus]
+				    )
+				VAR ConTotal =
+				    UNION(
+				        CohortesYMeses,
+				        SELECTCOLUMNS(
+				            CROSSJOIN(
+				                VALUES(bnpl_grouped_orders[monthsSinceEnrollment]),
+				                VALUES(bnpl_grouped_orders[monthCreatedAt]),
+				                VALUES(bnpl_grouped_orders[deliveryStatus])
+				            ),
+				            "enrollment_cohort", "Total",
+				            "monthsSinceEnrollment", [monthsSinceEnrollment],
+				            "period", [monthCreatedAt],
+				            "deliveryStatus", [deliveryStatus]
+				        )
+				    )
+				RETURN
+				ADDCOLUMNS(
+				    ConTotal,
+				    "TasaSupervivencia",
+				    VAR CurrentCohort = [enrollment_cohort]
+				    VAR CurrentMonth = [monthsSinceEnrollment]
+				    VAR period = [period]
+				    VAR CurrentStatus = [deliveryStatus]
+				    RETURN
+				        IF(
+				            CurrentCohort = "Total",
+				            // --- PROMEDIO PONDERADO POR INSCRITOS ---
+				            DIVIDE(
+				                SUMX(
+				                    FILTER(
+				                        CohortesYMeses,
+				                        [monthsSinceEnrollment] = CurrentMonth &&
+				                        [deliveryStatus] = CurrentStatus
+				                    ),
+				                    [2activeCustomerRate] * [2EnrolledCustomersMetric]
+				                ),
+				                SUMX(
+				                    FILTER(
+				                        CohortesYMeses,
+				                        [monthsSinceEnrollment] = CurrentMonth &&
+				                        [deliveryStatus] = CurrentStatus
+				                    ),
+				                    [2EnrolledCustomersMetric]
+				                )
+				            ),
+				            // --- TASA INDIVIDUAL ---
+				            VAR Numerador =
+				                CALCULATE(
+				                    DISTINCTCOUNT(bnpl_grouped_orders[netsuiteId]),
+				                    bnpl_grouped_orders[enrollment_cohort] = CurrentCohort,
+				                    bnpl_grouped_orders[monthsSinceEnrollment] = CurrentMonth,
+				                    bnpl_grouped_orders[deliveryStatus] = CurrentStatus
+				                )
+				            VAR Denominador =
+				                CALCULATE(
+				                    DISTINCTCOUNT(grid_bnpl[netsuiteId]),
+				                    grid_bnpl[isEnrolled] = 1,
+				                    grid_bnpl[enrollment_cohort] = CurrentCohort,
+				                    bnpl_grouped_orders[deliveryStatus] = CurrentStatus,
+				                    ALL(bnpl_grouped_orders)
+				                )
+				            RETURN DIVIDE(Numerador, Denominador)
+				        )
+				)
+
+	annotation PBI_Id = 7489a7ebd580477eb927288208b343ea
+

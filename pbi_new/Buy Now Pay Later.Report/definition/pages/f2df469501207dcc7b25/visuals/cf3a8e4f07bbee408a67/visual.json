@@ -1,0 +1,330 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "cf3a8e4f07bbee408a67",
+  "position": {
+    "x": 994,
+    "y": 2440,
+    "z": 10000,
+    "height": 500,
+    "width": 750,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "pythonVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "overall_prev_post_bnpl_sales"
+                    }
+                  },
+                  "Property": "enrollment_cohort"
+                }
+              },
+              "queryRef": "overall_prev_post_bnpl_sales.enrollment_cohort",
+              "nativeQueryRef": "enrollment_cohort"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "overall_prev_post_bnpl_sales"
+                    }
+                  },
+                  "Property": "Period"
+                }
+              },
+              "queryRef": "overall_prev_post_bnpl_sales.Period",
+              "nativeQueryRef": "Period"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "overall_prev_post_bnpl_sales"
+                    }
+                  },
+                  "Property": "treshold"
+                }
+              },
+              "queryRef": "overall_prev_post_bnpl_sales.treshold",
+              "nativeQueryRef": "treshold"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "overall_prev_post_bnpl_sales"
+                        }
+                      },
+                      "Property": "salesOrderId"
+                    }
+                  },
+                  "Function": 2
+                }
+              },
+              "queryRef": "overall_prev_post_bnpl_sales.salesOrderId",
+              "nativeQueryRef": "Recuento de salesOrderId"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "overall_prev_post_bnpl_sales"
+                        }
+                      },
+                      "Property": "netsuiteId"
+                    }
+                  },
+                  "Function": 2
+                }
+              },
+              "queryRef": "overall_prev_post_bnpl_sales.netsuiteId",
+              "nativeQueryRef": "Recuento de netsuiteId"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "overall_prev_post_bnpl_sales"
+                  }
+                },
+                "Property": "enrollment_cohort"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "script": [
+        {
+          "properties": {
+            "source": {
+              "expr": {
+                "Literal": {
+                  "Value": "'import seaborn as sns\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import FuncFormatter\nfrom matplotlib.lines import Line2D\nimport uuid\n\n### Clean Data\ng = dataset\ng = g[g[''Period'']>= ''2023-01'']\n\ng = g.sort_values(by=[''enrollment_cohort'', ''Period''], ascending=True).reset_index(drop=True)\ng[''treshold2''] = np.where((g[''Period''] == g[''enrollment_cohort'']), ''post BNPL'', g[''treshold''])\ng = g.groupby([''enrollment_cohort'', ''Period'', ''treshold2'']).agg( \n    ordersCount = (''salesOrderId'', ''sum''), \n    activeCustomers = (''netsuiteId'', ''sum'')\n).reset_index()\n\ng = g.rename(columns = {''treshold2'': ''Enrollment Stage'', ''enrollment_cohort'': ''Enrollment Cohort''})\ng[''frequency''] = g[''ordersCount''] / g[''activeCustomers'']\n\n### Plot\n\nplot = sns.relplot(data = g, x = ''Period'', y = ''frequency'', hue = ''Enrollment Cohort'', \n                    kind = ''line'', style = ''Enrollment Stage'', marker = ''o'', aspect=1.5)\n                    \n\n## Axis formats\nplt.xticks(rotation=90)\nplt.xlabel(\"Period\")\nplt.ylabel(\"Purchase Frequency\")\n#plt.ylim(0)\n#millions_formatter = FuncFormatter(lambda x, pos: f''${x :,.0f}'')\nfor ax in plot.axes.flat:\n    ax.yaxis.grid(True, which=''major'', linestyle=''--'', color=''black'', alpha=0.5)\n#    ax.yaxis.set_major_formatter(millions_formatter)\n\nplt.subplots_adjust(left=.1, top=1, bottom = .2)\n\nplt.show()\n\n\n'"
+                }
+              }
+            },
+            "provider": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Python'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "padding": [
+        {
+          "properties": {
+            "left": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "bottom": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "right": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "top": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'center'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Change in Purchase Frequency for Customers Enrolled in BNPL'"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "18D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "keepLayerOrder": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La cohorte de enrolamiento, period, treshold y 2 columnas más.\nUniverso y corte: El grano es una fila por cliente y mes relativo al enrolamiento (1,293,358). Compara la venta del cliente antes y después de entrar a BNPL, no solo su venta BNPL.\nDe dónde sale: Sale de la vista pbi_bnpl.overall_prev_post_bnpl_sales, sobre las ventas de Redshift más bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Pre- and Post-BNPL Enrollment'"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'center'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La cohorte de enrolamiento, period, treshold y 2 columnas más.\nUniverso y corte: El grano es una fila por cliente y mes relativo al enrolamiento (1,293,358). Compara la venta del cliente antes y después de entrar a BNPL, no solo su venta BNPL.\nDe dónde sale: Sale de la vista pbi_bnpl.overall_prev_post_bnpl_sales, sobre las ventas de Redshift más bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

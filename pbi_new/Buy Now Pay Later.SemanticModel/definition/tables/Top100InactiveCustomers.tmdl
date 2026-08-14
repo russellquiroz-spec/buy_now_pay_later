@@ -1,0 +1,709 @@
+table Top100InactiveCustomers
+	lineageTag: 053a9e2d-9702-45fc-b1ef-9158c9d15144
+
+	column netsuiteId
+		formatString: 0
+		lineageTag: 1f4e606e-e407-4bd1-8770-33c05ac38951
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: grid_bnpl[netsuiteId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEligibleAt
+		formatString: General Date
+		lineageTag: 646fc9c1-9323-4bed-ac32-2bec8b370043
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplEligibleAt]
+
+		variation Variación
+			isDefault
+			relationship: f2357758-4e20-4143-8e70-c434380275e0
+			defaultHierarchy: LocalDateTable_83e9d541-9c9d-4bbe-a69e-688d405f5115.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column originalCreditLimit
+		formatString: 0
+		lineageTag: afad4e22-7e8b-40da-b5e8-fb4fafa7a0b2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[originalCreditLimit]
+
+		annotation SummarizationSetBy = Automatic
+
+	column creditLimit
+		formatString: 0
+		lineageTag: f8fd5646-23d9-4c06-a476-4fa81b3b8fb1
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[creditLimit]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEnrolledAt
+		formatString: General Date
+		lineageTag: fb51f7f6-6a24-4958-8d4c-9abcd04b2aae
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplEnrolledAt]
+
+		variation Variación
+			isDefault
+			relationship: e152268c-679d-4a21-b7d6-8a1a5e9d6d1d
+			defaultHierarchy: LocalDateTable_32c5c766-ad16-4bf3-877b-641e0f14ff96.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplActivatedAt
+		formatString: General Date
+		lineageTag: 8c456b05-5edb-4747-b32d-6dff9b239ce9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplActivatedAt]
+
+		variation Variación
+			isDefault
+			relationship: 0c4122c9-0244-4d4e-b699-47f7289d8be9
+			defaultHierarchy: LocalDateTable_ca0db2c4-011c-451f-8404-3a3705b52441.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplFirstOrderdAt
+		formatString: Short Date
+		lineageTag: 9e3904ff-1bd8-4639-b139-b9adf15c6886
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplFirstOrderdAt]
+
+		variation Variación
+			isDefault
+			relationship: deb98a04-1d51-4986-a771-1fad188542cd
+			defaultHierarchy: LocalDateTable_31eae466-3f3c-428e-bc2a-7274e8954aa2.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column bnplLastOrderAt
+		formatString: Short Date
+		lineageTag: a50bbf1a-45b4-4ac6-8f3b-70bf6dcae579
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplLastOrderAt]
+
+		variation Variación
+			isDefault
+			relationship: 96d05af7-d048-4813-b808-0f8f128612aa
+			defaultHierarchy: LocalDateTable_6ab58225-cbab-4b90-a54d-1d28facc564a.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column bnplOrdersCount
+		formatString: 0
+		lineageTag: 3e6bf79f-b685-4ea0-aed6-1d396ab9daa8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplOrdersCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplAvgOrderVolume
+		lineageTag: 92da83ad-ae2e-44cc-ac8b-ef99086cc7fe
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplAvgOrderVolume]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplTotalOrderVolume
+		lineageTag: 98b2fe72-3e60-4476-906b-b8d8fa86d47a
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplTotalOrderVolume]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplOrderFrequency
+		lineageTag: 79db34d7-f1ce-45d2-b9f8-993bac0677c6
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplOrderFrequency]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplPaymentsCount
+		formatString: 0
+		lineageTag: c27cd301-a26f-4856-9e0c-33a03ca8c166
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplPaymentsCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplAvgRevenue
+		lineageTag: 6f519fbe-e466-4293-8d3b-230232596051
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplAvgRevenue]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplAvgRevenueShare
+		lineageTag: 22f24c84-58d5-4908-903a-59426397fb6e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplAvgRevenueShare]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplRevenue
+		lineageTag: 673188b6-1d89-4fef-9f1f-556782a0f220
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplRevenue]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplRevenueShare
+		lineageTag: be1abf0d-fe5b-4a58-9892-cefe1e16d5fe
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplRevenueShare]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplIsActivated
+		formatString: 0
+		lineageTag: 999e6e70-52b9-44d6-ad63-beaf8571d033
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplIsActivated]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplActivatedLineOfCredit
+		lineageTag: 08c9b55a-2c6d-4d35-a4f3-8b4d85086954
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplActivatedLineOfCredit]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 0
+		formatString: 0
+		lineageTag: b8179b09-43e1-4c0f-a928-3e1f35d54374
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[0]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1
+		formatString: 0
+		lineageTag: f65b8498-3f68-4300-867c-5fb3056076fe
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[1]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2
+		formatString: 0
+		lineageTag: 8e2da3ad-e713-44b5-8399-16e9f013daef
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[2]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 3
+		formatString: 0
+		lineageTag: edcc6739-6e19-4720-ab15-adf7895e6531
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 4
+		formatString: 0
+		lineageTag: 20b9032e-e936-4ed9-8113-d27aae36c615
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[4]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 5
+		formatString: 0
+		lineageTag: b62b243d-d5ac-4dd2-b633-76eb56e291a3
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[5]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 10
+		formatString: 0
+		lineageTag: 838ba0b1-3bbb-4587-a074-a555080f5972
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[10]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 15
+		formatString: 0
+		lineageTag: 97fc2d92-17f3-47bb-8669-3799fe6d7c26
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[15]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 20
+		formatString: 0
+		lineageTag: 1b59ec35-6e5b-4f3d-b268-00b7c7edccf7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[20]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 30
+		formatString: 0
+		lineageTag: 939d0c84-18bb-4b12-bfc5-6d29c7286282
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[30]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 6
+		formatString: 0
+		lineageTag: 957ccfed-20bf-41e0-8926-b6a4be37d61a
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[6]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 7
+		formatString: 0
+		lineageTag: 984d526f-3e98-4d7a-8089-d461b80c76a7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[7]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 8
+		formatString: 0
+		lineageTag: 9867ac9c-a902-4875-839c-e20abf42e454
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[8]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 9
+		formatString: 0
+		lineageTag: 9dd618a5-2827-496e-944b-214545ce9d64
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[9]
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrollment_cohort
+		lineageTag: aba29344-0477-475c-95ec-5305f7ac22e3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[enrollment_cohort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplActivatedCohortMonth
+		lineageTag: 1a5c76da-1753-4ef5-9e45-25693085a882
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplActivatedCohortMonth]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplMinimumTenure
+		formatString: 0
+		lineageTag: 2c56642e-c8b8-49d2-9cf4-bb483f86ebbb
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplMinimumTenure]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruta
+		lineageTag: deb51f6e-dca4-43e8-83f7-51080e3f8c4a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[ruta]
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		lineageTag: 2de5b013-19a5-4a08-80bc-bd3af6c0bedc
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[supervisor]
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		lineageTag: 0d992ab2-6090-4b91-be4b-7b4a16b15c3c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[oficina]
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		lineageTag: f4f0c86d-d13d-4bb4-8c91-b52fed84dcec
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[tipo]
+
+		annotation SummarizationSetBy = Automatic
+
+	column isEnrolled
+		formatString: 0
+		lineageTag: 77fe564d-a1d9-4ecc-9741-f9a89066245f
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[isEnrolled]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerId
+		lineageTag: d63c5f8f-4cd7-4a02-af15-eda362a376fd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopkeeperId
+		lineageTag: 7424edea-2026-4367-af5e-6e993bc8a35f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopkeeperId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopName
+		lineageTag: 2ea3ec5a-d6fc-4120-91ed-581e02cb26e8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column business_category
+		lineageTag: 5cda00af-58d0-4c14-9e14-8ba65b4d808c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[business_category]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopNeighborhood
+		lineageTag: 87687128-74e1-4a2a-887f-3631dce6b278
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopNeighborhood]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopZipCode
+		lineageTag: 675095f8-766d-4fde-96f5-69345f823b8a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopZipCode]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopTown
+		lineageTag: a8cb38f8-f23d-4c59-9d16-6d04b50a379e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopTown]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopState
+		lineageTag: 622aab64-7685-4768-a755-a48589c065c0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[shopState]
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopLatitude
+		lineageTag: b1428dce-78e6-45bc-bdfe-885a9b723dac
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[shopLatitude]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column shopLongitude
+		lineageTag: 4d4ce108-cb36-41d6-a7d5-7692256a0670
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[shopLongitude]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerName
+		lineageTag: d923b594-4450-4ded-9151-ba0e655a9c55
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerLastNames
+		lineageTag: 3849bcb0-a3dd-4baf-82ea-1e0ad3fcea3c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerLastNames]
+
+		annotation SummarizationSetBy = Automatic
+
+	column inferredGender
+		lineageTag: d6700523-62a8-4085-8613-f20baf642532
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[inferredGender]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerBirthdate
+		formatString: General Date
+		lineageTag: b246e82c-b427-4835-bbdd-2ec1fb4bdfa6
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerBirthdate]
+
+		variation Variación
+			isDefault
+			relationship: 769c3d84-77d9-45b5-a5c8-356ac2b1b063
+			defaultHierarchy: LocalDateTable_c7aff579-7674-4355-9b1d-503accd93c3c.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAge
+		formatString: 0
+		lineageTag: a78838b7-6055-42a5-8235-dd7cac8bfd5b
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[customerAge]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAgeAtEligibility
+		formatString: 0
+		lineageTag: b9a322a0-a340-463c-8785-9b003449c6c0
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[customerAgeAtEligibility]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAgeAtEnrollment
+		formatString: 0
+		lineageTag: 6431bdbb-4616-4493-a2ca-7cd4ed010c3c
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[customerAgeAtEnrollment]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerPhoneNumber
+		lineageTag: 80146336-c43f-452e-88b3-d89ab9e627bf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerPhoneNumber]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerLatitude
+		lineageTag: 3b5a3bfa-59e1-4b2d-8011-2ec7bc4beba9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[customerLatitude]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerLongitude
+		lineageTag: 1a54edae-c372-4312-8803-d5af7f13944e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[customerLongitude]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplEnrolledAtTimestamp
+		lineageTag: 8d03f88d-45ce-4cdd-9a0a-77c80f364769
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplEnrolledAtTimestamp]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bnplIsEnrolled
+		formatString: 0
+		lineageTag: bc6bb282-657b-4fd3-9a6a-7801d956e094
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplIsEnrolled]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplCompletedOrdersCount
+		formatString: 0
+		lineageTag: 2cccfb39-4498-4008-b572-6dbdc8c78288
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplCompletedOrdersCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplRejectedOrdersCount
+		formatString: 0
+		lineageTag: 491f5243-ebb5-4dd2-b4b7-9b70bab2efa0
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplRejectedOrdersCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplCancelledOrdersCount
+		formatString: 0
+		lineageTag: 5f3f7dde-ef70-49e7-ae4c-2450541b61ac
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplCancelledOrdersCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplFirstOrderGrossSales
+		lineageTag: 0e498a57-79b3-409f-ad16-8997799a4ea2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplFirstOrderGrossSales]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplDueForPaymentOrdersCount
+		formatString: 0
+		lineageTag: 51d57039-7cc5-4e57-844a-6362915b8cdd
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplDueForPaymentOrdersCount]
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplIsActive
+		formatString: 0
+		lineageTag: fe1411f9-2304-49a7-b027-a98f87704902
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplIsActive]
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAgeRangeAtEligibility
+		lineageTag: 821f4979-efc1-407d-ba47-e5d245abfddd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[customerAgeRangeAtEligibility]
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrolledAtClean
+		formatString: General Date
+		lineageTag: 2bbe1e68-4e74-4b22-844a-1c33b6e65630
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[enrolledAtClean]
+
+		variation Variation
+			isDefault
+			relationship: d22b54f0-7538-473b-a96c-3c0b4f8efea4
+			defaultHierarchy: LocalDateTable_d0c7c93f-04c8-49f9-8725-311e326ff1d1.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplCompletedOrderVolume
+		lineageTag: 2f2dca90-66fa-46d6-b055-915efc9cc58d
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: grid_bnpl[bnplCompletedOrderVolume]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column enrollmentChannel
+		lineageTag: 8eec3543-d307-4700-b8ac-d721938c2d14
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: grid_bnpl[enrollmentChannel]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Top100InactiveCustomers = calculated
+		mode: import
+		source = ```
+				
+				TOPN(
+				    100, 
+				    FILTER(
+				        grid_bnpl, 
+				        grid_bnpl[bnplIsActive] = 0
+				    ),
+				    grid_bnpl[bnplTotalOrderVolume], 
+				    DESC
+				)
+				```
+
+	annotation PBI_Id = 4982a449de344fdd9156a8e4e9ddfc7c
+

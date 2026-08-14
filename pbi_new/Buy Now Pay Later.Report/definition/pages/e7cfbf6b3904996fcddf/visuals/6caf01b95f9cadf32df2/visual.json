@@ -1,0 +1,290 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "6caf01b95f9cadf32df2",
+  "position": {
+    "x": 321.72972972972974,
+    "y": 760.21621621621614,
+    "z": 4000,
+    "height": 573.40540540540542,
+    "width": 957.4054054054053,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "oficina"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.oficina",
+              "nativeQueryRef": "oficina"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "ruta"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.ruta",
+              "nativeQueryRef": "ruta"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "netsuiteId"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.netsuiteId",
+              "nativeQueryRef": "netsuiteId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "salesOrderId"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.salesOrderId",
+              "nativeQueryRef": "salesOrderId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "loanDisbursementIndex"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.loanDisbursementIndex",
+              "nativeQueryRef": "loanDisbursementIndex"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "orderStatus"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.orderStatus",
+              "nativeQueryRef": "orderStatus"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "createdAt"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.createdAt",
+              "nativeQueryRef": "createdAt"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "PAR"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.PAR",
+              "nativeQueryRef": "PAR"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "bnpl_loss_rates"
+                  }
+                },
+                "Property": "netsuiteId"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "153.30787589498806D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_loss_rates.PAR"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La oficina de preventa, la ruta de preventa, el cliente y 5 columnas más.\nUniverso y corte: El grano es una fila por pedido BNPL entregado (92,009). El visual filtra por el número de crédito del cliente (1, 2, 3 o 4 y más): solo null, 1. La ruta, el supervisor y la oficina son los que tenía el cliente cuando se originó el crédito (ruta histórica), no los de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_loss_rates, sobre bnpl.loss_rates (Mongo: credit-order + payment-report).'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La oficina de preventa, la ruta de preventa, el cliente y 5 columnas más.\nUniverso y corte: El grano es una fila por pedido BNPL entregado (92,009). El visual filtra por el número de crédito del cliente (1, 2, 3 o 4 y más): solo null, 1. La ruta, el supervisor y la oficina son los que tenía el cliente cuando se originó el crédito (ruta histórica), no los de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_loss_rates, sobre bnpl.loss_rates (Mongo: credit-order + payment-report).'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "927694b526e4dde8a1c1",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates"
+              }
+            },
+            "Property": "loanDisbursementIndex"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "b",
+              "Entity": "bnpl_loss_rates",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "b"
+                          }
+                        },
+                        "Property": "loanDisbursementIndex"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "null"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'1'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "objects": {
+          "general": [
+            {
+              "properties": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+table dq_order_roll_rates
+	lineageTag: caec782f-e6ae-4ddb-b9f8-47c8bf579ba0
+
+	column stage
+		lineageTag: 67ebfd57-7d99-4678-ab8f-79f13a21ccf2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [stage]
+
+		annotation SummarizationSetBy = Automatic
+
+	column dqOrder
+		formatString: 0
+		lineageTag: 0283c9b7-d2b1-4727-a815-ef3a7ee5cbaf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [dqOrder]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_order_roll_rates = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "stage", STRING,
+				    "dqOrder", INTEGER,
+				    {
+				        {"Paid", 8},
+				        {"Ongoing", 1},
+				        {"DQ 1-6", 2},
+				        {"DQ 7-14", 3},
+				        {"DQ 15-29", 4},
+				        {"DQ 30-59", 5},
+				        {"DQ 60-89", 6},
+				        {"DQ 90+", 7}
+				    }
+				)
+
+	annotation PBI_Id = 3ad002df8198404085812d6cabd4e16e
+

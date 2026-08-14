@@ -1,0 +1,105 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "p0titulo000000000001",
+  "position": {
+    "x": 40,
+    "y": 30,
+    "z": 1000,
+    "height": 190,
+    "width": 1720,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Cómo leer este tablero",
+                    "textStyle": {
+                      "fontSize": "28pt",
+                      "color": "#00AEEF",
+                      "fontWeight": "bold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "BNPL es el crédito que Rabbit ofrece a los tenderos para que surtan su tienda hoy y paguen después. ",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B"
+                    }
+                  },
+                  {
+                    "value": "Quien presta el dinero es Propaga",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": ", no Rabbit. El tendero recibe su pedido y tiene ",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B"
+                    }
+                  },
+                  {
+                    "value": "15 días",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": " para pagarlo. Sobre el interés que cobra Propaga, Rabbit gana una comisión del ",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B"
+                    }
+                  },
+                  {
+                    "value": "14.2%",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": ". Por eso en este tablero conviven dos ideas de \"ingreso\": el interés total del crédito y la parte que le toca a Rabbit.",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

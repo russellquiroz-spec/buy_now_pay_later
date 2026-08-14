@@ -1,0 +1,46 @@
+table cohort_type
+	lineageTag: dee03f17-a613-44e7-b297-dbdae9da4f1d
+
+	column cohortType
+		lineageTag: 1032a9b8-2bc1-4958-9e6e-1e4baea933d3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [cohortType]
+
+		annotation SummarizationSetBy = Automatic
+
+	column order
+		formatString: 0
+		lineageTag: f607f434-cab7-4622-ba1a-2d54247e469e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [order]
+
+		annotation SummarizationSetBy = Automatic
+
+	column value
+		formatString: 0
+		lineageTag: ef916b63-9e60-483b-80bd-dc41c4c3cc6b
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition cohort_type = calculated
+		mode: import
+		source = ```
+				
+				    DATATABLE(
+				        "cohortType", STRING,
+				        "value", INTEGER,
+				        "order", INTEGER,
+				        {
+				            {"Monthly", 1, 1},
+				            {"Anual", 4, 4}
+				        }
+				    )
+				```
+
+	annotation PBI_Id = 8d73fceced46408bab89ea4bb946048e
+

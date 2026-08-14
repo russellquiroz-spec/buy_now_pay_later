@@ -1,0 +1,435 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "e61d48d8360b398620ad",
+  "position": {
+    "x": 1000,
+    "y": 96.666666666666671,
+    "z": 9000,
+    "height": 200,
+    "width": 248.33333333333334,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "multiRowCard",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates_with_lead"
+                    }
+                  },
+                  "Property": "NumberOfCustomers"
+                }
+              },
+              "queryRef": "bnpl_loss_rates_with_lead.NumberOfCustomers",
+              "nativeQueryRef": "Number Of Customers",
+              "displayName": "Number Of Customers",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates_with_lead"
+                    }
+                  },
+                  "Property": "NumberOfLoansDisbursed"
+                }
+              },
+              "queryRef": "bnpl_loss_rates_with_lead.NumberOfDispersions",
+              "nativeQueryRef": "Number Of Disbursed Loans",
+              "displayName": "Number Of Disbursed Loans",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates_with_lead"
+                    }
+                  },
+                  "Property": "NumberOfLoansPaid"
+                }
+              },
+              "queryRef": "bnpl_loss_rates_with_lead.NumberLoansPaid",
+              "nativeQueryRef": "Number Of Paid Loans",
+              "displayName": "Number Of Paid Loans",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates_with_lead"
+                    }
+                  },
+                  "Property": "PercentageOfLoansChargedOff"
+                }
+              },
+              "queryRef": "bnpl_loss_rates_with_lead.NumberOfLoansChargedOff",
+              "nativeQueryRef": "Percentage Of Charged Off Loans",
+              "displayName": "Percentage Of Charged Off Loans"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "bnpl_loss_rates_with_lead"
+                  }
+                },
+                "Property": "NumberOfCustomers"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "categoryLabels": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D0DF00'"
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataLabels": [
+        {
+          "properties": {
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#00AEEF'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "card": [
+        {
+          "properties": {
+            "cardPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "20D"
+                }
+              }
+            },
+            "barColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D0DF00'"
+                    }
+                  }
+                }
+              }
+            },
+            "barWeight": {
+              "expr": {
+                "Literal": {
+                  "Value": "3D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "keepLayerOrder": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla no tiene relación con el grid: los slicers de oficina, ruta, edad y género de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Clientes, pedidos desembolsados, pedidos pagados y el porcentaje que no se pago.\nUniverso y corte: Cuenta pedidos distintos desplegados por etapa de mora alcanzada, así que un mismo pedido aparece en varias etapas. ''Pedidos pagados'' son los que llegaron a la etapa ''Paid''. La tabla no tiene relación con el grid: los slicers de oficina, ruta, edad y género de la página no la afectan.\nDe dónde sale: la tabla calculada en DAX bnpl_loss_rates_with_lead, derivada de pbi_bnpl.bnpl_loss_rates.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "86af479ca2b8ac018507",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates_with_lead"
+              }
+            },
+            "Property": "lead_stage"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "b",
+              "Entity": "bnpl_loss_rates_with_lead",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "b"
+                          }
+                        },
+                        "Property": "lead_stage"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 1-6'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 7-14'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 15-29'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 30-59'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 60-89'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DQ 90+'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Paid'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "null"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "objects": {
+          "general": [
+            {
+              "properties": {}
+            }
+          ]
+        }
+      },
+      {
+        "name": "5c0caee9ce09b9d248ca",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates_with_lead"
+              }
+            },
+            "Property": "loanDisbursementIndex"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "b",
+              "Entity": "bnpl_loss_rates_with_lead",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Not": {
+                  "Expression": {
+                    "In": {
+                      "Expressions": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "b"
+                              }
+                            },
+                            "Property": "loanDisbursementIndex"
+                          }
+                        }
+                      ],
+                      "Values": [
+                        [
+                          {
+                            "Literal": {
+                              "Value": "null"
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "objects": {
+          "general": [
+            {
+              "properties": {
+                "isInvertedSelectionMode": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "true"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

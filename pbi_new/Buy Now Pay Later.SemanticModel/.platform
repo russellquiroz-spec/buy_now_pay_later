@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Buy Now Pay Later"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ad980b73-8dd6-484f-8449-cb812bb821e2"
+  }
+}

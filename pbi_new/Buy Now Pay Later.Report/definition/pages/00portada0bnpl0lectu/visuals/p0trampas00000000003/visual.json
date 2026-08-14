@@ -1,0 +1,240 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "p0trampas00000000003",
+  "position": {
+    "x": 900,
+    "y": 240,
+    "z": 1000,
+    "height": 840,
+    "width": 860,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Seis definiciones que hay que tener presentes",
+                    "textStyle": {
+                      "fontSize": "16pt",
+                      "color": "#00AEEF",
+                      "fontWeight": "bold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Cada gráfica trae su propia explicación: pasa el mouse por el ícono ⓘ de su encabezado. Estas seis cruzan varias páginas y explican por qué dos números que parecen lo mismo no coinciden.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Hay dos rutas y no dan lo mismo. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "La mora usa la ruta histórica: quién tenía la cuenta cuando se originó el crédito. El grid de clientes usa la vigente: quién la atiende hoy. Atribuir mora vieja al supervisor actual sería injusto, por eso conviven las dos.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "La tasa PAR tiene dos denominadores. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "Las medidas del vintage dividen entre capital desplegado ($1,760M) y dan 6.0%. Las columnas de la misma tabla dividen entre saldo vivo ($276M) y dan 38.4%. Las gráficas de cierre mensual de Salud del Portafolio también usan saldo. Cada tooltip dice cuál usa su gráfica.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "El mes en curso está incompleto. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "Las tablas de corte mensual llegan hasta el cierre del mes actual, pero con datos parciales. La última barra de cualquier serie mensual siempre va a verse baja.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "El 85.9% de las filas de mora traen saldo cero. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "En bnpl_par y months_closes, los pedidos ya pagados en cortes anteriores se guardan como 'PaidPrev' con saldo cero, para no inflar el saldo del cohorte. No mueven ningún monto, pero aparecen como una categoría más en leyendas y slicers.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "La comisión de Rabbit se calcula sobre dos bases. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "En bnpl_loss_rates el 14.2% se aplica sobre el interés con IVA; en el grid, sobre el interés sin IVA. Son 17.3% de diferencia. El Resumen Ejecutivo muestra por defecto la versión sin IVA, dividiendo entre 1.16.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "No todos los filtros llegan a todas las gráficas. ",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "Los slicers de oficina, ruta, edad y género salen del grid de clientes. Alcanzan las gráficas de mora, pero no las de cosechas, audiencias ni roll rates, que no tienen relación con el grid. El tooltip de cada gráfica lo indica.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

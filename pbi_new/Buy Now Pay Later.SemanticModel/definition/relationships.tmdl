@@ -1,0 +1,391 @@
+relationship 1ff4cba8-0b07-4ffe-a25f-8f1ed4576b78
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_grouped_orders.deliveryAt
+	toColumn: LocalDateTable_08b9fefb-5985-4c90-b1e9-44acc74ab892.Date
+
+relationship 2589a8e8-7f20-4371-b7f0-6ba139a76c83
+	joinOnDateBehavior: datePartOnly
+	fromColumn: enrollment_dates.Date
+	toColumn: LocalDateTable_ffe9d113-efe9-40e5-9772-ab2147534f8a.Date
+
+relationship b14c6eee-7593-4e2c-a2aa-cedcbadd2976
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_grouped_orders.bnplEnrolledAt
+	toColumn: LocalDateTable_eec174df-9081-4f96-ac66-6dbe25ead100.Date
+
+relationship c68ffc25-e20b-44e2-8647-e4cd9db71e43
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.createdAt
+	toColumn: LocalDateTable_1cc3ce3a-bce2-4186-8553-409bf791966a.Date
+
+relationship 93ad61a4-7a57-4309-a563-6c6f0405b62f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.deliveryAt
+	toColumn: LocalDateTable_88abab70-a0b9-4e67-bf1d-f08c224fc553.Date
+
+relationship 67c48ae9-ab52-4d38-8fb7-5f1fe10996b2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.bnplEnrolledAt
+	toColumn: LocalDateTable_b938a08b-7500-43f1-be65-07ea416132c6.Date
+
+relationship 832e6aed-50c1-4c7e-be31-e9b384c1b30a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.paidDate
+	toColumn: LocalDateTable_0caa8d7f-8683-4ed2-924a-9434e43485e8.Date
+
+relationship 925de0d2-d629-416a-b602-0b4218f8ee39
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.expectedPaymentDate
+	toColumn: LocalDateTable_fe907c67-6e33-4d46-b255-82d2483b52f6.Date
+
+relationship de218ed4-a205-43e8-8f9c-86cd385e68b9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates.endOfTheMonthexpectedPaymentDate
+	toColumn: LocalDateTable_3e4e340c-69d5-41a8-a24f-1210e44fc2e4.Date
+
+relationship b75ba78e-123c-4239-8a6d-7d988a0158ca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.createdAt
+	toColumn: LocalDateTable_28f68b36-bdbf-4c8d-a027-5d82e8a54c99.Date
+
+relationship 2d3ba9fe-e522-4388-8062-0bca2e171ac6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.deliveryAt
+	toColumn: LocalDateTable_9f1ea388-5620-4e1d-b2f8-700172ac2c01.Date
+
+relationship 4e29f9d8-a317-4562-bb37-151bb4461ead
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.bnplEnrolledAt
+	toColumn: LocalDateTable_81998036-a306-47b0-a041-c907b9ebbb51.Date
+
+relationship 735dce31-aae4-48bf-a160-2eb0d5fc687f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.enrollment_cohort
+	toColumn: LocalDateTable_e0859ef2-7d82-4460-b82d-ca44428e363b.Date
+
+relationship b0b79ce5-34d8-42f6-8a9e-8b6e7556fdb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.paymentDate
+	toColumn: LocalDateTable_4a07ed5e-d20e-4535-b82b-27c7e94f198f.Date
+
+relationship 236107d5-9fee-4d45-91fa-3f530a41ac96
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.paidDate
+	toColumn: LocalDateTable_be14593d-9cea-4768-a207-34bc52b7b458.Date
+
+relationship 39da981f-ac6c-470f-94fc-73cebbd632cc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.expectedPaymentDate
+	toColumn: LocalDateTable_28106b25-dc5e-4d2c-bd85-02afe24fbd32.Date
+
+relationship 9c17983b-ec3f-4277-b6c3-cc4674ff42c6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.endOfTheMonthexpectedPaymentDate
+	toColumn: LocalDateTable_90079f80-db32-46a8-b070-1ce0eb1464b7.Date
+
+relationship df25c0d0-af1d-48f2-893f-91a10ce44aa3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.limitToReceiveOrdersInMont
+	toColumn: LocalDateTable_ed6214a8-20ab-4da2-a6ed-bc643d2f6ab9.Date
+
+relationship 2915629f-19ea-45c7-b540-51f5f09414d7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_par.corte
+	toColumn: LocalDateTable_cff3913a-3cd0-4905-bbd1-740cda059795.Date
+
+relationship f3e07a7c-d3bb-3b56-4ecd-592f48983980
+	fromColumn: bnpl_loss_rates.PAR
+	toColumn: dq_order.PAR
+
+relationship 573d1e64-0105-431a-9788-f7535b483310
+	joinOnDateBehavior: datePartOnly
+	fromColumn: sales_order_dates.Date
+	toColumn: LocalDateTable_d65c2873-ca42-4a79-ac0b-b1045fe991ba.Date
+
+relationship 7baaae53-32c5-da95-1516-d0995ab48b94
+	fromColumn: bnpl_grouped_orders.createdAt
+	toColumn: sales_order_dates.Date
+
+relationship 0a2dd2c2-bd53-48d6-8d16-5d17f4e45111
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_grouped_orders.createdAtClean
+	toColumn: LocalDateTable_573040a7-606d-4d2f-9d8e-b17c653bfc75.Date
+
+relationship d90a83ed-e5ed-d230-371e-0c229cd044db
+	fromColumn: bnpl_loss_rates_with_lead.lead_stage
+	toColumn: dq_order_roll_rates_lead.stage
+
+relationship f9283b79-7105-4ae5-9e1a-611d462fcc12
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates_temp_table.deliveryAt
+	toColumn: LocalDateTable_b9de75ae-2b41-465c-add6-dda0fccca935.Date
+
+relationship 92d602dc-27fb-4b1f-b14f-88236bc58eff
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_loss_rates_with_lead.deliveryAt
+	toColumn: LocalDateTable_585a5919-b1a4-45e5-baab-a1c90c912c5d.Date
+
+relationship 2a293a56-b910-0d30-6745-071902f1386c
+	fromColumn: bnpl_loss_rates_with_lead.stage
+	toColumn: dq_order_roll_rates.stage
+
+relationship a6e90786-0d4c-4610-bc44-4bd4fe599ccb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: loans_matured_default_profile.createdAt
+	toColumn: LocalDateTable_1207ba48-485f-4c59-9f98-191ba113f238.Date
+
+relationship 7ef2ad89-922c-43fe-b859-622489f6e594
+	joinOnDateBehavior: datePartOnly
+	fromColumn: loans_matured_default_profile.expectedPaymentDate
+	toColumn: LocalDateTable_74f78b1f-8b45-4401-ac52-8f52d433855d.Date
+
+relationship fcd16458-16bf-4ecc-b3b9-7d2c8610220a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: loans_matured_default_profile.paidDate
+	toColumn: LocalDateTable_b6918e14-3ba8-4515-9ce5-9ac108b6725c.Date
+
+relationship 7dba49ff-6ad5-4f65-b554-d4c8d6cd1496
+	joinOnDateBehavior: datePartOnly
+	fromColumn: loans_matured_default_profile.bnplEligibleAt
+	toColumn: LocalDateTable_1ccebd3e-f249-4e1b-8d84-9fab87b295e4.Date
+
+relationship 2f113fe7-6a2b-4445-9006-fb8629d9abb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: loans_matured_default_profile.customerBirthdate
+	toColumn: LocalDateTable_0bc62bfc-a6cb-4aad-a8d0-df7d9979b065.Date
+
+relationship 161572ad-74dd-2357-b005-508bb6e080c7
+	fromColumn: odds_combinations.combo_id
+	toColumn: atr_combinations_iv.combo_id
+
+relationship 5155a08f-6006-065f-a766-990ea2c0ec94
+	fromColumn: odds_table.combo_id
+	toColumn: vars_and_iv.combo_id
+
+relationship 2624130b-f188-36a7-7162-eed855136760
+	toCardinality: many
+	fromColumn: loans_matured_default_profile.loanDisbursementIndexRange
+	toColumn: vars_and_iv.loanDisbursementIndexRange
+
+relationship b265240d-9097-4f68-9b4b-75d7c463e72c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.createdAt
+	toColumn: LocalDateTable_fd43405d-3eea-4bc3-b65f-df2e8e664f76.Date
+
+relationship 067edff5-2005-44e5-bd4b-e7b3a3fccb84
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.deliveryAt
+	toColumn: LocalDateTable_5f6aad8d-ded8-494e-98d7-4dabf3874d0c.Date
+
+relationship 6ad58999-d671-4e28-99fb-0f6191f4c73b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.bnplEnrolledAt
+	toColumn: LocalDateTable_9d08fa84-d1e6-4d08-bb36-ee5246a68739.Date
+
+relationship 392f60ff-c1fa-466b-9e55-c1bda82fe686
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.enrollment_cohort
+	toColumn: LocalDateTable_8e2483b8-4698-4286-a96f-edb8a8b6c634.Date
+
+relationship f6015c58-d262-4aa3-bb48-ad07c9c45a0e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.paidDate
+	toColumn: LocalDateTable_2ca2ffa4-aebd-479e-a371-cfd793613429.Date
+
+relationship 432d4aea-ff32-4803-a3f1-823e2f4de5a1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.expectedPaymentDate
+	toColumn: LocalDateTable_8fec5ba7-5dd4-4648-a8e9-048e0edfdfee.Date
+
+relationship c3e8af12-a098-4ae6-a67c-c802544c9b2f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.endOfTheMonthexpectedPaymentDate
+	toColumn: LocalDateTable_3fb3c8ea-7289-4bf2-baf9-01c95153ec94.Date
+
+relationship daff266e-1d4e-4682-857b-10475d1e5ca8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.corte
+	toColumn: LocalDateTable_eb9ffa29-8306-4661-a6e6-680791be986d.Date
+
+relationship e3afb9a5-7217-4f73-bcb1-71efa97064a5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: months_closes.month
+	toColumn: LocalDateTable_272a2513-534e-4255-9424-feb6bb62146d.Date
+
+relationship AutoDetected_f537417c-9280-45b1-bc7b-9d3d18a6b83a
+	fromColumn: months_closes.salesOrderId
+	toColumn: loans_matured_default_profile.salesOrderId
+
+relationship AutoDetected_8a9476e9-3320-4fe3-841f-af15ad56f183
+	isActive: false
+	fromColumn: months_closes.transaction_id
+	toColumn: bnpl_loss_rates.transaction_id
+
+relationship 7992235b-d547-25c7-7bf4-8725ed1f2260
+	fromColumn: months_closes.dqBucket
+	toColumn: dq_order.PAR
+
+relationship bf25262b-b847-c2a7-449d-7735e435044b
+	crossFilteringBehavior: bothDirections
+	fromColumn: dynamic_enrollment_dates.Date
+	toColumn: enrollment_dates.Date
+
+relationship 584f3fc3-bd1e-4e98-9b31-a0ec6b1fbbfc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dynamic_enrollment_dates.visual_date
+	toColumn: LocalDateTable_734a736a-5453-4772-aa97-e41b98effb36.Date
+
+relationship 601f0e8b-7a36-8809-b793-55e421075470
+	crossFilteringBehavior: bothDirections
+	fromColumn: dynamic_sales_orders_dates.Date
+	toColumn: sales_order_dates.Date
+
+relationship d2b4e957-5f5d-43f2-9f76-f2129cedf95f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dynamic_sales_orders_dates.visual_date
+	toColumn: LocalDateTable_85a39f4a-2d1b-4db2-acc1-c4010c351031.Date
+
+relationship d22b54f0-7538-473b-a96c-3c0b4f8efea4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.enrolledAtClean
+	toColumn: LocalDateTable_d0c7c93f-04c8-49f9-8725-311e326ff1d1.Date
+
+relationship 54f5bcb8-1955-4647-a7ca-3b45462e2b5a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: overall_prev_post_bnpl_sales.createdAt
+	toColumn: LocalDateTable_96057a76-d93d-4973-a608-d63833df1313.Date
+
+relationship 97e93a38-9678-429a-8b80-ffa642dad4c2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: overall_prev_post_bnpl_sales.bnplEnrolledAt
+	toColumn: LocalDateTable_d0bccf4c-188a-4509-9de8-d36c4fd875a9.Date
+
+relationship AutoDetected_2c810012-47eb-429d-8cd3-a7c038e3fd1f
+	fromColumn: bnpl_loss_rates.enrollment_cohort
+	toColumn: bnpl_cac.enrollmentCohort
+
+relationship AutoDetected_f11bbfd6-f6a7-43e6-9241-90d875aca719
+	isActive: false
+	fromColumn: vintage_analysis.enrollment_cohort
+	toColumn: bnpl_cac.enrollmentCohort
+
+relationship dd3aa574-ee7e-4648-859b-9832900c0e85
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_grouped_orders.bnplActivatedAt
+	toColumn: LocalDateTable_04051958-743b-4315-a155-ef599b8eff37.Date
+
+relationship 3249ca1a-459e-4c91-8597-29a8c37f1085
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_grouped_orders.deliveryDate
+	toColumn: LocalDateTable_e4239dcb-69ba-4278-9090-7b2c61713b8b.Date
+
+relationship 6dfcf5c1-ba4d-ef47-4e9d-96c61a9c7ae9
+	fromColumn: bnpl_par.PAR
+	toColumn: dq_order.PAR
+
+relationship 40d7ec80-ddeb-4ef6-8506-83cf0b0d44ed
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Clientes_Mensual.InicioMes
+	toColumn: LocalDateTable_1f5c33d1-6555-4404-93a9-89efe3080eaa.Date
+
+relationship 2180a21f-84e2-4adc-8573-bcd5b39dd4b4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_cosechas_agg.mes_tx
+	toColumn: LocalDateTable_0747c98b-7c87-4578-a162-e1db87ea3c5d.Date
+
+relationship f05ec488-e7f3-425a-8ec1-36cbe147ff87
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_cosechas_agg.mes_ft_tx
+	toColumn: LocalDateTable_e1e05c87-3805-40ca-8d80-24682331dbf3.Date
+
+relationship 48e25b19-46b2-47f8-8000-5c069dce25c4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_cosechas_agg.mes_ft_tx_bnpl
+	toColumn: LocalDateTable_e2049985-ccac-412a-be9e-ffd25de2a1e4.Date
+
+relationship 34137d59-5920-4cba-ae1b-8528a9927eb1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: bnpl_audiencia_agg.createdAtMonth
+	toColumn: LocalDateTable_fb3349d4-406a-49b7-a2b2-fc0e71cad147.Date
+
+relationship f2357758-4e20-4143-8e70-c434380275e0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.bnplEligibleAt
+	toColumn: LocalDateTable_83e9d541-9c9d-4bbe-a69e-688d405f5115.Date
+
+relationship e152268c-679d-4a21-b7d6-8a1a5e9d6d1d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.bnplEnrolledAt
+	toColumn: LocalDateTable_32c5c766-ad16-4bf3-877b-641e0f14ff96.Date
+
+relationship 0c4122c9-0244-4d4e-b699-47f7289d8be9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.bnplActivatedAt
+	toColumn: LocalDateTable_ca0db2c4-011c-451f-8404-3a3705b52441.Date
+
+relationship deb98a04-1d51-4986-a771-1fad188542cd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.bnplFirstOrderdAt
+	toColumn: LocalDateTable_31eae466-3f3c-428e-bc2a-7274e8954aa2.Date
+
+relationship 96d05af7-d048-4813-b808-0f8f128612aa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.bnplLastOrderAt
+	toColumn: LocalDateTable_6ab58225-cbab-4b90-a54d-1d28facc564a.Date
+
+relationship 769c3d84-77d9-45b5-a5c8-356ac2b1b063
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Top100InactiveCustomers.customerBirthdate
+	toColumn: LocalDateTable_c7aff579-7674-4355-9b1d-503accd93c3c.Date
+
+relationship f86f715f-6fcc-41e0-ae55-fe40b3ae19a7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.customerBirthdate
+	toColumn: LocalDateTable_fbb444f8-254e-4fcb-bac0-490fe7318d50.Date
+
+relationship e852e499-7c7d-475e-b706-1ed158343f3b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.bnplEligibleAt
+	toColumn: LocalDateTable_6903207c-d21e-430f-9dff-2d4e98481e39.Date
+
+relationship 8896a09d-aba9-4d73-9065-4a90e151b9e9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.bnplEnrolledAt
+	toColumn: LocalDateTable_1b940f1c-2eae-4fd8-8637-ed958c6ccae4.Date
+
+relationship cb87e5a6-ec04-4023-bdc6-98c17033a8b4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.bnplActivatedAt
+	toColumn: LocalDateTable_e20cbdde-8e3d-48e0-be88-16cfa3fb7d54.Date
+
+relationship f83a4a0c-f66d-4a25-af34-8d77333ae3a1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.bnplFirstOrderdAt
+	toColumn: LocalDateTable_ea6906a7-55f5-4666-9531-a05bc53bd6b0.Date
+
+relationship 750cb3bc-9ff4-462f-b659-9569d252d3b9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: grid_bnpl.bnplLastOrderAt
+	toColumn: LocalDateTable_705dde30-e8fe-4cfb-ab13-0f5af43568c5.Date
+
+relationship AutoDetected_b4479f66-966f-4324-930f-34e743645173
+	fromColumn: bnpl_loss_rates.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+
+relationship AutoDetected_499017f1-b41d-4560-9df1-9c239a3712aa
+	fromColumn: bnpl_par.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+
+relationship AutoDetected_3645b986-a30c-4b76-be00-2d70adff7cb5
+	fromColumn: loans_matured_default_profile.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+
+relationship AutoDetected_c6522e8d-8cd2-4269-9c77-392587d5770d
+	isActive: false
+	fromColumn: months_closes.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+
+relationship AutoDetected_6265ddac-ae80-4117-9530-2d40b886dec5
+	fromColumn: overall_prev_post_bnpl_sales.netsuiteId
+	toColumn: grid_bnpl.netsuiteId
+

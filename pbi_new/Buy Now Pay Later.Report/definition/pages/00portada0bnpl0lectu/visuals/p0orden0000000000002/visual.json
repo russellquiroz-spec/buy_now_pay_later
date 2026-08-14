@@ -1,0 +1,242 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "p0orden0000000000002",
+  "position": {
+    "x": 40,
+    "y": 240,
+    "z": 1000,
+    "height": 560,
+    "width": 830,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "En qué orden conviene leerlo",
+                    "textStyle": {
+                      "fontSize": "16pt",
+                      "color": "#00AEEF",
+                      "fontWeight": "bold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "1. Resumen Ejecutivo",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿Cuánto hemos prestado, cuánto nos deben y cuánto ganamos? Es la foto de hoy.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "2. KPI's Tracking",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿Cómo se mueven esos números mes a mes?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "3. Funnel",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  De los tenderos elegibles, ¿cuántos se enrolan y cuántos llegan a usar el crédito?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "4. Survival Matrix",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  De los que ya usaron el crédito, ¿cuántos siguen comprando conforme pasan los meses?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "5. Salud del Portafolio",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿Cuánto de lo prestado está en mora y cómo se mueve entre tramos de atraso?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "6. Cambio en Comportamiento de Compra",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿El crédito hace que el tendero compre más, más seguido o se quede más tiempo?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "7. Vintage Analysis",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿Las cosechas nuevas se comportan mejor o peor que las viejas, a la misma edad?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "8. Audiencias",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  ¿En qué momento de su vida como cliente está cada tendero?",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "9. Fraud, Top users, Clientes con Crédito Activo",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  {
+                    "value": "  ·  Listas operativas para trabajar caso por caso.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "6pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Return On Investment, Default Customer Profile y Search están ocultas en modo lectura: quien abre el tablero publicado no las ve.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#3B3B3B"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

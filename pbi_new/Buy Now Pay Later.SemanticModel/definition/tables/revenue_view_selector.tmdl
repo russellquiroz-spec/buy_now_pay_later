@@ -1,0 +1,54 @@
+table revenue_view_selector
+	lineageTag: 20dd472e-1f62-4c99-9c29-609a65d6f84b
+
+	column ViewType
+		lineageTag: 788ee56b-87d5-4039-8373-ebe5b0fc6b76
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [ViewType]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		formatString: 0
+		lineageTag: 4baf144e-c5fa-4857-8a9b-72319a3facf7
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RabbitRevenueTitle
+		lineageTag: a31ac080-0e9e-4f47-aedc-534a696b7be1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [RabbitRevenueTitle]
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalRevenueTitle
+		lineageTag: b09c2aed-00c5-442a-a246-1dffd2dd726a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [totalRevenueTitle]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition revenue_view_selector = calculated
+		mode: import
+		source = ```
+				
+				    DATATABLE(
+				        "ViewType", STRING,
+				        "Value", INTEGER,
+				        "RabbitRevenueTitle", STRING,
+				        "totalRevenueTitle", STRING,
+				        {
+				            {"Sin IVA", 1, "Revenue Neto de Rabbit (Sin IVA)", "Revenue Total del Periodo (SIN IVA)"},
+				            {"Con IVA", 2, "Revenue Neto de Rabbit (Con IVA)", "Revenue Total del Periodo (Con IVA)"}
+				        }
+				    )
+				```
+
+	annotation PBI_Id = 9958f372ae444f2a90b109b6e140c6d6
+

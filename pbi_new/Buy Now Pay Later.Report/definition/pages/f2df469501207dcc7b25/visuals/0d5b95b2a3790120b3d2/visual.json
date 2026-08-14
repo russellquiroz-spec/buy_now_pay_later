@@ -1,0 +1,432 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "0d5b95b2a3790120b3d2",
+  "position": {
+    "x": 787.5,
+    "y": 108.75,
+    "z": 19000,
+    "height": 107.5,
+    "width": 645,
+    "tabOrder": 19000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_cosechas_agg"
+                    }
+                  },
+                  "Property": "RebaseSobreTendencia"
+                }
+              },
+              "queryRef": "bnpl_cosechas_agg.RebaseSobreTendencia",
+              "nativeQueryRef": "RebaseSobreTendencia",
+              "hidden": true,
+              "format": "0.00"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_cosechas_agg"
+                    }
+                  },
+                  "Property": "baseTendencia"
+                }
+              },
+              "queryRef": "bnpl_cosechas_agg.baseTendencia",
+              "nativeQueryRef": "baseTendencia",
+              "hidden": true
+            },
+            {
+              "field": {
+                "NativeVisualCalculation": {
+                  "Language": "dax",
+                  "Expression": "([RebaseSobreTendencia]-[baseTendencia])/[baseTendencia]",
+                  "Name": "Incremento en Venta"
+                }
+              },
+              "queryRef": "select",
+              "nativeQueryRef": "Incremento en Venta",
+              "format": "0.00 %;-0.00 %;0.00 %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_cosechas_agg"
+                    }
+                  },
+                  "Property": "incrementoDropSize"
+                }
+              },
+              "queryRef": "bnpl_cosechas_agg.incrementoDropSize",
+              "nativeQueryRef": "Incremento en Drop Size",
+              "displayName": "Incremento en Drop Size",
+              "format": "0.00 %;-0.00 %;0.00 %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_cosechas_agg"
+                    }
+                  },
+                  "Property": "incrementoFrecuencia"
+                }
+              },
+              "queryRef": "bnpl_cosechas_agg.incrementoFrecuencia",
+              "nativeQueryRef": "Incremento en Frecuencia",
+              "displayName": "Incremento en Frecuencia",
+              "format": "0.00 %;-0.00 %;0.00 %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_cosechas_agg"
+                    }
+                  },
+                  "Property": "incrementoSupervivencia"
+                }
+              },
+              "queryRef": "bnpl_cosechas_agg.incrementoSupervivencia",
+              "nativeQueryRef": "Incremento en Supervivencia",
+              "displayName": "Incremento en Supervivencia",
+              "format": "0.00 %;-0.00 %;0.00 %"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Consolas'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 2,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "156.14284715577878D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "select"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "158.75D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoDropSize"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "147.50005145864804D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoFrecuencia"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "169.25000421680602D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoSupervivencia"
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Consolas'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "20D"
+                }
+              }
+            },
+            "fontColorPrimary": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 2,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Auto'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "select"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoDropSize"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoFrecuencia"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "bnpl_cosechas_agg.incrementoSupervivencia"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 2,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "width": {
+              "expr": {
+                "Literal": {
+                  "Value": "3D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "padding": [
+        {
+          "properties": {
+            "bottom": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "right": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "top": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "left": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La venta acumulada desde el primer pedido BNPL, reexpresada sobre esa línea base, la venta de referencia del mes previo al primer pedido BNPL, usada como línea base, Incremento en Venta (([RebaseSobreTendencia]-[baseTendencia])/[baseTendencia]) y 3 columnas más.\nUniverso y corte: El grano es una fila por cosecha y mes (51,721). Diciembre-2023 viene dividido entre 20 por un defecto de la fuente de Redshift. De 2025 en adelante el monto es venta surtida y antes venta ordenada: hay un escalon de +14.5% en enero-2025. No tiene relación con el grid, así que los slicers de oficina, ruta, edad o género de la página no la afectan.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_cosechas_agg, sobre redshift_bnpl.cosechas_agg.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La venta acumulada desde el primer pedido BNPL, reexpresada sobre esa línea base, la venta de referencia del mes previo al primer pedido BNPL, usada como línea base, Incremento en Venta (([RebaseSobreTendencia]-[baseTendencia])/[baseTendencia]) y 3 columnas más.\nUniverso y corte: El grano es una fila por cosecha y mes (51,721). Diciembre-2023 viene dividido entre 20 por un defecto de la fuente de Redshift. De 2025 en adelante el monto es venta surtida y antes venta ordenada: hay un escalon de +14.5% en enero-2025. No tiene relación con el grid, así que los slicers de oficina, ruta, edad o género de la página no la afectan.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_cosechas_agg, sobre redshift_bnpl.cosechas_agg.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

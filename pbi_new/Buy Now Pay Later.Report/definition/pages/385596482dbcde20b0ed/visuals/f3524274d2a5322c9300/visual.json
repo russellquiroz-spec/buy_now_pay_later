@@ -1,0 +1,154 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "f3524274d2a5322c9300",
+  "position": {
+    "x": 294,
+    "y": 770,
+    "z": 0,
+    "height": 341,
+    "width": 737
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "vars_and_iv"
+                    }
+                  },
+                  "Property": "loanDisbursementIndexRange"
+                }
+              },
+              "queryRef": "Sum(vars_and_iv.loanDisbursementIndexRange)",
+              "nativeQueryRef": "loanDisbursementIndexRange"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "vars_and_iv"
+                    }
+                  },
+                  "Property": "flag"
+                }
+              },
+              "queryRef": "vars_and_iv.flag",
+              "nativeQueryRef": "flag"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "vars_and_iv"
+                    }
+                  },
+                  "Property": "attribute"
+                }
+              },
+              "queryRef": "vars_and_iv.attribute",
+              "nativeQueryRef": "attribute"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "vars_and_iv"
+                        }
+                      },
+                      "Property": "iv"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(vars_and_iv.iv)",
+              "nativeQueryRef": "Suma de iv"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Aggregation": {
+                "Expression": {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "vars_and_iv"
+                      }
+                    },
+                    "Property": "iv"
+                  }
+                },
+                "Function": 0
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, attribute y 1 columnas más.\nUniverso y corte: El grano es una fila por variable (6). Es la salida de un analisis de riesgo (WOE/IV), no una extracción.\nDe dónde sale: Sale de la vista pbi_bnpl.vars_and_iv, sobre bnpl.loss_rates y bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, attribute y 1 columnas más.\nUniverso y corte: El grano es una fila por variable (6). Es la salida de un analisis de riesgo (WOE/IV), no una extracción.\nDe dónde sale: Sale de la vista pbi_bnpl.vars_and_iv, sobre bnpl.loss_rates y bnpl.grid_bnpl.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

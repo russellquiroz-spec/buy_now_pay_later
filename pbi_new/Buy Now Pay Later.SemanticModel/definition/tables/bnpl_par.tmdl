@@ -1,0 +1,361 @@
+table bnpl_par
+	lineageTag: e6d01c06-790c-499e-96c2-1f9650acab9c
+
+	column netsuiteId
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c219b57-f55e-4657-b37c-578a6de60a89
+		summarizeBy: none
+		sourceColumn: netsuiteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		dataType: string
+		lineageTag: 290e3c99-76f3-41c0-aab8-f521bfb8219c
+		summarizeBy: none
+		sourceColumn: salesOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderStatus
+		dataType: string
+		lineageTag: 0d8c950d-29a5-4315-99bc-8b13d880ee21
+		summarizeBy: none
+		sourceColumn: orderStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 31794613-137c-489e-af10-dfb0190ad182
+		summarizeBy: none
+		sourceColumn: createdAt
+
+		variation Variación
+			isDefault
+			relationship: b75ba78e-123c-4239-8a6d-7d988a0158ca
+			defaultHierarchy: LocalDateTable_28f68b36-bdbf-4c8d-a027-5d82e8a54c99.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderGrossSales
+		dataType: double
+		lineageTag: 95040d8f-e2d9-4de6-8b5f-7f516ac3be89
+		summarizeBy: sum
+		sourceColumn: orderGrossSales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 3c2d9e79-e215-4425-aa01-e7ff748da67a
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e3a0b0c8-ad41-416c-a185-5b5cba51e18d
+		summarizeBy: none
+		sourceColumn: deliveryAt
+
+		variation Variación
+			isDefault
+			relationship: 2d3ba9fe-e522-4388-8062-0bca2e171ac6
+			defaultHierarchy: LocalDateTable_9f1ea388-5620-4e1d-b2f8-700172ac2c01.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEnrolledAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4bcb1c80-2cdf-4dab-a6d3-bdf0112d96a4
+		summarizeBy: none
+		sourceColumn: bnplEnrolledAt
+
+		variation Variación
+			isDefault
+			relationship: 4e29f9d8-a317-4562-bb37-151bb4461ead
+			defaultHierarchy: LocalDateTable_81998036-a306-47b0-a041-c907b9ebbb51.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrollment_cohort
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 119a2e36-1c63-49a9-8fa5-d894c50449e6
+		summarizeBy: none
+		sourceColumn: enrollment_cohort
+
+		variation Variación
+			isDefault
+			relationship: 735dce31-aae4-48bf-a160-2eb0d5fc687f
+			defaultHierarchy: LocalDateTable_e0859ef2-7d82-4460-b82d-ca44428e363b.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnrolledCustomers
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c919f9b-6d45-444a-bfd4-570260e0093d
+		summarizeBy: sum
+		sourceColumn: EnrolledCustomers
+
+		annotation SummarizationSetBy = Automatic
+
+	column enrolledCreditLimit
+		dataType: int64
+		formatString: 0
+		lineageTag: 58e8777a-1939-4024-95da-e39b659c23ee
+		summarizeBy: sum
+		sourceColumn: enrolledCreditLimit
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsSinceEnrollment
+		dataType: int64
+		formatString: 0
+		lineageTag: dbb8ae7f-f0d6-44fe-b676-53c1e4429062
+		summarizeBy: sum
+		sourceColumn: monthsSinceEnrollment
+
+		annotation SummarizationSetBy = Automatic
+
+	column rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ed99f24-46d4-4034-b892-594f7ec75f74
+		summarizeBy: sum
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column transaction_id
+		dataType: string
+		lineageTag: 5d1dd901-722e-4cab-b984-ec654ba1e3c8
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalAmountToPay
+		dataType: double
+		lineageTag: 004f2d43-7549-42de-9f0e-8d25f524f2ab
+		summarizeBy: sum
+		sourceColumn: totalAmountToPay
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalAmount
+		dataType: double
+		lineageTag: 54dc75a2-be43-4765-8bd3-65ca94cd97b0
+		summarizeBy: sum
+		sourceColumn: totalAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column interests
+		dataType: double
+		lineageTag: a027bbfa-852c-47bc-aeda-d9837ded73f6
+		summarizeBy: sum
+		sourceColumn: interests
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalAmountDefault
+		dataType: double
+		lineageTag: dad2be12-ba89-42a1-955e-a522f3e0183e
+		summarizeBy: sum
+		sourceColumn: totalAmountDefault
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column movementDate
+		dataType: string
+		lineageTag: 103baeb9-0997-4162-96a9-8deed1030c81
+		summarizeBy: none
+		sourceColumn: movementDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column paymentDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: eb0fd115-7259-4fc0-badf-9135137b1ce6
+		summarizeBy: none
+		sourceColumn: paymentDate
+
+		variation Variación
+			isDefault
+			relationship: b0b79ce5-34d8-42f6-8a9e-8b6e7556fdb6
+			defaultHierarchy: LocalDateTable_4a07ed5e-d20e-4535-b82b-27c7e94f198f.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column paidDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e2c7b9c1-84ee-4fe2-a13f-d8a3f7f67f9d
+		summarizeBy: none
+		sourceColumn: paidDate
+
+		variation Variación
+			isDefault
+			relationship: 236107d5-9fee-4d45-91fa-3f530a41ac96
+			defaultHierarchy: LocalDateTable_be14593d-9cea-4768-a207-34bc52b7b458.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column expectedPaymentDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c3a5de28-9b48-4de1-80f4-014b77b74a57
+		summarizeBy: none
+		sourceColumn: expectedPaymentDate
+
+		variation Variación
+			isDefault
+			relationship: 39da981f-ac6c-470f-94fc-73cebbd632cc
+			defaultHierarchy: LocalDateTable_28106b25-dc5e-4d2c-bd85-02afe24fbd32.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column endOfTheMonthexpectedPaymentDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6c3e4934-79a0-4472-bf33-eb5557880e07
+		summarizeBy: none
+		sourceColumn: endOfTheMonthexpectedPaymentDate
+
+		variation Variación
+			isDefault
+			relationship: 9c17983b-ec3f-4277-b6c3-cc4674ff42c6
+			defaultHierarchy: LocalDateTable_90079f80-db32-46a8-b070-1ce0eb1464b7.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column limitToReceiveOrdersInMont
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5feb4042-4e0d-4c01-82bb-6cf921331440
+		summarizeBy: none
+		sourceColumn: limitToReceiveOrdersInMont
+
+		variation Variación
+			isDefault
+			relationship: df25c0d0-af1d-48f2-893f-91a10ce44aa3
+			defaultHierarchy: LocalDateTable_ed6214a8-20ab-4da2-a6ed-bc643d2f6ab9.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column corte
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6ae1ebdb-b9f8-473d-b583-6da4f0948211
+		summarizeBy: none
+		sourceColumn: corte
+
+		variation Variación
+			isDefault
+			relationship: 2915629f-19ea-45c7-b540-51f5f09414d7
+			defaultHierarchy: LocalDateTable_cff3913a-3cd0-4905-bbd1-740cda059795.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column daysPastDue
+		dataType: int64
+		formatString: 0
+		lineageTag: e0e1bf62-46c8-47ed-ae51-9213497fc6a0
+		summarizeBy: sum
+		sourceColumn: daysPastDue
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAR
+		dataType: string
+		lineageTag: 253c61bc-af96-426b-a023-76738a5cd434
+		summarizeBy: none
+		sourceColumn: PAR
+		sortByColumn: dqOrder
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column month
+		dataType: string
+		lineageTag: 654a07e3-53d7-449c-b0b0-d1565fe05962
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruta
+		dataType: string
+		lineageTag: b353de41-d0ad-4633-b55b-a66a74b5a4f6
+		summarizeBy: none
+		sourceColumn: ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		dataType: string
+		lineageTag: cbc1bbae-6523-4046-a79a-847ebe78a41e
+		summarizeBy: none
+		sourceColumn: supervisor
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		dataType: string
+		lineageTag: 3d10fb50-fe13-4d0b-bf4c-3a8fb50a91b3
+		summarizeBy: none
+		sourceColumn: oficina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		dataType: string
+		lineageTag: 5d880dc6-e034-486c-ac64-c9caa9921aad
+		summarizeBy: none
+		sourceColumn: tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column dqOrder = RELATED(dq_order[dqOrder])
+		formatString: 0
+		lineageTag: 12dfcf31-4f23-41b2-9166-91d147638b1e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_par = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_par", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

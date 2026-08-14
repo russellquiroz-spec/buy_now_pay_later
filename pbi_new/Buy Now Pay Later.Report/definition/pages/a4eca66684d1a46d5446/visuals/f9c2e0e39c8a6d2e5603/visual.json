@@ -1,0 +1,172 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "f9c2e0e39c8a6d2e5603",
+  "position": {
+    "x": 1087.5,
+    "y": 1268.75,
+    "z": 10000,
+    "height": 450,
+    "width": 750,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "pythonVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_grouped_orders"
+                    }
+                  },
+                  "Property": "netsuiteId"
+                }
+              },
+              "queryRef": "CountNonNull(bnpl_grouped_orders.netsuiteId)",
+              "nativeQueryRef": "netsuiteId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_grouped_orders"
+                    }
+                  },
+                  "Property": "monthCreatedAt"
+                }
+              },
+              "queryRef": "bnpl_grouped_orders.monthCreatedAt",
+              "nativeQueryRef": "monthCreatedAt"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "bnpl_grouped_orders"
+                        }
+                      },
+                      "Property": "orderGrossSales"
+                    }
+                  },
+                  "Function": 4
+                }
+              },
+              "queryRef": "Sum(bnpl_grouped_orders.orderGrossSales)",
+              "nativeQueryRef": "Máx. de orderGrossSales"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "bnpl_grouped_orders"
+                  }
+                },
+                "Property": "netsuiteId"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "script": [
+        {
+          "properties": {
+            "source": {
+              "expr": {
+                "Literal": {
+                  "Value": "'# El código siguiente, que crea un dataframe y quita las filas duplicadas, siempre se ejecuta y actúa como un preámbulo del script: \n\n# dataset = pandas.DataFrame(netsuiteId, monthCreatedAt, orderId, orderGrossSales)\n# dataset = dataset.drop_duplicates()\n\n# Pegue o escriba aquí el código de script:\n\nimport seaborn as sns\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport matplotlib.ticker as ticker\n\n\ndf = dataset\ng = df.groupby([''netsuiteId'', ''monthCreatedAt'']).agg(\n    grossSalesVolume = (''orderGrossSales'', ''sum'')\n).reset_index()\n\nn_bins = 10\nhist = sns.histplot(data = g, binwidth = 1000, binrange = (0,12000),\nkde=False, x = ''grossSalesVolume'', color= \"#00AEEF\", alpha = 1, edgecolor=''white'', shrink = 0.8)\n\n\ntotal_customers = len(g)\n\n# Add percentage labels to the bars\nfor p in hist.patches:\n    height = p.get_height()\n    if height > 0:  # Only add labels to bars with data\n        percentage = f''{(height / total_customers) * 100:.1f}%''\n        hist.annotate(percentage, (p.get_x() + p.get_width() / 2, height),\n                      ha=''center'', va=''bottom'', fontsize=10, color = ''black'')\n\n\n# Set x-ticks to show every step\nstart = 0\nend = 12000\nstep = (end - start) / 12  # 12 steps within the range\n\n# Set x-ticks\nplt.xticks(ticks=np.arange(start, end + step, step), color=''black'', rotation=90)\nplt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f''${x:,.0f}''))\n\nax = plt.gca()\n\nax.yaxis.grid(True, linestyle=''--'', color=''#00AEEF'', alpha=0.5)\n\nplt.title(''Number of Customers by Monthly Gross Sales Volume'', fontsize=15, color = ''#00AEEF'', fontweight=''bold'', pad = 10)\nplt.xlabel(''Monthly Gross Sales per Active Customer'', fontsize=12, color = ''black'')\nplt.ylabel(''Number of Customers'', fontsize=12, color = ''black'')\n\n\nax.tick_params(axis=''x'', colors=''black'', labelsize=10, width=2)\nax.tick_params(axis=''y'', colors=''black'', labelsize=10, width=2)\n\n## Axis border color\nax.spines[''bottom''].set_color(''black'')\nax.spines[''bottom''].set_linewidth(2) \nax.spines[''left''].set_color(''black'')\nax.spines[''left''].set_linewidth(2) \n\nax.spines[''top''].set_visible(False)\nax.spines[''right''].set_visible(False)\n\n\n\nplt.subplots_adjust(left=0.1, right=0.95, top=0.90, bottom=0.22)\n\nplt.show()'"
+                }
+              }
+            },
+            "provider": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Python'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El cliente y month created at y El máximo de la venta bruta del pedido.\nUniverso y corte: El grano es una fila por pedido BNPL (99,019). Trae las dos rutas: ''tipo'' es la estructura comercial del momento del pedido y ''tipoActual'' la de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_grouped_orders, sobre bnpl.grouped_orders.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El cliente y month created at y El máximo de la venta bruta del pedido.\nUniverso y corte: El grano es una fila por pedido BNPL (99,019). Trae las dos rutas: ''tipo'' es la estructura comercial del momento del pedido y ''tipoActual'' la de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_grouped_orders, sobre bnpl.grouped_orders.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

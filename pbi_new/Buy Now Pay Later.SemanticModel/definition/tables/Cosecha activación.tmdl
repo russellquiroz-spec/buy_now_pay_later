@@ -1,0 +1,48 @@
+table 'Cosecha activación'
+	lineageTag: 6cade157-5545-4e50-9b5e-ad5c4a802301
+
+	column 'Cosecha Activación'
+		lineageTag: 008579b3-539b-4f81-b990-393d412c051d
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Cosecha Activación Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Cosecha Activación Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cosecha Activación Campos'
+		isHidden
+		lineageTag: 3412178b-9364-41ab-95db-be95087a24db
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Cosecha Activación Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cosecha Activación Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 943bd97b-5225-44a5-9068-582f960b2023
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Cosecha activación' = calculated
+		mode: import
+		source =
+				{
+				    ("Total", NAMEOF('bnpl_grouped_orders'[Agrupación Cosecha Total]), 0),
+				    ("Cosecha", NAMEOF('bnpl_grouped_orders'[activatedCohort]), 1)
+				}
+
+	annotation PBI_Id = 102442a9aa064c45a83e1f0ed6eaa164
+

@@ -1,0 +1,28 @@
+table enrollment_dates
+	lineageTag: b5576c28-3a4f-4306-9999-4460e80ad302
+
+	column Date
+		formatString: General Date
+		lineageTag: 783a65e0-2e76-4855-91b9-fe12412ec09c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variación
+			isDefault
+			relationship: 2589a8e8-7f20-4371-b7f0-6ba139a76c83
+			defaultHierarchy: LocalDateTable_ffe9d113-efe9-40e5-9772-ab2147534f8a.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition enrollment_dates = calculated
+		mode: import
+		source =
+				
+				CALENDAR(
+				    MIN('grid_bnpl'[bnplEnrolledAt]),
+				    MAX('grid_bnpl'[bnplEnrolledAt])
+				)
+
+	annotation PBI_Id = 5b04a90f296248f2b65d202542c33156
+

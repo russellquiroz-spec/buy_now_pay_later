@@ -1,0 +1,536 @@
+table loans_matured_default_profile
+	lineageTag: c00f78a1-957b-4700-b144-ba8131af6c98
+
+	column Column1
+		dataType: int64
+		formatString: 0
+		lineageTag: c6c03b89-747f-4e50-86ec-9d42e980698a
+		summarizeBy: sum
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	column netsuiteId
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a0bfa3e-d335-40cf-84c1-70be58e97d13
+		summarizeBy: none
+		sourceColumn: netsuiteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		dataType: string
+		lineageTag: dda70991-f5bb-4ef5-9f74-781792e4ea4d
+		summarizeBy: none
+		sourceColumn: salesOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderId
+		dataType: string
+		lineageTag: e246abd3-44d5-492f-a94b-6e69ba5faf97
+		summarizeBy: none
+		sourceColumn: orderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column orderStatus
+		dataType: string
+		lineageTag: 3d2086c6-ca96-4053-a4f3-fc5af367f6de
+		summarizeBy: none
+		sourceColumn: orderStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column createdAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 12f66d01-ae19-42ad-bf10-09b6eeda70cf
+		summarizeBy: none
+		sourceColumn: createdAt
+
+		variation Variación
+			isDefault
+			relationship: a6e90786-0d4c-4610-bc44-4bd4fe599ccb
+			defaultHierarchy: LocalDateTable_1207ba48-485f-4c59-9f98-191ba113f238.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column expectedPaymentDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8cbe099f-dc7c-4889-9e8a-1116a9e36302
+		summarizeBy: none
+		sourceColumn: expectedPaymentDate
+
+		variation Variación
+			isDefault
+			relationship: 7ef2ad89-922c-43fe-b859-622489f6e594
+			defaultHierarchy: LocalDateTable_74f78b1f-8b45-4401-ac52-8f52d433855d.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column paidDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 971579cd-cd06-4bc1-92eb-77b10e2bd7bc
+		summarizeBy: none
+		sourceColumn: paidDate
+
+		variation Variación
+			isDefault
+			relationship: fcd16458-16bf-4ecc-b3b9-7d2c8610220a
+			defaultHierarchy: LocalDateTable_b6918e14-3ba8-4515-9ce5-9ac108b6725c.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalAmount
+		dataType: double
+		lineageTag: 636c5f47-b580-4898-a101-639aa82b2675
+		summarizeBy: sum
+		sourceColumn: totalAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalAmountToPay
+		dataType: double
+		lineageTag: 488e4f98-7083-478b-89c3-a514511a0558
+		summarizeBy: sum
+		sourceColumn: totalAmountToPay
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column daysPastDue
+		dataType: int64
+		formatString: 0
+		lineageTag: ad36d9ed-47ca-47de-848c-c65d79ca06c7
+		summarizeBy: sum
+		sourceColumn: daysPastDue
+
+		annotation SummarizationSetBy = Automatic
+
+	column loanDisbursementIndex
+		dataType: int64
+		formatString: 0
+		lineageTag: f9377785-8a3d-4a21-9896-ceb9f41e557c
+		summarizeBy: sum
+		sourceColumn: loanDisbursementIndex
+
+		annotation SummarizationSetBy = Automatic
+
+	column loanDisbursementIndexRange
+		dataType: string
+		lineageTag: 32853918-e96a-4962-b360-9f4f36bf2e9d
+		summarizeBy: none
+		sourceColumn: loanDisbursementIndexRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag@15DaysLate
+		dataType: int64
+		formatString: 0
+		lineageTag: 46fa46e3-82ce-43d6-919b-cf34a09e10bb
+		summarizeBy: sum
+		sourceColumn: flag@15DaysLate
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag@30DaysLate
+		dataType: int64
+		formatString: 0
+		lineageTag: d76089e4-6411-44c6-8992-b233e03ab746
+		summarizeBy: sum
+		sourceColumn: flag@30DaysLate
+
+		annotation SummarizationSetBy = Automatic
+
+	column bnplEligibleAt
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 149ee8e8-e05c-4ee2-9653-8d89f48c0c54
+		summarizeBy: none
+		sourceColumn: bnplEligibleAt
+
+		variation Variación
+			isDefault
+			relationship: 7dba49ff-6ad5-4f65-b554-d4c8d6cd1496
+			defaultHierarchy: LocalDateTable_1ccebd3e-f249-4e1b-8d84-9fab87b295e4.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruta
+		dataType: string
+		lineageTag: 87c20342-a7a9-4ab6-ba76-4dae55d5f1f1
+		summarizeBy: none
+		sourceColumn: ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column supervisor
+		dataType: string
+		lineageTag: bc2bbdd1-a5cd-4b73-81cf-42d77b951697
+		summarizeBy: none
+		sourceColumn: supervisor
+
+		annotation SummarizationSetBy = Automatic
+
+	column oficina
+		dataType: string
+		lineageTag: c46b6481-0a76-4244-9b22-1e6f8359d956
+		summarizeBy: none
+		sourceColumn: oficina
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo
+		dataType: string
+		lineageTag: 6cc2280f-cc12-4b38-af67-1daa5b3d3b32
+		summarizeBy: none
+		sourceColumn: tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column business_category
+		dataType: string
+		lineageTag: ff29c4f9-d5d4-4e4e-b951-e67eefba6b0e
+		summarizeBy: none
+		sourceColumn: business_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopNeighborhood
+		dataType: string
+		lineageTag: 0607a990-e862-47a2-9808-76ddfc7f579f
+		summarizeBy: none
+		sourceColumn: shopNeighborhood
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopZipCode
+		dataType: int64
+		formatString: 0
+		lineageTag: 8cdecd78-7dd2-4888-83b1-0b9f7a8115e7
+		summarizeBy: count
+		sourceColumn: shopZipCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopTown
+		dataType: string
+		lineageTag: c5e7f3a1-0320-41e4-a286-85d784acf9b8
+		summarizeBy: none
+		sourceColumn: shopTown
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopState
+		dataType: string
+		lineageTag: f69bf204-33d1-41cf-a61a-14ceb230bec0
+		summarizeBy: none
+		sourceColumn: shopState
+
+		annotation SummarizationSetBy = Automatic
+
+	column shopLatitude
+		dataType: double
+		lineageTag: d596f194-7503-413d-aeb1-6867da0a953d
+		summarizeBy: sum
+		sourceColumn: shopLatitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column shopLongitude
+		dataType: double
+		lineageTag: c696a570-e3fc-4d41-88f7-0cd99e411def
+		summarizeBy: sum
+		sourceColumn: shopLongitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerName
+		dataType: string
+		lineageTag: 115ab68c-ddec-4140-a76e-ba5ac3c6ae55
+		summarizeBy: none
+		sourceColumn: customerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerLastNames
+		dataType: string
+		lineageTag: 61fe2a45-50ba-4e02-8356-a391c232508a
+		summarizeBy: none
+		sourceColumn: customerLastNames
+
+		annotation SummarizationSetBy = Automatic
+
+	column inferredGender
+		dataType: string
+		lineageTag: 0dc49893-f08c-4751-a77b-739c28e9fa92
+		summarizeBy: none
+		sourceColumn: inferredGender
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerBirthdate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2da867a3-dcab-436e-ab29-ad13063a8b0c
+		summarizeBy: none
+		sourceColumn: customerBirthdate
+
+		variation Variación
+			isDefault
+			relationship: 2f113fe7-6a2b-4445-9006-fb8629d9abb6
+			defaultHierarchy: LocalDateTable_0bc62bfc-a6cb-4aad-a8d0-df7d9979b065.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAge
+		dataType: int64
+		formatString: 0
+		lineageTag: 5202601f-9508-4725-8071-909853c521ee
+		summarizeBy: sum
+		sourceColumn: customerAge
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerAgeAtEligibility
+		dataType: int64
+		formatString: 0
+		lineageTag: b8167603-c309-44e2-ab68-2d8b4f71c845
+		summarizeBy: sum
+		sourceColumn: customerAgeAtEligibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column customerLatitude
+		dataType: double
+		lineageTag: 9e5e2899-8368-4246-b694-60fb87ce178d
+		summarizeBy: sum
+		sourceColumn: customerLatitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerLongitude
+		dataType: double
+		lineageTag: 055a9621-f343-44ba-950e-85fdfec674e4
+		summarizeBy: sum
+		sourceColumn: customerLongitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column distanceBetweenOnboardingAndShopLocation
+		dataType: double
+		lineageTag: c1964a28-0b1d-4748-9bdd-ec5b5aba5b98
+		summarizeBy: sum
+		sourceColumn: distanceBetweenOnboardingAndShopLocation
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PSOnboardedAt
+		dataType: string
+		lineageTag: b2fb52e2-5b78-43bf-bd5b-b22d5f242774
+		summarizeBy: none
+		sourceColumn: PSOnboardedAt
+
+		annotation SummarizationSetBy = Automatic
+
+	column TPVOnboardedAt
+		dataType: string
+		lineageTag: 26540d8f-2d47-4e5b-a2e9-fca0083eff65
+		summarizeBy: none
+		sourceColumn: TPVOnboardedAt
+
+		annotation SummarizationSetBy = Automatic
+
+	column psrtaPreviousToBnpl
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c2df6f8-f144-4e2b-bc42-31ae12041432
+		summarizeBy: sum
+		sourceColumn: psrtaPreviousToBnpl
+
+		annotation SummarizationSetBy = Automatic
+
+	column tpvPreviousToBnpl
+		dataType: int64
+		formatString: 0
+		lineageTag: 859e64a8-fc97-473c-8ec0-4aab59f5f09d
+		summarizeBy: sum
+		sourceColumn: tpvPreviousToBnpl
+
+		annotation SummarizationSetBy = Automatic
+
+	column previousFintechProductToBnpl
+		dataType: int64
+		formatString: 0
+		lineageTag: b9873530-270b-4ea1-8d91-ab31680f89e2
+		summarizeBy: sum
+		sourceColumn: previousFintechProductToBnpl
+
+		annotation SummarizationSetBy = Automatic
+
+	column grossSalesVolume3Months
+		dataType: double
+		lineageTag: 1b2d261d-17e4-4a1f-87b1-e11d77e8c435
+		summarizeBy: sum
+		sourceColumn: grossSalesVolume3Months
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordersCount3Months
+		dataType: int64
+		formatString: 0
+		lineageTag: 8ee97016-20e5-42fb-9e7d-cd0202a28646
+		summarizeBy: sum
+		sourceColumn: ordersCount3Months
+
+		annotation SummarizationSetBy = Automatic
+
+	column grossSalesVolume6Months
+		dataType: double
+		lineageTag: 21669d1e-2082-496e-997c-a92a1cd93938
+		summarizeBy: sum
+		sourceColumn: grossSalesVolume6Months
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordersCount6Months
+		dataType: int64
+		formatString: 0
+		lineageTag: f4244540-1b7e-4e07-bd0c-23c53e292c76
+		summarizeBy: sum
+		sourceColumn: ordersCount6Months
+
+		annotation SummarizationSetBy = Automatic
+
+	column grossSalesAliadoPostLastBnplOrder
+		dataType: double
+		lineageTag: 0dd0e426-bf8c-4e7e-8391-e92e50a553b7
+		summarizeBy: sum
+		sourceColumn: grossSalesAliadoPostLastBnplOrder
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordersCountAliadoPostLastBnplOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: d5a0a5cc-0403-48cd-9c99-83b3fb9b31ca
+		summarizeBy: sum
+		sourceColumn: ordersCountAliadoPostLastBnplOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column grossSalesMarketPlacePostLastBnplOrder
+		dataType: double
+		lineageTag: f8358f5c-c1ee-4c17-8527-ea8659822b0a
+		summarizeBy: sum
+		sourceColumn: grossSalesMarketPlacePostLastBnplOrder
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordersCountMarketPlacePostLastBnplOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: c18e3a5a-22be-479e-850b-7dd51b968182
+		summarizeBy: sum
+		sourceColumn: ordersCountMarketPlacePostLastBnplOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column ordersAfterLastBnplOrder = ```
+			
+			IF(
+			    loans_matured_default_profile[ordersCountAliadoPostLastBnplOrder] + loans_matured_default_profile[ordersCountMarketPlacePostLastBnplOrder] >= 1, 
+			    1, 
+			    0
+			)
+			```
+		formatString: 0
+		lineageTag: fc24108f-b609-4812-a639-6d981f879179
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column fraudFlag =
+			
+			SWITCH(
+			    TRUE(),
+			    loans_matured_default_profile[flag@15DaysLate] = 0, "Not Defaulted", loans_matured_default_profile[flag@15DaysLate] = 1 && NOT(ISBLANK(loans_matured_default_profile[paidDate])) , "Defaulted & Recovered", loans_matured_default_profile[flag@15DaysLate] = 1 && loans_matured_default_profile[ordersAfterLastBnplOrder] == 1, "Defaulted & Still Active with Other Payment Methods",
+			    loans_matured_default_profile[flag@15DaysLate] = 1 && loans_matured_default_profile[ordersAfterLastBnplOrder] == 0, "Potential Fraud"
+			)
+		lineageTag: 95a8a081-70ea-4a64-a805-61ad92f2be01
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column psTransactionalProfile =
+			
+			LOOKUPVALUE(
+			    ps_transactional_profile[transactionalProfile],  // Columna que queremos traer
+			    ps_transactional_profile[Id cliente], loans_matured_default_profile[netsuiteId]  // Llave de la relación
+			)
+		lineageTag: de0fcf40-20e5-4b4e-a91a-d704b78dce95
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column crossFraudFlag =
+			
+			SWITCH(
+			    TRUE(),
+			    loans_matured_default_profile[psTransactionalProfile] = "03-Mostly Fraud" && loans_matured_default_profile[fraudFlag] == "Potential Fraud", 1,0
+			)
+		formatString: 0
+		lineageTag: ab9c5182-1ce2-4204-9e60-388e7045fb76
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column avgTicket3Months
+		dataType: int64
+		formatString: 0
+		lineageTag: 52f10ae9-808e-4114-be66-b34595e0172e
+		summarizeBy: sum
+		sourceColumn: avgTicket3Months
+
+		annotation SummarizationSetBy = Automatic
+
+	partition loans_matured_default_profile = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.loans_matured_default_profile", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

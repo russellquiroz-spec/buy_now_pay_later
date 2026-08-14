@@ -1,0 +1,545 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 963.27997762215045
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 4311.3607307454013
+          },
+          "nodeIndex": "bnpl_grouped_orders",
+          "nodeLineageTag": "7a6babf1-c878-4cfc-9ff7-dab6e00fba65",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 21
+        },
+        {
+          "location": {
+            "x": 848.551724137931,
+            "y": 5092.1883169522989
+          },
+          "nodeIndex": "grid_bnpl",
+          "nodeLineageTag": "7d7ccaa7-f686-4f7d-aca3-2f551a474e07",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 24
+        },
+        {
+          "location": {
+            "x": 849.7931034482757,
+            "y": 4749.0848686764366
+          },
+          "nodeIndex": "enrollment_dates",
+          "nodeLineageTag": "b5576c28-3a4f-4306-9999-4460e80ad302",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 17
+        },
+        {
+          "location": {
+            "x": 1226.8965517241377,
+            "y": 4749.0848686764366
+          },
+          "nodeIndex": "dynamic_enrollment_dates",
+          "nodeLineageTag": "0d275386-b928-4677-b2c7-8c6677c46be4",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 18
+        },
+        {
+          "location": {
+            "x": 1225.4482758620688,
+            "y": 5093.9124548833315
+          },
+          "nodeIndex": "bnpl_loss_rates",
+          "nodeLineageTag": "2cefecbe-b98d-462a-81da-add2a0a26734",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 30
+        },
+        {
+          "location": {
+            "x": 1810.6625905236087,
+            "y": 5700.8291318829761
+          },
+          "nodeIndex": "bnpl_par",
+          "nodeLineageTag": "e6d01c06-790c-499e-96c2-1f9650acab9c",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 31
+        },
+        {
+          "location": {
+            "x": 1797.9057224161379,
+            "y": 5142.8308852125065
+          },
+          "nodeIndex": "dq_order",
+          "nodeLineageTag": "d710ef09-6839-4a10-9493-5327106374b5",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 29
+        },
+        {
+          "location": {
+            "x": 4260,
+            "y": 4465.2121137925014
+          },
+          "nodeIndex": "vintage_analysis",
+          "nodeLineageTag": "799273cf-052a-4721-8938-ca50c0aaaafd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 4667.5353190429087
+          },
+          "nodeIndex": "sales_order_dates",
+          "nodeLineageTag": "c6e8c754-ed5b-49e6-b9b8-c01fd9cb6152",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 19
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 4939.8157781042592
+          },
+          "nodeIndex": "dynamic_sales_orders_dates",
+          "nodeLineageTag": "23386c9f-b9e5-47db-a3df-e57ef93e64bb",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 20
+        },
+        {
+          "location": {
+            "x": 845.0344827586207,
+            "y": 5474.3764316003053
+          },
+          "nodeIndex": "bnpl_loss_rates_with_lead",
+          "nodeLineageTag": "c86543a3-1339-48e4-ba7e-7eae6be4a2ee",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 22
+        },
+        {
+          "location": {
+            "x": 1220.3200249552344,
+            "y": 5477.2934505249523
+          },
+          "nodeIndex": "dq_order_roll_rates",
+          "nodeLineageTag": "caec782f-e6ae-4ddb-b9f8-47c8bf579ba0",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 28
+        },
+        {
+          "location": {
+            "x": 466.4289785923047,
+            "y": 5464.6859423450187
+          },
+          "nodeIndex": "dq_order_roll_rates_lead",
+          "nodeLineageTag": "b9fb338c-c6db-452c-a55a-9d84ee8f5062",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 23
+        },
+        {
+          "location": {
+            "x": 4544,
+            "y": 4883.8788147731075
+          },
+          "nodeIndex": "bnpl_loss_rates_temp_table",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 4828,
+            "y": 4838.2404663606658
+          },
+          "nodeIndex": "loans_matured_default_profile",
+          "nodeLineageTag": "c00f78a1-957b-4700-b144-ba8131af6c98",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 5293.0344827586205,
+            "y": 5227.8956387744583
+          },
+          "nodeIndex": "vars_and_iv",
+          "nodeLineageTag": "9f917571-a5b8-4230-99cc-df089db00b93",
+          "size": {
+            "height": 262.06896551724139,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 5235.6551724137935,
+            "y": 4826.1715008434248
+          },
+          "nodeIndex": "odds_combinations",
+          "nodeLineageTag": "e2522847-62a0-435b-8ea4-1e60eb3a0a49",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 26
+        },
+        {
+          "location": {
+            "x": 5680,
+            "y": 4838.2404663606658
+          },
+          "nodeIndex": "odds_table",
+          "nodeLineageTag": "37cb2f97-ff0f-4c5b-8dc2-d3962e0e8d1d",
+          "size": {
+            "height": 582.75862068965512,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 5964,
+            "y": 4876.2404663606658
+          },
+          "nodeIndex": "atr_combinations_iv",
+          "nodeLineageTag": "6fb9e96d-3f8a-4ad1-b0b4-31ec5e7113c4",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 27
+        },
+        {
+          "location": {
+            "x": 2219.500244140625,
+            "y": 5105.7404663606649
+          },
+          "nodeIndex": "months_closes",
+          "nodeLineageTag": "3dbfe625-0a86-4cbb-8e0f-2ae2bcbd55ef",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 6248,
+            "y": 4924.2404663606658
+          },
+          "nodeIndex": "ps_transactional_profile",
+          "nodeLineageTag": "f28a8556-9bc5-4d02-a578-b5ffb1ee29a3",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 1714.8700621262774,
+            "y": 4589.0960926957523
+          },
+          "nodeIndex": "Top100InactiveCustomers",
+          "nodeLineageTag": "053a9e2d-9702-45fc-b1ef-9158c9d15144",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 6532,
+            "y": 4838.2404663606658
+          },
+          "nodeIndex": "overall_prev_post_bnpl_sales",
+          "nodeLineageTag": "97b6277d-48c7-45c5-a869-38abddd387bb",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 6816,
+            "y": 4838.2404663606658
+          },
+          "nodeIndex": "seasonality_delta",
+          "nodeLineageTag": "0acf0170-af43-47a5-9acb-445452f350dd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 7668,
+            "y": 4888.2404663606658
+          },
+          "nodeIndex": "CacTable",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 7952,
+            "y": 4912.2404663606658
+          },
+          "nodeIndex": "bnpl_cac",
+          "nodeLineageTag": "43945850-ec09-4530-b1e7-d0941993e379",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 8236,
+            "y": 4888.2404663606658
+          },
+          "nodeIndex": "revenue_view_selector",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 8520,
+            "y": 5035.0949313141891
+          },
+          "nodeIndex": "Clientes_Mensual",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 8804,
+            "y": 5036.5949313141891
+          },
+          "nodeIndex": "bnpl_audiencia_agg",
+          "nodeLineageTag": "ea20008c-7523-492b-a1a1-63998d0beeea",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 9088,
+            "y": 5009.2199313141891
+          },
+          "nodeIndex": "Medidas Audiencia",
+          "nodeLineageTag": "e7014c9a-0cd2-43b8-ad0e-e4c4e2d8ce3d",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 9372,
+            "y": 4899.7824313141891
+          },
+          "nodeIndex": "bnpl_cosechas_agg",
+          "nodeLineageTag": "4e912985-d9b2-4b14-86e6-37dde15bbd8f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 9656,
+            "y": 4937.7824313141891
+          },
+          "nodeIndex": "Consulta1",
+          "nodeLineageTag": "2fa67f82-e534-4b31-b265-d2fe5b30cacb",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 9940,
+            "y": 4920.6261813141891
+          },
+          "nodeIndex": "Cosecha Enrolamiento",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10224,
+            "y": 4840.8918063141891
+          },
+          "nodeIndex": "Cosecha activación",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10508,
+            "y": 4697.2902438141891
+          },
+          "nodeIndex": "cohort_type",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10792,
+            "y": 4517.8879000641891
+          },
+          "nodeIndex": "x_axis_type",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 11076,
+            "y": 4272.7843844391891
+          },
+          "nodeIndex": "X Axis Type",
+          "nodeLineageTag": "5257a28f-b978-4e9a-b618-513a68d09909",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 11360,
+            "y": 3888.4172841547952
+          },
+          "nodeIndex": "Cohort Type",
+          "nodeLineageTag": "89bfd39f-39b9-4f90-8cec-e650915bfbc4",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 11644,
+            "y": 3494.4060972938487
+          },
+          "nodeIndex": "Cohort X Axis Type",
+          "nodeLineageTag": "d5f29414-6eb3-4e7e-a004-e86fff374c75",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 11928,
+            "y": 2980.3031353618035
+          },
+          "nodeIndex": "TablaParaGrafica",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 12212,
+            "y": 2403.6973767145209
+          },
+          "nodeIndex": "Cohorte (Total)",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas las tablas",
+      "zoomValue": 11.211693641406024,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas las tablas",
+  "defaultDiagram": "Todas las tablas"
+}

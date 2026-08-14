@@ -1,0 +1,48 @@
+table 'X Axis Type'
+	lineageTag: 5257a28f-b978-4e9a-b618-513a68d09909
+
+	column 'X Axis Type'
+		lineageTag: 288c11eb-2d23-40b9-b82a-c87b60073730
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'X Axis Type Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'X Axis Type Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'X Axis Type Campos'
+		isHidden
+		lineageTag: c526626f-575b-4df6-9dca-6351e0470f1b
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'X Axis Type Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'X Axis Type Orden'
+		isHidden
+		formatString: 0
+		lineageTag: c7f8cf96-055d-4fe2-9217-44003755e558
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'X Axis Type' = calculated
+		mode: import
+		source =
+				{
+				    ("Months Since Enrollment", NAMEOF('vintage_analysis'[monthsFromEnrollmentToMonth]), 0),
+				    ("Period", NAMEOF('vintage_analysis'[corte]), 1)
+				}
+
+	annotation PBI_Id = 0886c403925047b0afd6471e48a062cd
+

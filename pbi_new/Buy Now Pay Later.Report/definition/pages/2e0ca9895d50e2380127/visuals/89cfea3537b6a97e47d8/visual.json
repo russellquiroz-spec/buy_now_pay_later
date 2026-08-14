@@ -1,0 +1,460 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "89cfea3537b6a97e47d8",
+  "position": {
+    "x": 284,
+    "y": 668,
+    "z": 8000,
+    "height": 400,
+    "width": 550,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "pythonVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "netsuiteId"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.netsuiteId",
+              "nativeQueryRef": "netsuiteId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "enrollment_cohort"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.enrollment_cohort",
+              "nativeQueryRef": "enrollment_cohort"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "enrollmentMonth"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.enrollmentMonth",
+              "nativeQueryRef": "enrollmentMonth"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "EnrolledCustomers"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.EnrolledCustomers)",
+              "nativeQueryRef": "EnrolledCustomers"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "monthsSinceEnrollment"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.monthsSinceEnrollment)",
+              "nativeQueryRef": "monthsSinceEnrollment"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "monthsSinceEnrollmentText"
+                }
+              },
+              "queryRef": "bnpl_loss_rates.monthsSinceEnrollmentText",
+              "nativeQueryRef": "monthsSinceEnrollmentText"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "interests"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.interests)",
+              "nativeQueryRef": "interests"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "totalRevenue"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.totalRevenue)",
+              "nativeQueryRef": "totalRevenue"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "rabbitRevenue"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.rabbitRevenue)",
+              "nativeQueryRef": "rabbitRevenue"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "everActivatedCustomers"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.everActivatedCustomers)",
+              "nativeQueryRef": "everActivatedCustomers"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "orderGrossSales"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.orderGrossSales)",
+              "nativeQueryRef": "orderGrossSales"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "firstOrderGrossSales"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.firstOrderGrossSales)",
+              "nativeQueryRef": "firstOrderGrossSales"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "bnpl_loss_rates"
+                    }
+                  },
+                  "Property": "seasonalityDeltaVolume"
+                }
+              },
+              "queryRef": "Sum(bnpl_loss_rates.seasonalityDeltaVolume)",
+              "nativeQueryRef": "seasonalityDeltaVolume"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CacTable"
+                        }
+                      },
+                      "Property": "cac"
+                    }
+                  },
+                  "Function": 1
+                }
+              },
+              "queryRef": "Sum(CacTable.cac)",
+              "nativeQueryRef": "Promedio de cac"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "bnpl_loss_rates"
+                  }
+                },
+                "Property": "netsuiteId"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "script": [
+        {
+          "properties": {
+            "source": {
+              "expr": {
+                "Literal": {
+                  "Value": "'# El código siguiente, que crea un dataframe y quita las filas duplicadas, siempre se ejecuta y actúa como un preámbulo del script: \n\n# dataset = pandas.DataFrame(enrollment_cohort, interests, totalRevenue, monthsSinceEnrollment)\n# dataset = dataset.drop_duplicates()\n\n# Pegue o escriba aquí el código de script:\n\nimport seaborn as sns\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import FuncFormatter\nfrom matplotlib.ticker import FuncFormatter\n\n# Normalización para el tamaño de las líneas, con un valor máximo de 200\nfrom matplotlib.colors import Normalize\ncac = dataset[''cac'']\ndf = dataset\ndf = df.rename(columns = {''enrollment_cohort'': ''Enrollment Cohort''})\ndf = df.sort_values(by=[''Enrollment Cohort'', ''monthsSinceEnrollment''])\n#df = df.sort_values(by=[''Enrollment Cohort'', ''monthsSinceEnrollment''])\ndf[''seasonalityDeltaVolume''] = np.where(df[''seasonalityDeltaVolume'']<1,1,df[''seasonalityDeltaVolume''])\ndf[''seasonalityDeltaVolume''] = np.where(df[''seasonalityDeltaVolume''].isnull(),1,df[''seasonalityDeltaVolume''])\n\n\n#df[''deltaGrossSales''] = np.maximum(df[''orderGrossSales''] - df[''firstOrderGrossSales''], 0)\ng0 = df.groupby([''Enrollment Cohort'', ''monthsSinceEnrollment'', ''netsuiteId'']).agg(\n    everActivatedCustomers = (''everActivatedCustomers'', ''max''), \n    totalRevenue = (''totalRevenue'', ''sum''), \n    rabbitRevenue = (''rabbitRevenue'', ''sum''),\n    orderGrossSales = (''orderGrossSales'', ''sum''),\n    seasonalityDeltaVolume = (''seasonalityDeltaVolume'', ''mean'')\n).reset_index()\n\ng00 = g0[g0[''monthsSinceEnrollment''] == 0]\ng00 = g00.rename(columns = {''orderGrossSales'': ''firstMonthGrossSales''})\n\ng0 = pd.merge(\n    g0, \n    g00[[''Enrollment Cohort'', ''netsuiteId'', ''firstMonthGrossSales'']], \n    on = [''Enrollment Cohort'', ''netsuiteId''], \n    how = ''left''\n)\n\ng0[''deltaGrossSales''] = np.maximum(g0[''orderGrossSales''] - g0[''seasonalityDeltaVolume''] * g0[''firstMonthGrossSales''],0)\n\ng = g0.groupby([''Enrollment Cohort'', ''monthsSinceEnrollment'']).agg(\n    everActivatedCustomers = (''everActivatedCustomers'', ''max''), \n    totalRevenue = (''totalRevenue'', ''sum''), \n    rabbitRevenue = (''rabbitRevenue'', ''sum''),\n    grossSales = (''orderGrossSales'', ''sum''), \n    #seasonalityDeltaVolume = (''seasonalityDeltaVolume'', ''max''),\n    deltaGrossSales = (''deltaGrossSales'', ''sum'')\n).reset_index()\n\n\ng[''originalInvestment''] = cac * g[''everActivatedCustomers'']\n\ng[''cumulativeTotalRevenue''] = g.groupby(''Enrollment Cohort'')[''totalRevenue''].cumsum()\ng[''margenAjustado''] = g[''rabbitRevenue''] + 0.2 * g[''deltaGrossSales'']\ng[''cumulativeRabbitRevenue''] = g.groupby(''Enrollment Cohort'')[''rabbitRevenue''].cumsum()\ng[''cumulativeRabbitMargenAjustado''] = g.groupby(''Enrollment Cohort'')[''margenAjustado''].cumsum()\ng[''cumulativeRabbitMargenAjustado''] = (g[''cumulativeRabbitMargenAjustado''] - g[''originalInvestment'']) / g[''originalInvestment'']\n\ng[''returnOnInvestmentPropaga''] = g[''cumulativeTotalRevenue''] / g[''originalInvestment'']\ng[''returnOnInvestmentRabbit''] = g[''cumulativeRabbitRevenue'']-g[''originalInvestment'']\n\nwavg = g.groupby([''monthsSinceEnrollment'']).agg(\n    originalInvestment = (''originalInvestment'', ''sum''),\n    everActivatedCustomers = (''everActivatedCustomers'', ''sum''), \n    cumulativeRabbitRevenue = (''cumulativeRabbitRevenue'', ''sum''), \n    cumulativeRabbitMargenAjustado = (''cumulativeRabbitMargenAjustado'', ''sum''),\n    margenAjustado = (''cumulativeRabbitMargenAjustado'', ''mean''),\n    cohorts = (''Enrollment Cohort'', ''count'')\n).reset_index()\n\n#wavg[''margenAjustado''] = wavg[''cumulativeRabbitMargenAjustado''] / wavg[''originalInvestment'']\n\ng[''Cohort | Activations''] = g[''Enrollment Cohort''] + '' | '' + g[''everActivatedCustomers''].astype(str)\ng = g.rename(columns = {''everActivatedCustomers'': ''Activated Customers''})\n\n#max_activated_ever = g[''everActivatedCustomers''].max()\nplot = sns.relplot(\n    data = g, \n    x=''monthsSinceEnrollment'',\n    #y = ''seasonalityDeltaVolume'',\n    y=''cumulativeRabbitMargenAjustado'', \n    hue=''Cohort | Activations'', \n    kind=''line'', \n    size=''Activated Customers'',  # Use the ''size'' parameter for line width\n    sizes=(1, 5),  # Range of line sizes\n    marker = ''o'', \n    markersize = 8\n)\n\nplt.title(''Adjusted Margin by Enrollment Cohort and Months Since Enrollment'', pad = 20, loc=''right'', x=1.2)\n#plt.suptitle(''Análisis detallado por periodo de tiempo'', fontsize=12, color=''gray'')\nplt.xlabel(''Months Since Enrollment'')\nplt.ylabel(''Adjusted Margin'')\n\n\npercentage_formatter = FuncFormatter(lambda x, pos: f''{x:.0%}'')\nfor ax in plot.axes.flat:\n    ax.plot(wavg.index, wavg[''margenAjustado''], label=''WAVG'', color=''#00AEEF'', linewidth=3, linestyle=''--'', marker = ''o'', markersize=8)\n    ax.yaxis.grid(True, which=''major'', linestyle=''--'', color=''black'', alpha=0.5)\n    #ax.set_ylim(0)\n    #None\n    # Ajustar los ticks del eje Y y aplicar el formateador\n    #ax.set_yticks([i * 0.1 for i in range(11)])  # [0.0, 0.1, 0.2, ..., 1.0]\n    ax.yaxis.set_major_formatter(percentage_formatter)\n\nlegend = plot._legend\nplt.setp(legend.get_texts(), fontsize=8)\nweighted_avg_line = plt.Line2D([0], [0], color=''#00AEEF'', linewidth=2, linestyle=''--'', label=''AVG'')\nax.add_artist(legend)\n#ax.legend(handles=[weighted_avg_line], fontsize=12, loc=''upper right'', borderaxespad=0.)\nlegend2 = ax.legend(handles=[weighted_avg_line], fontsize=8, loc=''lower right'', borderaxespad=0., bbox_to_anchor=(1.18, 0.04), frameon=False)\nplt.setp(legend2.get_texts(), color=''#00AEEF'')\n\n\nplt.subplots_adjust(left=0.12, right=0.76, top=0.85, bottom=0.1)\n\nplt.show()\n'"
+                }
+              }
+            },
+            "provider": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Python'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El cliente, la cohorte de enrolamiento, enrollment month y 11 columnas más.\nUniverso y corte: El grano es una fila por pedido BNPL entregado (92,009). El visual filtra por el estado del pedido: solo COMPLETED; el bucket de mora del pedido: solo Paid. La ruta, el supervisor y la oficina son los que tenía el cliente cuando se originó el crédito (ruta histórica), no los de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_loss_rates, sobre bnpl.loss_rates (Mongo: credit-order + payment-report) y de derivada de pbi_bnpl.bnpl_cac.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: El cliente, la cohorte de enrolamiento, enrollment month y 11 columnas más.\nUniverso y corte: El grano es una fila por pedido BNPL entregado (92,009). El visual filtra por el estado del pedido: solo COMPLETED; el bucket de mora del pedido: solo Paid. La ruta, el supervisor y la oficina son los que tenía el cliente cuando se originó el crédito (ruta histórica), no los de hoy.\nDe dónde sale: Sale de la vista pbi_bnpl.bnpl_loss_rates, sobre bnpl.loss_rates (Mongo: credit-order + payment-report) y de derivada de pbi_bnpl.bnpl_cac.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2b29c79dbf0af6f96ab7",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates"
+              }
+            },
+            "Property": "orderStatus"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "6cdbc6265fe111a8442b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates"
+              }
+            },
+            "Property": "orderStatus"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "b",
+              "Entity": "bnpl_loss_rates",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "b"
+                          }
+                        },
+                        "Property": "orderStatus"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'COMPLETED'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      },
+      {
+        "name": "ee88100632f0ff7e63c1",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "bnpl_loss_rates"
+              }
+            },
+            "Property": "PAR"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "b",
+              "Entity": "bnpl_loss_rates",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "b"
+                          }
+                        },
+                        "Property": "PAR"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Paid'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User",
+        "objects": {
+          "general": [
+            {
+              "properties": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "35860f56a23b5c31c599",
+  "position": {
+    "x": 575.71428571428578,
+    "y": 2055.7142857142858,
+    "z": 8000,
+    "height": 300,
+    "width": 1068.5714285714287,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "loanDisbursementIndexRange"
+                }
+              },
+              "queryRef": "Sum(odds_combinations.loanDisbursementIndexRange)",
+              "nativeQueryRef": "loanDisbursementIndexRange"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "flag"
+                }
+              },
+              "queryRef": "odds_combinations.flag",
+              "nativeQueryRef": "flag"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "atr1"
+                }
+              },
+              "queryRef": "odds_combinations.atr1",
+              "nativeQueryRef": "atr1"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "atr2"
+                }
+              },
+              "queryRef": "odds_combinations.atr2",
+              "nativeQueryRef": "atr2"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "atr1Rank"
+                }
+              },
+              "queryRef": "odds_combinations.atr1Rank",
+              "nativeQueryRef": "atr1Rank"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "atr2Rank"
+                }
+              },
+              "queryRef": "odds_combinations.atr2Rank",
+              "nativeQueryRef": "atr2Rank"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "events"
+                }
+              },
+              "queryRef": "Sum(odds_combinations.events)",
+              "nativeQueryRef": "events"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "bad"
+                }
+              },
+              "queryRef": "Sum(odds_combinations.bad)",
+              "nativeQueryRef": "bad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "odds_combinations"
+                    }
+                  },
+                  "Property": "bad_rate"
+                }
+              },
+              "queryRef": "Sum(odds_combinations.bad_rate)",
+              "nativeQueryRef": "bad_rate"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "odds_combinations"
+                  }
+                },
+                "Property": "atr2"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, atr1 y 6 columnas más.\nUniverso y corte: El grano es una fila por combinacion de atributos (84,986). Se carga a mano desde el Drive; no se recalcula con el pipeline. Tres de los once atributos están rotos en origen (dos son constante cero y grossSalesVolume3Months es identica a la de 6 meses).\nDe dónde sale: Sale de la vista pbi_bnpl.odds_combinations, espejo del archivo que publica Riesgo.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, atr1 y 6 columnas más.\nUniverso y corte: El grano es una fila por combinacion de atributos (84,986). Se carga a mano desde el Drive; no se recalcula con el pipeline. Tres de los once atributos están rotos en origen (dos son constante cero y grossSalesVolume3Months es identica a la de 6 meses).\nDe dónde sale: Sale de la vista pbi_bnpl.odds_combinations, espejo del archivo que publica Riesgo.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

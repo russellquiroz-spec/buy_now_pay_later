@@ -1,0 +1,9 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "2e0ca9895d50e2380127",
+  "displayName": "Return On Investment",
+  "displayOption": "ActualSize",
+  "height": 1700,
+  "width": 1600,
+  "visibility": "HiddenInViewMode"
+}

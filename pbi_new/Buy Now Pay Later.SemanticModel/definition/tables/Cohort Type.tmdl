@@ -1,0 +1,48 @@
+table 'Cohort Type'
+	lineageTag: 89bfd39f-39b9-4f90-8cec-e650915bfbc4
+
+	column 'Cohort Type'
+		lineageTag: 15edc164-cfb7-4abc-b579-8cea24a6f981
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Cohort Type Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Cohort Type Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cohort Type Campos'
+		isHidden
+		lineageTag: 9dbc8d12-66df-427c-b600-2c26ec7dd3a8
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Cohort Type Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cohort Type Orden'
+		isHidden
+		formatString: 0
+		lineageTag: ac27ccd2-954c-462f-82cb-6d59873ddedd
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Cohort Type' = calculated
+		mode: import
+		source =
+				{
+				    ("Year", NAMEOF('vintage_analysis'[cohortYear]), 0),
+				    ("Month", NAMEOF('vintage_analysis'[enrollment_cohort]), 1)
+				}
+
+	annotation PBI_Id = 4fdfb9d36d7645b8b55e0a18c98864f1
+

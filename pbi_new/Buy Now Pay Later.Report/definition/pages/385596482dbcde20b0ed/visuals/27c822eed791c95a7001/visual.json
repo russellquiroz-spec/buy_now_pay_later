@@ -1,0 +1,159 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "27c822eed791c95a7001",
+  "position": {
+    "x": 312.85714285714289,
+    "y": 1644.2857142857144,
+    "z": 9000,
+    "height": 300,
+    "width": 1030,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "atr_combinations_iv"
+                    }
+                  },
+                  "Property": "loanDisbursementIndexRange"
+                }
+              },
+              "queryRef": "Sum(atr_combinations_iv.loanDisbursementIndexRange)",
+              "nativeQueryRef": "loanDisbursementIndexRange"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "atr_combinations_iv"
+                    }
+                  },
+                  "Property": "flag"
+                }
+              },
+              "queryRef": "atr_combinations_iv.flag",
+              "nativeQueryRef": "flag"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "atr_combinations_iv"
+                    }
+                  },
+                  "Property": "cleanedCombination"
+                }
+              },
+              "queryRef": "atr_combinations_iv.cleanedCombination",
+              "nativeQueryRef": "cleanedCombination"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "atr_combinations_iv"
+                    }
+                  },
+                  "Property": "number_of_combinations"
+                }
+              },
+              "queryRef": "Sum(atr_combinations_iv.number_of_combinations)",
+              "nativeQueryRef": "number_of_combinations"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "atr_combinations_iv"
+                    }
+                  },
+                  "Property": "iv"
+                }
+              },
+              "queryRef": "Sum(atr_combinations_iv.iv)",
+              "nativeQueryRef": "iv"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "atr_combinations_iv"
+                  }
+                },
+                "Property": "iv"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, cleaned combination y 2 columnas más.\nUniverso y corte: El grano es una fila por par de atributos (468). Se carga a mano desde el Drive; no se recalcula con el pipeline.\nDe dónde sale: Sale de la vista pbi_bnpl.atr_combinations_iv, espejo del archivo que publica Riesgo.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: Loan disbursement index range, flag, cleaned combination y 2 columnas más.\nUniverso y corte: El grano es una fila por par de atributos (468). Se carga a mano desde el Drive; no se recalcula con el pipeline.\nDe dónde sale: Sale de la vista pbi_bnpl.atr_combinations_iv, espejo del archivo que publica Riesgo.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "a4eca66684d1a46d5446",
+  "displayName": "Resumen Ejecutivo",
+  "displayOption": "ActualSize",
+  "height": 2700,
+  "width": 1800,
+  "pageBinding": {
+    "name": "01aad369041c77d307a4",
+    "type": "Default",
+    "parameters": [],
+    "referenceScope": "CrossReport",
+    "acceptsFilterContext": "None"
+  },
+  "visualInteractions": [
+    {
+      "source": "442be5c90515eb755331",
+      "target": "71d18d2067746ecd7447",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "3bb52095208f3107c583",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "686508ac1c0fffe2958b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "3cdf491f1dcb837fc1fc",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "77f2db127ba5602381e9",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "9fa9c1cfd4cf8721cff9",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "5fcb3ba0b600e028de0c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "7f4f5c03e163fff32a30",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "f045cab4116d2d6fd324",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "67d3f96751cc974eb1d5",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "08795c9ac7863afa744d",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "b5c1dc95d8b8d127ad78",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "d1dfdf29e353638cdc54",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "bfb28a031e0e91aa6921",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "44b13748f2cde8f13d0a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "e6895650612e60513b44",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "f9c2e0e39c8a6d2e5603",
+      "type": "NoFilter"
+    },
+    {
+      "source": "442be5c90515eb755331",
+      "target": "982e133a57cbde28a155",
+      "type": "NoFilter"
+    }
+  ]
+}

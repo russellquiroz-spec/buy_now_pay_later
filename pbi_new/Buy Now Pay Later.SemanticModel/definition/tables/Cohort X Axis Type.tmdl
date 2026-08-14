@@ -1,0 +1,48 @@
+table 'Cohort X Axis Type'
+	lineageTag: d5f29414-6eb3-4e7e-a004-e86fff374c75
+
+	column 'Cohort X Axis Type'
+		lineageTag: 99367e51-b51b-48a8-8113-1ed25e55ddf2
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Cohort X Axis Type Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Cohort X Axis Type Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cohort X Axis Type Fields'
+		isHidden
+		lineageTag: dfcf65a9-8080-4078-891b-6f813e596175
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Cohort X Axis Type Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cohort X Axis Type Order'
+		isHidden
+		formatString: 0
+		lineageTag: 742469f5-5a1d-492a-859e-e720a4b2ba1e
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Cohort X Axis Type' = calculated
+		mode: import
+		source =
+				{
+				    ("Meses desde Enrolamiento", NAMEOF('bnpl_grouped_orders'[monthsSinceEnrollment]), 0),
+				    ("Periodo", NAMEOF('bnpl_grouped_orders'[monthCreatedAt]), 1)
+				}
+
+	annotation PBI_Id = 9e9b7926e2b544a8829d10a08fe71ca4
+

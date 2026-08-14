@@ -1,0 +1,81 @@
+table atr_combinations_iv
+	lineageTag: 6fb9e96d-3f8a-4ad1-b0b4-31ec5e7113c4
+
+	column loanDisbursementIndexRange
+		dataType: string
+		lineageTag: 1e7bdcba-901c-4185-8b18-e6fe25919d7f
+		summarizeBy: none
+		sourceColumn: loanDisbursementIndexRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag
+		dataType: string
+		lineageTag: a75c56e7-ee1e-4f05-bea1-66a4a8627ca8
+		summarizeBy: none
+		sourceColumn: flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column combination
+		dataType: string
+		lineageTag: 9a1b3056-2e8c-4de4-a1a0-225793e5e7c0
+		summarizeBy: none
+		sourceColumn: combination
+
+		annotation SummarizationSetBy = Automatic
+
+	column number_of_combinations
+		dataType: int64
+		formatString: 0
+		lineageTag: 35e18d08-5776-4309-affc-3a1cd93d679b
+		summarizeBy: none
+		sourceColumn: number_of_combinations
+
+		annotation SummarizationSetBy = Automatic
+
+	column iv
+		dataType: double
+		lineageTag: 269bced1-2cec-4199-a61b-be0b45786841
+		summarizeBy: none
+		sourceColumn: iv
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cleanedCombination = ```
+			SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(atr_combinations_iv[combination], "'", ""), " ", ""), "[", ""), "]", ""), "&", " & ")
+			
+			```
+		lineageTag: d7a3e8a2-c5cb-424a-a718-7c1ae4e2196f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column combo_id = ```
+			
+			atr_combinations_iv[loanDisbursementIndexRange] & "_" & 
+			atr_combinations_iv[flag] & "_" & 
+			atr_combinations_iv[CleanedCombination]
+			```
+		lineageTag: 0f874318-653c-42b4-9af5-b82bd89d4527
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition atr_combinations_iv = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.atr_combinations_iv", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

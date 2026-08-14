@@ -1,0 +1,39 @@
+table dq_order_roll_rates_lead
+	lineageTag: b9fb338c-c6db-452c-a55a-9d84ee8f5062
+
+	column stage
+		lineageTag: a31be7f3-f071-4321-ab5b-e6b1962d459e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [stage]
+
+		annotation SummarizationSetBy = Automatic
+
+	column dqOrder
+		formatString: 0
+		lineageTag: 74d31299-1fb3-4841-8a32-c96d288aa04d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [dqOrder]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_order_roll_rates_lead = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "stage", STRING,
+				    "dqOrder", INTEGER,
+				    {
+				        {"Paid", 7},
+				        {"DQ 1-6", 1},
+				        {"DQ 7-14", 2},
+				        {"DQ 15-29", 3},
+				        {"DQ 30-59", 4},
+				        {"DQ 60-89", 5},
+				        {"DQ 90+", 6}
+				    }
+				)
+
+	annotation PBI_Id = 6bde5f04da0448fdaf984dc5592776a1
+

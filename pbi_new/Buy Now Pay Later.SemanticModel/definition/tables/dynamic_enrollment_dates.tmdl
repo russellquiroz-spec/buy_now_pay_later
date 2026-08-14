@@ -1,0 +1,85 @@
+table dynamic_enrollment_dates
+	lineageTag: 0d275386-b928-4677-b2c7-8c6677c46be4
+
+	column Date
+		formatString: General Date
+		lineageTag: 3ae9353e-52e0-4b76-ab83-b396f1a970fe
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column visual_date
+		formatString: Short Date
+		lineageTag: 1f424c1f-e85a-44d2-a3d9-eb3890d5991c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [visual_date]
+
+		variation Variation
+			isDefault
+			relationship: 584f3fc3-bd1e-4e98-9b31-a0ec6b1fbbfc
+			defaultHierarchy: LocalDateTable_734a736a-5453-4772-aa97-e41b98effb36.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		lineageTag: e1de2e48-ae6e-4904-9988-c546fff712bf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [type]
+		sortByColumn: order
+
+		annotation SummarizationSetBy = Automatic
+
+	column order
+		formatString: 0
+		lineageTag: 70b14d61-783a-4ca1-9411-2146e3d301b9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [order]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dynamic_enrollment_dates = calculated
+		mode: import
+		source = ```
+				
+				    UNION(
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('enrollment_dates'[Date]), MAX('enrollment_dates'[Date])),
+				            "visual_date", [Date],
+				            "type", "Daily",
+				            "order", 1
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('enrollment_dates'[Date]), MAX('enrollment_dates'[Date])),
+				            "visual_date", 
+				            IF(
+				                DAY([Date]) - WEEKDAY([Date], 2) + 1 < 1,
+				                DATE(YEAR([Date]), MONTH([Date]) - 1, DAY(EOMONTH([Date], -1)) + (DAY([Date]) - WEEKDAY([Date], 2) + 1)),
+				                DATE(YEAR([Date]), MONTH([Date]), DAY([Date]) - WEEKDAY([Date], 2) + 1)
+				            ),
+				            "type", "Weekly",
+				            "order", 2
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('enrollment_dates'[Date]), MAX('enrollment_dates'[Date])),
+				            "visual_date", 
+				            DATE(YEAR([Date]), MONTH([Date]), 1),
+				            "type", "Monthly",
+				            "order", 3
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('enrollment_dates'[Date]), MAX('enrollment_dates'[Date])),
+				            "visual_date", 
+				            DATE(YEAR([Date]), 1, 1),
+				            "type", "Yearly",
+				            "order", 4
+				        )
+				    )
+				```
+
+	annotation PBI_Id = b0b182d103e34a44b43dbec7f0ce1ef7
+

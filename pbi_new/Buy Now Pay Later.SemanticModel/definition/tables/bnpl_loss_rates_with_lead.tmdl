@@ -1,0 +1,176 @@
+table bnpl_loss_rates_with_lead
+	lineageTag: c86543a3-1339-48e4-ba7e-7eae6be4a2ee
+
+	measure NumberOfCustomers = DISTINCTCOUNT(bnpl_loss_rates_with_lead[netsuiteId])
+		formatString: 0
+		lineageTag: 0fea00ca-4aa6-4bac-9211-0f608aaab4b8
+
+	measure NumberOfLoansDisbursed = DISTINCTCOUNT(bnpl_loss_rates_with_lead[salesOrderId])
+		formatString: 0
+		lineageTag: fae9cdb6-cba3-473f-a7ef-407f29750621
+
+	measure NumberOfLoansPaid =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(bnpl_loss_rates_with_lead[salesOrderId]),
+			    bnpl_loss_rates_with_lead[stage] = "Paid"
+			)
+		formatString: 0
+		lineageTag: 31327bb1-e836-4919-aeab-8938df5b5198
+
+	measure PercentageOfLoansChargedOff = 1-([NumberOfLoansPaid]/[NumberOfLoansDisbursed])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 6db2ad1a-2b7c-4657-9919-87b047731ece
+
+	measure AmountOfDisbursedLoans =
+			
+			CALCULATE(
+			    SUM(bnpl_loss_rates_with_lead[totalAmount]),
+			    bnpl_loss_rates_with_lead[stage] = "Ongoing"
+			)
+		formatString: #,0.00
+		lineageTag: 7828bb46-4541-4aa3-a6eb-6fd6bcdcff4f
+
+	measure AmountOfPaidLoans =
+			
+			SUMX(
+			    DISTINCT(
+			        FILTER(
+			            bnpl_loss_rates_with_lead,
+			            bnpl_loss_rates_with_lead[lead_stage] = "Paid"
+			        )
+			    ),
+			    bnpl_loss_rates_with_lead[totalAmount]
+			)
+		lineageTag: d5a6a6ac-f348-497b-a328-d29cf98aff54
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure PercentageOfAmountChargedOff = 1-([AmountOfPaidLoans]/[AmountOfDisbursedLoans])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: f01dc2ea-ab1a-4ba7-bea1-5d19657554bb
+
+	column lead_stage =
+			
+			CALCULATE(
+			    MAX(bnpl_loss_rates_with_lead[stage]),
+			    FILTER(
+			        bnpl_loss_rates_with_lead,
+			        bnpl_loss_rates_with_lead[salesOrderId] = EARLIER(bnpl_loss_rates_with_lead[salesOrderId]) &&
+			        bnpl_loss_rates_with_lead[orden] = EARLIER(bnpl_loss_rates_with_lead[orden]) + 1
+			    )
+			)
+		lineageTag: eff4957d-7061-4543-8c21-6811dd7e3dd9
+		summarizeBy: none
+		sortByColumn: leadStageOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column stageOrder = RELATED(dq_order_roll_rates[dqOrder])
+		formatString: 0
+		lineageTag: 3b0c1c64-ff67-4e92-aef7-0286f0d6c34a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column leadStageOrder = RELATED(dq_order_roll_rates_lead[dqOrder])
+		formatString: 0
+		lineageTag: bc719c91-c51e-4ca9-abcf-8d857fef397e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column loanDisbursementIndex
+		lineageTag: 62fe2990-43ae-4027-965f-8e7cd8882db9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [loanDisbursementIndex]
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryAt
+		formatString: General Date
+		lineageTag: 6623eaf2-f746-47f0-98ce-595121179b03
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [deliveryAt]
+
+		variation Variación
+			isDefault
+			relationship: 92d602dc-27fb-4b1f-b14f-88236bc58eff
+			defaultHierarchy: LocalDateTable_585a5919-b1a4-45e5-baab-a1c90c912c5d.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalAmount
+		lineageTag: 25706ea3-d1c3-4b53-883d-a44b11619770
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [totalAmount]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column customerAgeRangeAtEligibility =
+			
+			LOOKUPVALUE(
+			    grid_bnpl[customerAgeRangeAtEligibility],
+			    grid_bnpl[netsuiteId], bnpl_loss_rates_with_lead[netsuiteId])
+		lineageTag: 3c38daa4-042f-4153-a555-9bd5f6b3f791
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column netsuiteId
+		formatString: 0
+		lineageTag: 06a4f27f-55ba-4ca4-8144-e2b5c7f29ff4
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: bnpl_loss_rates_temp_table[netsuiteId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		lineageTag: 94f9bf6f-100f-4b68-a23a-103f44b5933f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: bnpl_loss_rates_temp_table[salesOrderId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage
+		lineageTag: dd119309-aa5a-44cb-843a-ce725fd02a53
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: bnpl_loss_rates_temp_table[stage]
+		sortByColumn: stageOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column orden
+		formatString: 0
+		lineageTag: 1aa12a5a-885a-4769-80c1-6c4c43c6b81b
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [orden]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_loss_rates_with_lead = calculated
+		mode: import
+		source = ```
+				
+				SUMMARIZECOLUMNS(
+				    bnpl_loss_rates_temp_table[netsuiteId], 
+				    bnpl_loss_rates_temp_table[salesOrderId], 
+				    bnpl_loss_rates_temp_table[stage],
+				    "loanDisbursementIndex", MAX(bnpl_loss_rates_temp_table[loanDisbursementIndex]),
+				    "deliveryAt", MAX(bnpl_loss_rates_temp_table[deliveryAt]),
+				    "totalAmount", MAX(bnpl_loss_rates_temp_table[totalAmount]),
+				    "orden", MIN(bnpl_loss_rates_temp_table[orden])
+				)
+				```
+
+	annotation PBI_Id = 3d37472a3c644c72af95461687b8d6ac
+

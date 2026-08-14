@@ -1,0 +1,251 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "b4fee5609a080ee9d3b4",
+  "position": {
+    "x": 300,
+    "y": 61,
+    "z": 4000,
+    "height": 300,
+    "width": 603,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "loans_matured_default_profile"
+                            }
+                          },
+                          "Name": "Variación",
+                          "Property": "expectedPaymentDate"
+                        }
+                      },
+                      "Hierarchy": "Jerarquía de fechas"
+                    }
+                  },
+                  "Level": "Año"
+                }
+              },
+              "queryRef": "loans_matured_default_profile.expectedPaymentDate.Variación.Jerarquía de fechas.Año",
+              "nativeQueryRef": "expectedPaymentDate Año",
+              "active": true
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "loans_matured_default_profile"
+                            }
+                          },
+                          "Name": "Variación",
+                          "Property": "expectedPaymentDate"
+                        }
+                      },
+                      "Hierarchy": "Jerarquía de fechas"
+                    }
+                  },
+                  "Level": "Mes"
+                }
+              },
+              "queryRef": "loans_matured_default_profile.expectedPaymentDate.Variación.Jerarquía de fechas.Mes",
+              "nativeQueryRef": "expectedPaymentDate Mes",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "loans_matured_default_profile"
+                    }
+                  },
+                  "Property": "loanDisbursementIndexRange"
+                }
+              },
+              "queryRef": "loans_matured_default_profile.loanDisbursementIndexRange",
+              "nativeQueryRef": "loanDisbursementIndexRange"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "loans_matured_default_profile"
+                        }
+                      },
+                      "Property": "totalAmount"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(loans_matured_default_profile.totalAmount)",
+              "nativeQueryRef": "Suma de totalAmount"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "totals": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeaderTooltip": [
+        {
+          "properties": {
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La suma de el monto financiado del pedido, por la fecha en que se esperaba el pago por año y la fecha en que se esperaba el pago por mes, abierto por loan disbursement index range.\nUniverso y corte: El grano es una fila por pedido ya vencido (90,262). El visual filtra por flag@15 days late: solo 1.\nDe dónde sale: Sale de la vista pbi_bnpl.loans_matured_default_profile, sobre bnpl.loss_rates, bnpl.grid_bnpl y las ventas de Redshift.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Qué mide: La suma de el monto financiado del pedido, por la fecha en que se esperaba el pago por año y la fecha en que se esperaba el pago por mes, abierto por loan disbursement index range.\nUniverso y corte: El grano es una fila por pedido ya vencido (90,262). El visual filtra por flag@15 days late: solo 1.\nDe dónde sale: Sale de la vista pbi_bnpl.loans_matured_default_profile, sobre bnpl.loss_rates, bnpl.grid_bnpl y las ventas de Redshift.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "350db33e026303aba7d3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "loans_matured_default_profile"
+              }
+            },
+            "Property": "flag@15DaysLate"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "l",
+              "Entity": "loans_matured_default_profile",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "l"
+                          }
+                        },
+                        "Property": "flag@15DaysLate"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "1L"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}

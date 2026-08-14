@@ -1,0 +1,36 @@
+table bnpl_cac
+	lineageTag: 43945850-ec09-4530-b1e7-d0941993e379
+
+	column enrollmentCohort
+		dataType: string
+		lineageTag: 4b2135f4-4573-4c70-b47e-4bf6e62c0ce7
+		summarizeBy: none
+		sourceColumn: enrollmentCohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column cac
+		dataType: double
+		lineageTag: 59094fb1-79d9-4023-8c21-97dbf7203d0a
+		summarizeBy: none
+		sourceColumn: cac
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition bnpl_cac = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_cac", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

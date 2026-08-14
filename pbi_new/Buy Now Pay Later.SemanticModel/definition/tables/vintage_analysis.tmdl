@@ -1,0 +1,265 @@
+table vintage_analysis
+	lineageTag: 799273cf-052a-4721-8938-ca50c0aaaafd
+
+	measure par30RateAmount = SUM(vintage_analysis[PAR30])/sum(vintage_analysis[deployedCapital])
+		lineageTag: 06937abc-f5b6-4ae3-b1be-c144369f48c7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par30RateCustomers = SUM(vintage_analysis[PAR30N])/sum(vintage_analysis[everActivated])
+		lineageTag: 0144927f-45dd-4a92-b2bc-fe0247fed873
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par60RateCustomers = SUM(vintage_analysis[PAR60N])/sum(vintage_analysis[everActivated])
+		lineageTag: a7b6fe74-82eb-4e30-a69f-03d266706a08
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par90RateCustomers = SUM(vintage_analysis[PAR90N])/sum(vintage_analysis[everActivated])
+		lineageTag: 93beae33-ed99-4f2b-8c97-4a8cd170551f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par60RateAmount = SUM(vintage_analysis[PAR60])/sum(vintage_analysis[deployedCapital])
+		lineageTag: c8efa523-da2c-400d-8424-358aaf7525f5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par90RateAmount = SUM(vintage_analysis[PAR90])/sum(vintage_analysis[deployedCapital])
+		lineageTag: 66c2088c-7080-4b9f-b227-7d2b13b2e13a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure par30RateAmountNotFilters = ```
+			
+			DIVIDE(
+			    CALCULATE(
+			        SUM(vintage_analysis[PAR30]),
+			        REMOVEFILTERS(vintage_analysis[enrollment_cohort])
+			    ),
+			    CALCULATE(
+			        SUM(vintage_analysis[deployedCapital]),
+			        REMOVEFILTERS(vintage_analysis[enrollment_cohort])
+			    )
+			)
+			
+			```
+		lineageTag: 6a9cc0d5-2baf-4f4a-a2f1-f8a9fcbd7232
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column enrollment_cohort
+		dataType: string
+		lineageTag: 83de2add-80e0-400e-9a42-36c876e74a1b
+		summarizeBy: none
+		sourceColumn: enrollment_cohort
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthsFromEnrollmentToMonth
+		dataType: int64
+		formatString: 0
+		lineageTag: 849c4ef5-a24e-487b-ab02-fed45e257055
+		summarizeBy: sum
+		sourceColumn: monthsFromEnrollmentToMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column n
+		dataType: int64
+		formatString: 0
+		lineageTag: b40c71d2-b995-4bec-8c9f-a0e1a2b9e17e
+		summarizeBy: sum
+		sourceColumn: n
+
+		annotation SummarizationSetBy = Automatic
+
+	column outstandingBalance
+		dataType: double
+		lineageTag: adeab5f8-cd43-4145-aa86-e56ceb87fd4f
+		summarizeBy: sum
+		sourceColumn: outstandingBalance
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PAR30
+		dataType: double
+		lineageTag: 519b3d7e-6d54-4b7f-be13-197b06cab4ce
+		summarizeBy: sum
+		sourceColumn: PAR30
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PAR60
+		dataType: double
+		lineageTag: 91be43d5-76ba-48a1-a136-3f7d028084e9
+		summarizeBy: sum
+		sourceColumn: PAR60
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PAR90
+		dataType: double
+		lineageTag: cbcbb3f8-c301-40b9-a4e0-443decaa8f03
+		summarizeBy: sum
+		sourceColumn: PAR90
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column par30Rate
+		dataType: double
+		lineageTag: 35e9373b-92aa-4ff4-9e09-d3754f487e93
+		summarizeBy: sum
+		sourceColumn: par30Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column par60Rate
+		dataType: double
+		lineageTag: d90a1c67-ff38-44af-98a2-6dfa99d71a83
+		summarizeBy: sum
+		sourceColumn: par60Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column par90Rate
+		dataType: double
+		lineageTag: 7c15edef-2d56-4a7c-83b2-58e1ab4c4148
+		summarizeBy: sum
+		sourceColumn: par90Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column enrolled_customers
+		dataType: int64
+		formatString: 0
+		lineageTag: 17e51c97-7942-4f88-b480-d83387f59c61
+		summarizeBy: sum
+		sourceColumn: enrolled_customers
+
+		annotation SummarizationSetBy = Automatic
+
+	column everActivated
+		dataType: int64
+		formatString: 0
+		lineageTag: ebe14692-8bfe-4e70-be81-12907f6d8ea1
+		summarizeBy: sum
+		sourceColumn: everActivated
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAR30N
+		dataType: int64
+		formatString: 0
+		lineageTag: d2c088cf-46b3-4a07-8ae8-d704c3175f42
+		summarizeBy: sum
+		sourceColumn: PAR30N
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAR60N
+		dataType: int64
+		formatString: 0
+		lineageTag: 29ef4e77-d374-4742-a569-4f8cf24b6d66
+		summarizeBy: sum
+		sourceColumn: PAR60N
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAR90N
+		dataType: int64
+		formatString: 0
+		lineageTag: b64c53cc-c0ad-462a-adc6-59c79e92243a
+		summarizeBy: sum
+		sourceColumn: PAR90N
+
+		annotation SummarizationSetBy = Automatic
+
+	column par30CustomersRate
+		dataType: double
+		lineageTag: 598765c6-c152-46f8-bb7b-520e6f5f7e3f
+		summarizeBy: sum
+		sourceColumn: par30CustomersRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column par60CustomersRate
+		dataType: double
+		lineageTag: ed820b81-2f39-4aee-9215-2dc56e4c1c02
+		summarizeBy: sum
+		sourceColumn: par60CustomersRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column par90CustomersRate
+		dataType: double
+		lineageTag: 6882183c-dce2-491f-9156-1eaceca1af68
+		summarizeBy: sum
+		sourceColumn: par90CustomersRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column deployedCapital
+		dataType: double
+		lineageTag: a38eca25-d5f8-48fb-8b6e-2a5484242812
+		summarizeBy: sum
+		sourceColumn: deployedCapital
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cohortYear
+		dataType: double
+		lineageTag: 0b6ad6cf-ea46-4be6-9c5d-9e24c30eadf1
+		summarizeBy: sum
+		sourceColumn: cohortYear
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column corte
+		dataType: string
+		lineageTag: 85341879-70de-4a2b-8457-7cbc20cfeb42
+		summarizeBy: none
+		sourceColumn: corte
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vintage_analysis = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.vintage_analysis", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

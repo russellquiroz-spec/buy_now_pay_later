@@ -1,0 +1,48 @@
+table 'Cosecha Enrolamiento'
+	lineageTag: 1c5dc282-286c-4cf7-98ac-d9c937035b23
+
+	column 'Cosecha enrolamiento'
+		lineageTag: c89f25ae-1b9e-4b0c-80d5-1e470c9fbc3a
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Cosecha Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Cosecha Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cosecha Campos'
+		isHidden
+		lineageTag: 3742c6a9-6de8-4edf-9dcd-a7e2ff087b9c
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Cosecha Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cosecha Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 39473d3d-0ea9-4c8b-b2ee-514540bdfeae
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Cosecha Enrolamiento' = calculated
+		mode: import
+		source =
+				{
+				    ("Total", NAMEOF('bnpl_grouped_orders'[Agrupación Cosecha Total]), 0),
+				    ("Cosechas", NAMEOF('bnpl_grouped_orders'[enrollment_cohort]), 1)
+				}
+
+	annotation PBI_Id = 118d227f9362440fa3f052dc7f3eb599
+

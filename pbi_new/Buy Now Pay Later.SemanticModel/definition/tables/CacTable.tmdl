@@ -1,0 +1,18 @@
+table CacTable
+	lineageTag: 75c05660-6847-40cb-8b59-e631d9919e78
+
+	column cac
+		formatString: 0
+		lineageTag: 4a728d56-1857-4e0f-9c83-6e828201a0cc
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [cac]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CacTable = calculated
+		mode: import
+		source = SELECTCOLUMNS(GENERATESERIES(0, 250, 5), "cac", [Value])
+
+	annotation PBI_Id = 5f0338be7dc24353b32877cc491ef691
+

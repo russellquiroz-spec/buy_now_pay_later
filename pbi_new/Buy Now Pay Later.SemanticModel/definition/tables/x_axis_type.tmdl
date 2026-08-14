@@ -1,0 +1,46 @@
+table x_axis_type
+	lineageTag: 3f50cc0e-85a5-4b54-9c98-f809d7df8dfc
+
+	column xAxisType
+		lineageTag: c50b80cb-afb0-4f4e-9e53-154cc952a224
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [xAxisType]
+
+		annotation SummarizationSetBy = Automatic
+
+	column value
+		formatString: 0
+		lineageTag: b13c4395-5561-4b86-91ae-d7b74d3fb8a9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [value]
+
+		annotation SummarizationSetBy = Automatic
+
+	column order
+		formatString: 0
+		lineageTag: 64cb78c1-ce96-4a12-84cf-aeb7776dbc16
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [order]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition x_axis_type = calculated
+		mode: import
+		source = ```
+				
+				    DATATABLE(
+				        "xAxisType", STRING,
+				        "value", INTEGER,
+				        "order", INTEGER,
+				        {
+				            {"Months Since Enrollment", 1, 1},
+				            {"Natural Month", 2, 2}
+				        }
+				    )
+				```
+
+	annotation PBI_Id = af1f4148fe1c4234b931ce4ae1391e68
+

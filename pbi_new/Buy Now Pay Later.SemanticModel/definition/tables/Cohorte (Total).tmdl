@@ -1,0 +1,25 @@
+table 'Cohorte (Total)'
+	lineageTag: c5418248-fad7-472e-ab70-843b72825dfd
+
+	column enrollment_cohort
+		lineageTag: 88f45516-0acd-44fc-8be2-b580395ef193
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [enrollment_cohort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Cohorte (Total)' = calculated
+		mode: import
+		source =
+				
+				UNION(
+				    SELECTCOLUMNS(
+				        VALUES(bnpl_grouped_orders[enrollment_cohort]),
+				        "enrollment_cohort", bnpl_grouped_orders[enrollment_cohort]
+				    ),
+				    DATATABLE("enrollment_cohort", STRING, {{"WAVG"}})
+				)
+
+	annotation PBI_Id = f5807bb26840494daba9b32934d797d0
+

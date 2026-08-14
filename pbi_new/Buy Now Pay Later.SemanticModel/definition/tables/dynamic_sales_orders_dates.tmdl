@@ -1,0 +1,89 @@
+table dynamic_sales_orders_dates
+	lineageTag: 23386c9f-b9e5-47db-a3df-e57ef93e64bb
+
+	column Date
+		formatString: Long Date
+		lineageTag: 17c15d68-f6d6-48ff-afba-731e6f27b9dd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column visual_date
+		formatString: Short Date
+		lineageTag: 07c02632-1d3a-44ee-8355-28374d7613eb
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [visual_date]
+
+		variation Variation
+			isDefault
+			relationship: d2b4e957-5f5d-43f2-9f76-f2129cedf95f
+			defaultHierarchy: LocalDateTable_85a39f4a-2d1b-4db2-acc1-c4010c351031.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column type
+		lineageTag: c23de8e0-a03e-45d1-a4c7-adc266afffdd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [type]
+		sortByColumn: order
+
+		annotation SummarizationSetBy = Automatic
+
+	column order
+		formatString: 0
+		lineageTag: a5629eb7-f6dc-423b-a88e-e9d88d89870a
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [order]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dynamic_sales_orders_dates = calculated
+		mode: import
+		source = ```
+				
+				    UNION(
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('sales_order_dates'[Date]), MAX('sales_order_dates'[Date])),
+				            "visual_date", [Date],
+				            "type", "Daily",
+				            "order", 1
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('sales_order_dates'[Date]), MAX('sales_order_dates'[Date])),
+				            "visual_date", 
+				            IF(
+				                DAY([Date]) - WEEKDAY([Date], 2) + 1 < 1,
+				                DATE(YEAR([Date]), MONTH([Date]) - 1, DAY(EOMONTH([Date], -1)) + (DAY([Date]) - WEEKDAY([Date], 2) + 1)),
+				                DATE(YEAR([Date]), MONTH([Date]), DAY([Date]) - WEEKDAY([Date], 2) + 1)
+				            ),
+				            "type", "Weekly",
+				            "order", 2
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('sales_order_dates'[Date]), MAX('sales_order_dates'[Date])),
+				            "visual_date", 
+				            DATE(YEAR([Date]), MONTH([Date]), 1),
+				            "type", "Monthly",
+				            "order", 3
+				        ),
+				        ADDCOLUMNS(
+				            CALENDAR(MIN('sales_order_dates'[Date]), MAX('sales_order_dates'[Date])),
+				            "visual_date", 
+				            DATE(YEAR([Date]), 1, 1),
+				            "type", "Yearly",
+				            "order", 4
+				        )
+				    )
+				```
+
+	annotation PBI_Id = 7ac2db554d1c4890b18aa35a5e76e007
+

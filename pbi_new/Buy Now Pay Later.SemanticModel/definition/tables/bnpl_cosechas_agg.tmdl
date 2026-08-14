@@ -1,0 +1,812 @@
+table bnpl_cosechas_agg
+	lineageTag: 4e912985-d9b2-4b14-86e6-37dde15bbd8f
+
+	measure '% variación Gross Sales' = (SUM(bnpl_cosechas_agg[gross_sales]) - SUM(bnpl_cosechas_agg[gross_sales_ft])) / SUM(bnpl_cosechas_agg[gross_sales_ft])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 240eb44c-5a94-48d3-9812-f29dce37e264
+
+	measure 'Fecha 10% Y' = ```
+			
+			VAR GrupoFiltrado =
+			    FILTER(
+			        ALL(bnpl_cosechas_agg),
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			    )
+			
+			VAR TotalY =
+			    CALCULATE(
+			        SUM(bnpl_cosechas_agg[clientes_cosecha]),
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			    )
+			
+			VAR Acumulado10 = TotalY * 0.1
+			
+			VAR TablaAcumuladaY =
+			    ADDCOLUMNS(
+			        SUMMARIZE(
+			            GrupoFiltrado,
+			            bnpl_cosechas_agg[mes_ft_tx_bnpl],
+			            "SumaFecha", SUM(bnpl_cosechas_agg[clientes_cosecha])
+			        ),
+			        "Acumulado",
+			        VAR FechaActual = bnpl_cosechas_agg[mes_ft_tx_bnpl]
+			        RETURN
+			            CALCULATE(
+			                SUM(bnpl_cosechas_agg[clientes_cosecha]),
+			                bnpl_cosechas_agg[flg_cte_bnpl] = "Y",
+			                bnpl_cosechas_agg[mes_ft_tx_bnpl] <= FechaActual
+			            )
+			    )
+			
+			RETURN
+			    MINX(
+			        FILTER(TablaAcumuladaY, [Acumulado] >= Acumulado10),
+			        bnpl_cosechas_agg[mes_ft_tx_bnpl]
+			    )
+			
+			```
+		formatString: General Date
+		lineageTag: 0f947ff8-75f2-4c9e-8aac-21be09f054a6
+
+	measure 'ft tx bnpl min' = ```
+			MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl])
+			
+			```
+		formatString: General Date
+		lineageTag: a11c29c3-0d18-45b6-bb1e-8fd17b9de54b
+
+	measure tendenciaEnroladosProyectada = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[mes_tx]),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Definir 3 meses atrás
+			VAR FechaInicioRango =
+			    EDATE(MesReferencia, -2)
+			
+			-- Calcular TasaY acumulando en los últimos 3 meses antes de enrolamiento
+			VAR TasaY =
+			    CALCULATE(
+			        DIVIDE(
+			            SUM(bnpl_cosechas_agg[gross_sales]) - SUM(bnpl_cosechas_agg[gross_sales_ft]),
+			            SUM(bnpl_cosechas_agg[gross_sales_ft])
+			        ),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] >= FechaInicioRango &&
+			            bnpl_cosechas_agg[mes_tx] <= MesReferencia &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Normalización del índice
+			VAR IndexInicio =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[IndexMes]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			
+			VAR IndexReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[IndexMes]),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] = MesReferencia
+			        )
+			    ) - IndexInicio
+			
+			VAR Pendiente = DIVIDE(TasaY, IndexReferencia)
+			
+			VAR IndexActual =
+			    SELECTEDVALUE(bnpl_cosechas_agg[IndexMes]) - IndexInicio
+			
+			RETURN
+			    IF(
+			        NOT ISBLANK(IndexActual) && IndexActual >= 0,
+			        Pendiente * IndexActual
+			    )
+			
+			```
+		lineageTag: b79eda44-0a01-4212-ab41-3e6aaff75f1c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure tendenciaNoEnroladosProyectada = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[mes_tx]),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Definir 3 meses atrás
+			VAR FechaInicioRango =
+			    EDATE(MesReferencia, -2)
+			
+			-- Calcular TasaY acumulando en los últimos 3 meses antes de enrolamiento
+			VAR TasaY =
+			    CALCULATE(
+			        DIVIDE(
+			            SUM(bnpl_cosechas_agg[gross_sales]) - SUM(bnpl_cosechas_agg[gross_sales_ft]),
+			            SUM(bnpl_cosechas_agg[gross_sales_ft])
+			        ),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] >= FechaInicioRango &&
+			            bnpl_cosechas_agg[mes_tx] <= MesReferencia &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "N"
+			        )
+			    )
+			
+			-- Normalización del índice
+			VAR IndexInicio =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[IndexMes]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			
+			VAR IndexReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[IndexMes]),
+			        FILTER(
+			            ALLSELECTED(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] = MesReferencia
+			        )
+			    ) - IndexInicio
+			
+			VAR Pendiente = DIVIDE(TasaY, IndexReferencia)
+			
+			VAR IndexActual =
+			    SELECTEDVALUE(bnpl_cosechas_agg[IndexMes]) - IndexInicio
+			
+			RETURN
+			    IF(
+			        NOT ISBLANK(IndexActual) && IndexActual >= 0,
+			        Pendiente * IndexActual
+			    )
+			
+			```
+		lineageTag: 05606515-81bc-4d7c-83ed-85ce1f83262b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure dropSizeM = sum(bnpl_cosechas_agg[gross_sales]) / sum(bnpl_cosechas_agg[ordenes])
+		lineageTag: b9cbd303-a9c3-43fd-ad46-2c7cb2cedcdf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure frequenciaM = sum(bnpl_cosechas_agg[ordenes]) / sum(bnpl_cosechas_agg[cliente_activo])
+		lineageTag: 49d3301a-4aee-435f-9b5c-657ff98260ea
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure dropSize_ftM = SUM(bnpl_cosechas_agg[gross_sales_ft]) / sum(bnpl_cosechas_agg[ordenes_ft])
+		lineageTag: 4d78d7fa-4e03-478f-8c06-3da0f14c6cb6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure tendenciaEnroladosDropProyectada =
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN( bnpl_cosechas_agg[mes_ft_tx_bnpl] ),
+			        ALLSELECTED( bnpl_cosechas_agg )
+			    )
+			
+			-- Último mes ANTES del primer enrolamiento (solo clientes BNPL = "Y")
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[mes_tx] ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte
+			                && bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Primer mes del rango seleccionado
+			VAR MesInicio =
+			    CALCULATE(
+			        MIN( bnpl_cosechas_agg[mes_tx] ),
+			        ALLSELECTED( bnpl_cosechas_agg )
+			    )
+			
+			-- Índice (numérico) para pendiente: diferencia de "pasos" entre MesInicio y MesReferencia
+			VAR IndexInicio =
+			    CALCULATE( MIN( bnpl_cosechas_agg[IndexMes] ), ALLSELECTED( bnpl_cosechas_agg ) )
+			
+			VAR IndexRef =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[IndexMes] ),
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesReferencia )
+			    ) - IndexInicio
+			
+			-- Y0: primer valor del indicador (ventas/órdenes) en MesInicio
+			VAR Y0 =
+			    CALCULATE(
+			        DIVIDE( SUM( bnpl_cosechas_agg[gross_sales] ), SUM( bnpl_cosechas_agg[ordenes] ) ),
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesInicio && bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			    )
+			
+			-- Yref: valor del indicador en MesReferencia (antes del primer enrolamiento)
+			VAR Yref =
+			    CALCULATE(
+			        DIVIDE( SUM( bnpl_cosechas_agg[gross_sales] ), SUM( bnpl_cosechas_agg[ordenes] ) ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] = MesReferencia
+			                && bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Pendiente de la recta que une (MesInicio,Y0) con (MesReferencia,Yref)
+			VAR m = DIVIDE( Yref - Y0, IndexRef )
+			
+			-- X actual (en pasos de índice desde el inicio)
+			VAR x =
+			    SELECTEDVALUE( bnpl_cosechas_agg[IndexMes] ) - IndexInicio
+			
+			RETURN
+			IF(
+			    NOT ISBLANK( x ) && x >= 0,
+			    Y0 + m * x
+			)
+		lineageTag: f4cc69b7-7762-4448-b94e-0c88d29cc0c1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure tendenciaNoEnroladosDropProyectada =
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN( bnpl_cosechas_agg[mes_ft_tx_bnpl] ),
+			        ALLSELECTED( bnpl_cosechas_agg )
+			    )
+			
+			-- Último mes ANTES del primer enrolamiento (solo clientes BNPL = "Y")
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[mes_tx] ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte
+			                && bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			-- Primer mes del rango seleccionado
+			VAR MesInicio =
+			    CALCULATE(
+			        MIN( bnpl_cosechas_agg[mes_tx] ),
+			        ALLSELECTED( bnpl_cosechas_agg )
+			    )
+			
+			-- Índice (numérico) para pendiente: diferencia de "pasos" entre MesInicio y MesReferencia
+			VAR IndexInicio =
+			    CALCULATE( MIN( bnpl_cosechas_agg[IndexMes] ), ALLSELECTED( bnpl_cosechas_agg ) )
+			
+			VAR IndexRef =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[IndexMes] ),
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesReferencia )
+			    ) - IndexInicio
+			
+			-- Y0: primer valor del indicador (ventas/órdenes) en MesInicio
+			VAR Y0 =
+			    CALCULATE(
+			        DIVIDE( SUM( bnpl_cosechas_agg[gross_sales] ), SUM( bnpl_cosechas_agg[ordenes] ) ),
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesInicio )
+			    )
+			
+			-- Yref: valor del indicador en MesReferencia (antes del primer enrolamiento)
+			VAR Yref =
+			    CALCULATE(
+			        DIVIDE( SUM( bnpl_cosechas_agg[gross_sales] ), SUM( bnpl_cosechas_agg[ordenes] ) ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] = MesReferencia
+			                && bnpl_cosechas_agg[flg_cte_bnpl] = "N"
+			        )
+			    )
+			
+			-- Pendiente de la recta que une (MesInicio,Y0) con (MesReferencia,Yref)
+			VAR m = DIVIDE( Yref - Y0, IndexRef )
+			
+			-- X actual (en pasos de índice desde el inicio)
+			VAR x =
+			    SELECTEDVALUE( bnpl_cosechas_agg[IndexMes] ) - IndexInicio
+			
+			RETURN
+			IF(
+			    NOT ISBLANK( x ) && x >= 0,
+			    Y0 + m * x
+			)
+		lineageTag: 9a463e3d-98cc-49a1-a3a0-a63053f55fa8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure supervivencia = SUM(bnpl_cosechas_agg[cliente_activo]) / SUM(bnpl_cosechas_agg[clientes_cosecha])
+		lineageTag: 43828a08-b821-4415-bcac-24f10d55ca68
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure RebaseSobreTendencia = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			VAR TablaMeses =
+			    FILTER(
+			        VALUES(bnpl_cosechas_agg[mes_tx]),
+			        bnpl_cosechas_agg[mes_tx] >= FechaCorte
+			    )
+			RETURN
+			    SUMX(
+			        TablaMeses,
+			        CALCULATE([% variación Gross Sales], bnpl_cosechas_agg[flg_cte_bnpl]= "Y")
+			    )
+			
+			```
+		lineageTag: fb927785-36ca-4fcb-961f-0fba16926bf2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure baseTendencia = ```
+			
+			VAR FechaCorte =
+			    CALCULATE( MIN( bnpl_cosechas_agg[mes_ft_tx_bnpl] ), ALLSELECTED( bnpl_cosechas_agg ) )
+			
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[mes_tx] ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			VAR FechaInicioRango = EDATE( MesReferencia, -2 )
+			
+			VAR TasaY =
+			    CALCULATE(
+			        DIVIDE(
+			            SUM( bnpl_cosechas_agg[gross_sales] ) - SUM( bnpl_cosechas_agg[gross_sales_ft] ),
+			            SUM( bnpl_cosechas_agg[gross_sales_ft] )
+			        ),
+			        FILTER(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx] >= FechaInicioRango &&
+			            bnpl_cosechas_agg[mes_tx] <= MesReferencia &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			VAR IndexInicio =
+			    CALCULATE( MIN( bnpl_cosechas_agg[IndexMes] ), ALLSELECTED( bnpl_cosechas_agg ) )
+			
+			VAR IndexReferencia =
+			    CALCULATE(
+			        MAX( bnpl_cosechas_agg[IndexMes] ),
+			        FILTER( ALLSELECTED( bnpl_cosechas_agg ), bnpl_cosechas_agg[mes_tx] = MesReferencia )
+			    ) - IndexInicio
+			
+			VAR Pendiente = DIVIDE( TasaY, IndexReferencia )
+			
+			-- Tabla de meses a sumar (>= FechaCorte) con su índice
+			VAR MesesDesdeCorte =
+			    FILTER(
+			        SUMMARIZE(
+			            ALLSELECTED( bnpl_cosechas_agg ),
+			            bnpl_cosechas_agg[mes_tx],
+			            "Idx", MAX( bnpl_cosechas_agg[IndexMes] )
+			        ),
+			        bnpl_cosechas_agg[mes_tx] >= FechaCorte
+			    )
+			
+			RETURN
+			IF(
+			    ISBLANK( MesReferencia ) || IndexReferencia <= 0,
+			    BLANK(),
+			    SUMX( MesesDesdeCorte, Pendiente * ( [Idx] - IndexInicio ) )
+			)
+			
+			
+			```
+		lineageTag: 2c36910e-ef9b-42e8-a37c-337b67fc29bf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure bnplCustomersInSelection = CALCULATE(sum(bnpl_cosechas_agg[cliente_activo]), bnpl_cosechas_agg[flg_cte_bnpl] = "Y", bnpl_cosechas_agg[Periodo] = "0")
+		formatString: 0
+		lineageTag: 2ea7fe7d-8546-487a-87be-801078e22da0
+
+	measure bnplCustomers =
+			
+			CALCULATE(
+			    SUM(bnpl_cosechas_agg[cliente_activo]),
+			    FILTER(
+			        ALL(bnpl_cosechas_agg),
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y" &&
+			        bnpl_cosechas_agg[Periodo] = "0"
+			    )
+			)
+		formatString: 0
+		lineageTag: 10f9c338-88d8-4310-a1bc-234049a1ab25
+
+	measure incrementoDropSize = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			VAR bnplAfter = 
+			    CALCULATE(
+			        [dropSizeM], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplAfter = 
+			    CALCULATE(
+			        [dropSizeM], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			VAR bnplBefore = 
+			    CALCULATE(
+			        [dropSizeM], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplBefore = 
+			    CALCULATE(
+			        [dropSizeM], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			RETURN
+			    DIVIDE(DIVIDE(bnplAfter, noBnplAfter),DIVIDE(bnplBefore,noBnplBefore))-1
+			```
+		lineageTag: 6104f69b-83a8-49fc-a771-9df758c1c03d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure tendenciaDropEnroladosProyectada =
+			
+			VAR __IndexCtx = SELECTEDVALUE(bnpl_cosechas_agg[IndexMes])
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        REMOVEFILTERS(bnpl_cosechas_agg)
+			    )
+			
+			VAR MesReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[mes_tx]),
+			        FILTER(
+			            REMOVEFILTERS(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] < FechaCorte &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			VAR FechaInicioRango = EDATE(MesReferencia, -2)
+			
+			VAR TasaY =
+			    CALCULATE(
+			        DIVIDE(
+			            SUM(bnpl_cosechas_agg[gross_sales]) - SUM(bnpl_cosechas_agg[gross_sales_ft]),
+			            SUM(bnpl_cosechas_agg[gross_sales_ft])
+			        ),
+			        FILTER(
+			            REMOVEFILTERS(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] >= FechaInicioRango &&
+			            bnpl_cosechas_agg[mes_tx] <= MesReferencia &&
+			            bnpl_cosechas_agg[flg_cte_bnpl] = "Y"
+			        )
+			    )
+			
+			VAR IndexInicio =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[IndexMes]),
+			        REMOVEFILTERS(bnpl_cosechas_agg)
+			    )
+			
+			VAR IndexReferencia =
+			    CALCULATE(
+			        MAX(bnpl_cosechas_agg[IndexMes]),
+			        FILTER(
+			            REMOVEFILTERS(bnpl_cosechas_agg),
+			            bnpl_cosechas_agg[mes_tx] = MesReferencia
+			        )
+			    ) - IndexInicio
+			
+			VAR Pendiente = DIVIDE(TasaY, IndexReferencia)
+			
+			VAR IndexActual =
+			    IF( NOT ISBLANK(__IndexCtx), __IndexCtx - IndexInicio )
+			
+			RETURN
+			    IF(
+			        ISBLANK(MesReferencia) || IndexReferencia <= 0 || ISBLANK(IndexActual) || IndexActual < 0,
+			        BLANK(),
+			        Pendiente * IndexActual
+			    )
+		lineageTag: 393268e2-91a3-4e07-84f7-c273c5231024
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure incrementoFrecuencia = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			VAR bnplAfter = 
+			    CALCULATE(
+			        [frequenciaM], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplAfter = 
+			    CALCULATE(
+			        [frequenciaM], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			VAR bnplBefore = 
+			    CALCULATE(
+			        [frequenciaM], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplBefore = 
+			    CALCULATE(
+			        [frequenciaM], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			RETURN
+			    DIVIDE(DIVIDE(bnplAfter, noBnplAfter),DIVIDE(bnplBefore,noBnplBefore))-1
+			```
+		lineageTag: b3cba203-7ba0-43be-b98f-7bd9a22fc488
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure incrementoSupervivencia = ```
+			
+			VAR FechaCorte =
+			    CALCULATE(
+			        MIN(bnpl_cosechas_agg[mes_ft_tx_bnpl]),
+			        ALLSELECTED(bnpl_cosechas_agg)
+			    )
+			VAR bnplAfter = 
+			    CALCULATE(
+			        [supervivencia], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplAfter = 
+			    CALCULATE(
+			        [supervivencia], 
+			        bnpl_cosechas_agg[mes_tx]>= FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			VAR bnplBefore = 
+			    CALCULATE(
+			        [supervivencia], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "Y")
+			VAR noBnplBefore = 
+			    CALCULATE(
+			        [supervivencia], 
+			        bnpl_cosechas_agg[mes_tx] < FechaCorte, 
+			        bnpl_cosechas_agg[flg_cte_bnpl] = "N")
+			RETURN
+			    DIVIDE(DIVIDE(bnplAfter, noBnplAfter),DIVIDE(bnplBefore,noBnplBefore))-1
+			```
+		lineageTag: 171ee4a1-2d32-49ba-b10d-13b9a16ebbb9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column mes_tx
+		dataType: dateTime
+		formatString: mmmm" de "yyyy
+		lineageTag: c63ce35a-ab0e-423b-bb2b-e0ae19c4aa32
+		summarizeBy: none
+		sourceColumn: mes_tx
+
+		variation Variación
+			isDefault
+			relationship: 2180a21f-84e2-4adc-8573-bcd5b39dd4b4
+			defaultHierarchy: LocalDateTable_0747c98b-7c87-4578-a162-e1db87ea3c5d.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column mes_ft_tx
+		dataType: dateTime
+		formatString: mmmm" de "yyyy
+		lineageTag: adb5b0fb-a87e-4f46-9981-ac68341430b0
+		summarizeBy: none
+		sourceColumn: mes_ft_tx
+
+		variation Variación
+			isDefault
+			relationship: f05ec488-e7f3-425a-8ec1-36cbe147ff87
+			defaultHierarchy: LocalDateTable_e1e05c87-3805-40ca-8d80-24682331dbf3.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column mes_ft_tx_bnpl
+		dataType: dateTime
+		formatString: mmmm" de "yyyy
+		lineageTag: f8f07090-f5c3-4ae6-88e8-b677c72b6003
+		summarizeBy: none
+		sourceColumn: mes_ft_tx_bnpl
+
+		variation Variación
+			isDefault
+			relationship: 48e25b19-46b2-47f8-8000-5c069dce25c4
+			defaultHierarchy: LocalDateTable_e2049985-ccac-412a-be9e-ffd25de2a1e4.'Jerarquía de fechas'
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column flg_cte_bnpl
+		dataType: string
+		lineageTag: cb37f5a7-823c-4367-88f1-d7054857d44f
+		summarizeBy: none
+		sourceColumn: flg_cte_bnpl
+
+		annotation SummarizationSetBy = Automatic
+
+	column gross_sales_ft
+		dataType: double
+		lineageTag: f9a7c431-e464-4469-a973-6d47bbb3895f
+		summarizeBy: sum
+		sourceColumn: gross_sales_ft
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordenes_ft
+		dataType: int64
+		formatString: 0
+		lineageTag: b1a0ae55-3d75-4a4c-8396-5ec25a121401
+		summarizeBy: sum
+		sourceColumn: ordenes_ft
+
+		annotation SummarizationSetBy = Automatic
+
+	column gross_sales
+		dataType: double
+		lineageTag: 29340418-d43b-49f8-a090-007db5dfe652
+		summarizeBy: sum
+		sourceColumn: gross_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ordenes
+		dataType: int64
+		formatString: 0
+		lineageTag: aedf1a36-8500-417f-bfb2-66738e19f84e
+		summarizeBy: sum
+		sourceColumn: ordenes
+
+		annotation SummarizationSetBy = Automatic
+
+	column clientes_cosecha
+		dataType: int64
+		formatString: 0
+		lineageTag: 95de9875-954e-4279-b04a-5715a50d5b5c
+		summarizeBy: sum
+		sourceColumn: clientes_cosecha
+
+		annotation SummarizationSetBy = Automatic
+
+	column Periodo = DATEDIFF(bnpl_cosechas_agg[mes_ft_tx],bnpl_cosechas_agg[mes_tx],MONTH)
+		dataType: string
+		lineageTag: 87e40da9-c66e-49ea-a23f-0b7cd840c5d7
+		summarizeBy: none
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column cliente_activo
+		dataType: int64
+		formatString: 0
+		lineageTag: 253ef471-8e0c-480c-985e-8edee1af0b89
+		summarizeBy: sum
+		sourceColumn: cliente_activo
+
+		annotation SummarizationSetBy = Automatic
+
+	column IndexMes =
+			
+			RANKX(
+			    FILTER(
+			        ALLSELECTED(bnpl_cosechas_agg),
+			        NOT(ISBLANK(bnpl_cosechas_agg[mes_tx]))
+			    ),
+			    bnpl_cosechas_agg[mes_tx],
+			    ,
+			    ASC,
+			    DENSE
+			)
+		formatString: 0
+		lineageTag: f7c23333-d725-451f-b7d2-f3e166591522
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column dropSizeC = sum(bnpl_cosechas_agg[gross_sales]) / sum(bnpl_cosechas_agg[ordenes])
+		lineageTag: 661a6733-0573-4610-9548-ea4e8bf00bca
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column dropSize_ft = bnpl_cosechas_agg[gross_sales_ft] / bnpl_cosechas_agg[ordenes_ft]
+		lineageTag: 6102f4b8-426d-4968-9fb7-1e8c1adbcebe
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'periodo.'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5c0b58ff-e01b-43c9-b229-eb7ee3f53830
+		summarizeBy: sum
+		sourceColumn: periodo.
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_cosechas_agg = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.bnpl_cosechas_agg", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

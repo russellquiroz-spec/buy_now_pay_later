@@ -1,0 +1,164 @@
+table odds_combinations
+	lineageTag: e2522847-62a0-435b-8ea4-1e60eb3a0a49
+
+	column loanDisbursementIndexRange
+		dataType: string
+		lineageTag: 6213bc4d-2b2b-4425-b1c9-06ceed7f7a14
+		summarizeBy: none
+		sourceColumn: loanDisbursementIndexRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag
+		dataType: string
+		lineageTag: 6c1ad3d6-7853-439e-aa49-da90075534f1
+		summarizeBy: none
+		sourceColumn: flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column atr1
+		dataType: string
+		lineageTag: d7bce8ce-59bd-441f-83c2-dcf5c16f9dc8
+		summarizeBy: none
+		sourceColumn: atr1
+
+		annotation SummarizationSetBy = Automatic
+
+	column atr2
+		dataType: string
+		lineageTag: 4e913d82-05ea-4c97-a62f-bc4d7f30620f
+		summarizeBy: none
+		sourceColumn: atr2
+
+		annotation SummarizationSetBy = Automatic
+
+	column atr1Rank
+		dataType: string
+		lineageTag: 1a4fb2e2-32d7-4ce6-b730-1219e0ba1b50
+		summarizeBy: none
+		sourceColumn: atr1Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column atr2Rank
+		dataType: string
+		lineageTag: e3edb5c2-b196-43f3-a120-d3dddb367c61
+		summarizeBy: none
+		sourceColumn: atr2Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column events
+		dataType: int64
+		formatString: 0
+		lineageTag: 3fdcfa1e-83f8-4781-b747-4640bef89ffe
+		summarizeBy: sum
+		sourceColumn: events
+
+		annotation SummarizationSetBy = Automatic
+
+	column good
+		dataType: int64
+		formatString: 0
+		lineageTag: 447c470a-0918-4bdb-a202-f941f4facea9
+		summarizeBy: sum
+		sourceColumn: good
+
+		annotation SummarizationSetBy = Automatic
+
+	column bad
+		dataType: int64
+		formatString: 0
+		lineageTag: 4b8bd1c8-6c7e-44d7-83cb-5e88010171c0
+		summarizeBy: sum
+		sourceColumn: bad
+
+		annotation SummarizationSetBy = Automatic
+
+	column br
+		dataType: double
+		lineageTag: 666deff7-d826-4067-9b1a-d0897f3305d5
+		summarizeBy: sum
+		sourceColumn: br
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bad_rate
+		dataType: double
+		lineageTag: 11d79c68-5b66-482b-b180-4cab3122f12e
+		summarizeBy: sum
+		sourceColumn: bad_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column %good
+		dataType: double
+		lineageTag: 956a6737-ad12-4dcd-be02-e4c3a14f015a
+		summarizeBy: sum
+		sourceColumn: %good
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column %bad
+		dataType: double
+		lineageTag: 69972e6d-5572-420d-b39b-4d45db1899af
+		summarizeBy: sum
+		sourceColumn: %bad
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column woe
+		dataType: double
+		lineageTag: b2819447-2501-4e9d-86e0-33decfc52f33
+		summarizeBy: sum
+		sourceColumn: woe
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column iv
+		dataType: double
+		lineageTag: a26bc55f-8f18-4c66-a8e9-8d099677a5f4
+		summarizeBy: sum
+		sourceColumn: iv
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column combo_id = ```
+			
+			odds_combinations[loanDisbursementIndexRange] & "_" & 
+			odds_combinations[flag] & "_" & 
+			odds_combinations[atr1] & " & " & odds_combinations[atr2]
+			```
+		lineageTag: 7f9ebca7-241e-4a93-9bce-bf9f38a56f0c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition odds_combinations = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.odds_combinations", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

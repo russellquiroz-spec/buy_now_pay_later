@@ -1,0 +1,63 @@
+table vars_and_iv
+	lineageTag: 9f917571-a5b8-4230-99cc-df089db00b93
+
+	column loanDisbursementIndexRange
+		dataType: string
+		lineageTag: 9e539cc7-4b76-4ccf-9fdd-ea37635174e1
+		summarizeBy: none
+		sourceColumn: loanDisbursementIndexRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag
+		dataType: string
+		lineageTag: 2eff3f9d-1e92-43ec-97cc-ca43c8e8c4d4
+		summarizeBy: none
+		sourceColumn: flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column attribute
+		dataType: string
+		lineageTag: c67b5525-9c4f-4eb5-8e7a-68a7df1c0411
+		summarizeBy: none
+		sourceColumn: attribute
+
+		annotation SummarizationSetBy = Automatic
+
+	column iv
+		dataType: double
+		lineageTag: 30ebfea3-aa9d-4dab-987b-ada0cee7f2dd
+		summarizeBy: sum
+		sourceColumn: iv
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column combo_id = ```
+			
+			vars_and_iv[loanDisbursementIndexRange] & "_" & 
+			vars_and_iv[flag] & "_" & 
+			vars_and_iv[attribute]
+			```
+		lineageTag: 664fad32-dbe4-4764-85e3-780e8f4860eb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vars_and_iv = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(
+				        PostgreSQL.Database("localhost:9553", "rabbit-bi-local",
+				                            [CreateNavigationProperties=false]),
+				        "select * from pbi_bnpl.vars_and_iv", null, [EnableFolding=true])
+				in
+				    Origen
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

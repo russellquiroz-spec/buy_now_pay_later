@@ -1,0 +1,48 @@
+table 'Medidas Audiencia'
+	lineageTag: e7014c9a-0cd2-43b8-ad0e-e4c4e2d8ce3d
+
+	column 'Medidas Audiencia'
+		lineageTag: 020ecd2e-e6bd-4bf2-ac0c-04d5f84d0665
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Medidas Audiencia Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Medidas Audiencia Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Medidas Audiencia Campos'
+		isHidden
+		lineageTag: d8b3c4c0-3ddf-4388-a5c2-771683d48285
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Medidas Audiencia Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Medidas Audiencia Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 19afbcc2-bc0a-4f3e-a6d2-b0a4b5b506a8
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Medidas Audiencia' = calculated
+		mode: import
+		source =
+				{
+				    ("Clientes", NAMEOF('bnpl_audiencia_agg'[Clientes]), 0),
+				    ("Gross Sales", NAMEOF('bnpl_audiencia_agg'[Gross Sales]), 1)
+				}
+
+	annotation PBI_Id = d13c591d46764718b9150caa460b86f1
+

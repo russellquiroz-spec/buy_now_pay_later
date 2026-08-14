@@ -1,0 +1,41 @@
+table dq_order
+	lineageTag: d710ef09-6839-4a10-9493-5327106374b5
+
+	column PAR
+		lineageTag: 8fe56619-9456-4ff9-9709-7df5a0a618e7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [PAR]
+
+		annotation SummarizationSetBy = Automatic
+
+	column dqOrder
+		formatString: 0
+		lineageTag: 58604e02-6729-4025-bff7-49b02588e5c3
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [dqOrder]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_order = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "PAR", STRING,
+				    "dqOrder", INTEGER,
+				    {
+				        {"PaidPrev", 0},
+				        {"Paid", 1},
+				        {"Ongoing", 2},
+				        {"DQ 1-6", 3},
+				        {"DQ 7-14", 4},
+				        {"DQ 15-29", 5},
+				        {"DQ 30-59", 6},
+				        {"DQ 60-89", 7},
+				        {"DQ 90+", 8}
+				    }
+				)
+
+	annotation PBI_Id = 85d7c76f23614663a6b86071e850ea97
+

@@ -1,0 +1,150 @@
+table bnpl_loss_rates_temp_table
+	lineageTag: 61b50160-1152-4267-a268-f003214c07e3
+
+	column netsuiteId
+		formatString: 0
+		lineageTag: 0f7bfd66-65af-4b9b-aa1b-10257950effa
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [netsuiteId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column salesOrderId
+		lineageTag: 59e00998-831e-4cb8-97b6-fb58982bd0f9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [salesOrderId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column stage
+		lineageTag: 3e82c394-9375-47cb-a54e-3de2bed549c9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [stage]
+
+		annotation SummarizationSetBy = Automatic
+
+	column loanDisbursementIndex
+		lineageTag: c3494d56-bc1b-4ee0-82ff-368cc80c4159
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [loanDisbursementIndex]
+
+		annotation SummarizationSetBy = Automatic
+
+	column deliveryAt
+		formatString: General Date
+		lineageTag: d93196f0-895d-403d-b449-ebe1f2b80899
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [deliveryAt]
+
+		variation Variación
+			isDefault
+			relationship: f9283b79-7105-4ae5-9e1a-611d462fcc12
+			defaultHierarchy: LocalDateTable_b9de75ae-2b41-465c-add6-dda0fccca935.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalAmount
+		lineageTag: 29e13b6e-1998-477e-afb2-aa463c1be96e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [totalAmount]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column orden
+		formatString: 0
+		lineageTag: 92380bd1-b1c7-4928-9c5a-96a321e68298
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [orden]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition bnpl_loss_rates_temp_table = calculated
+		mode: import
+		source = ```
+				
+				UNION(
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage1]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage1],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 1
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage2]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage2],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 2
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage3]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage3],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 3
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage4]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage4],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 4
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage5]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage5],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 5
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage6]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage6],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 6
+				    ),
+				    SELECTCOLUMNS(
+				        FILTER(bnpl_loss_rates, NOT(ISBLANK([stage7]))),
+				        "netsuiteId", [netsuiteId],
+				        "salesOrderId", [salesOrderId],
+				        "stage", [stage7],
+				        "loanDisbursementIndex", [loanDisbursementIndex],
+				        "deliveryAt", [deliveryAt],
+				        "totalAmount", [totalAmount],
+				        "orden", 7
+				    )
+				)
+				
+				```
+
+	annotation PBI_Id = ab6c1ce9dd264022b001b12659a5a9b2
+
