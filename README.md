@@ -19,7 +19,44 @@ convierte en las tablas de riesgo y venta, y alimenta Power BI.
 | Falló el refresh de Power BI, ¿ahora qué? | [`sql/pbi/README.md` → Cuando falla el refresh](sql/pbi/README.md#cuando-falla-el-refresh) |
 | ¿Qué mide esta gráfica del tablero? | el ícono ⓘ de su encabezado, o [`ayuda_tablero/README.md`](ayuda_tablero/README.md) |
 | Cambié el modelo, ¿cómo actualizo los textos de ayuda? | [`ayuda_tablero/README.md` → Cuando cambia el modelo](ayuda_tablero/README.md#cuando-cambia-el-modelo) |
+| ¿Qué significa esta columna, este campo o esta medida? | [`DICCIONARIO.md`](DICCIONARIO.md) — generado, se edita en `ayuda_tablero/conocimiento.py` |
 | ¿Qué falta confirmar con negocio? | `PENDIENTES_NEGOCIO.md` (se mantiene aparte) |
+
+## Dueño, escalamiento y SLA
+
+| Papel | Quién | Cómo se le pide |
+|---|---|---|
+| Dueño del pipeline (código, corrida diaria, tablero) | {{NOMBRE}} · {{CORREO}} | {{CANAL}} |
+| Suplente — hoy no hay: el bus factor es 1 | {{NOMBRE}} · {{CORREO}} | {{CANAL}} |
+| Dato de Mongo (colecciones `*-production`) | Ingeniería · {{EQUIPO}} | {{TICKET}} |
+| Dato de Redshift (`analytics.mv_pedidos_enriquecidos_*`) | {{EQUIPO}} · {{NOMBRE}} | {{TICKET}} |
+| Los 3 CSV de riesgo (`odds_combinations`, `atr_combinations_iv`, `bnpl_cac`) | Rabbit Risk Analytics · {{NOMBRE}} | {{CORREO}} |
+| `ps_transactional_profile.csv` | Pago de Servicios · {{NOMBRE}} | {{CORREO}} |
+| Excel del concurso y universo de lanzamiento | Comercial · {{NOMBRE}} | {{CORREO}} |
+| Gateway `Gateway_BI` y workspace de Power BI | {{NOMBRE}} · {{CORREO}} | {{CORREO}} |
+| VM `rabbit-bi-local` y perfil AWS del túnel SSM | {{EQUIPO}} · {{NOMBRE}} | {{TICKET}} |
+
+**Los compromisos, escritos.** Hasta hoy el único SLA del proyecto eran dos constantes en código:
+
+| Compromiso | Valor | De dónde sale | Qué pasa si no se cumple |
+|---|---|---|---|
+| Arranque de la corrida diaria | **00:00 hora CDMX** (disparador `06:00` UTC) | tarea `BNPL Pipeline` del Task Scheduler, ver *Despliegue a la VM* | el tablero se queda con el dato de ayer |
+| Dato listo para el refresh | **00:20 CDMX** (00:00 + ~20 min) | medido, ver *Flujo completo* | — |
+| Refresh del Service | **08:30 CDMX** | actualización programada del Service | el tablero no toma la carga de la madrugada y sigue publicando lo de ayer sin avisar |
+| Duración de la corrida | ~20 min · ~40 el día del `--full` mensual | medido, ver *Flujo completo* | se come la ventana hasta las 08:30 |
+| Frescura de una fuente — WARN | 24 h sin escrituras en Mongo | `ops/config.py:25` `LAG_WARN_HORAS` | se vigila, no se actúa |
+| Frescura de una fuente — CRIT | 48 h sin escrituras en Mongo | `ops/config.py:26` `LAG_CRIT_HORAS` | si está en `FUENTES_CRITICAS`, la corrida **aborta** |
+| Desfase del staging | 1% de los documentos | `ops/config.py:41` `FALTANTES_WARN_PCT` | correr el ETL; si persiste, `--full` |
+
+**No hay SLA de reparación de fuente y no puede haberlo desde aquí**: un CRIT en Mongo lo arregla
+Ingeniería. Lo que sí se compromete este proyecto es a abrir el ticket el mismo día y a dejarlo
+anotado abajo, con fecha. Un CRIT sin renglón en esta tabla es un CRIT que nadie está siguiendo.
+
+### Incidencias abiertas con las fuentes
+
+| Fuente | En CRIT desde | Horas al {{FECHA}} | Ticket | Quién lo lleva | Última revisión |
+|---|---|---:|---|---|---|
+| `fintech-customers-production` | 2026-07-22 | 513 | {{TICKET}} | {{NOMBRE}}, Ingeniería | {{FECHA}} |
 
 ## Estado
 
@@ -63,6 +100,9 @@ Plan detallado con las decisiones y sus mediciones:
   BBDD tablero LANZAMIENTO   ─▶ A MANO                       ─▶       │  (tabla física, la lee la vista 20)
                                                                       ▼
                                                                 Power BI Service  ──Gateway_BI──▶  refresh 08:30
+
+  El modelo (PBIP)              ayuda_tablero/                  los 168 tooltips del tablero
+  pbi_new/…Report            ─▶ documentar_tablero.py --aplicar  A MANO, cuando cambia el modelo
 
   bnpl_ops.*   frescura de fuentes, calidad de datos, bitácora de cargas — lo escribe cada paso
 ```
@@ -134,16 +174,20 @@ invalida la mora ni el revenue. La lista está en `ops/config.py` → `FUENTES_C
 
 ### Lo que NO cuelga de `main.py`
 
-Dos cargas son manuales **a propósito**: el dato lo publica una persona, no una fuente, así que no
-tiene sentido intentarlas todos los días.
+**Tres pasos son manuales a propósito.** Los dos primeros porque el dato lo publica una persona, no
+una fuente, así que no tiene sentido intentarlos todos los días; el tercero porque escribe el PBIP,
+no la base.
 
 ```powershell
-.venv\Scripts\python.exe carga_archivos_bnpl.py      # 4 CSV del Drive -> archivos_bnpl.*
-.venv\Scripts\python.exe carga_clientes_concurso.py  # Excel de negocio -> bnpl.bnpl_clientes_concurso
+.venv\Scripts\python.exe carga_archivos_bnpl.py                          # 4 CSV del Drive -> archivos_bnpl.*
+.venv\Scripts\python.exe carga_clientes_concurso.py                      # Excel de negocio -> bnpl.bnpl_clientes_concurso
+.venv\Scripts\python.exe ayuda_tablero\documentar_tablero.py --aplicar   # los 168 tooltips del PBIP
 ```
 
-Ninguna de las dos se rehace sola. Si borras `archivos_bnpl`, hay que volver a conseguir los
+Ninguna de las dos cargas se rehace sola. Si borras `archivos_bnpl`, hay que volver a conseguir los
 archivos: por eso vive en un schema aparte de `bnpl`, que sí se puede tirar y reconstruir.
+El tercero sí es idempotente y sin `--aplicar` solo dice qué cambiaría; su detalle está en
+[`ayuda_tablero/README.md`](ayuda_tablero/README.md).
 
 ### Cada paso por separado
 
@@ -369,6 +413,56 @@ order by started_at desc limit 5;
 
 Si `minutos` da ~17 en vez de ~20, revisa que el paso 3 haya corrido las **seis** tablas.
 
+#### Si el modo es `error`
+
+El traceback dice **dónde** reventó; esta tabla dice **en qué estado quedó la base**, que no es lo
+mismo y es lo que decide qué hay que correr:
+
+| Falló en | Qué quedó en la base | Volver a correr | Qué correr |
+|---|---|---|---|
+| 1/6 frescura | nada, salvo lo que se escribió en `bnpl_ops` | sí | `main.py` |
+| 2/6 staging Mongo | **la tabla conserva la carga anterior**: el `TRUNCATE`/`DELETE` va en la misma transacción que el COPY y corre *después* de que la extracción trajo datos (`etl_mongo_to_postgres.py:429-452`). Si Mongo devuelve cero, la etapa aborta sin tocar el staging. Las tablas anteriores quedaron completas | sí, es idempotente | ver el recuadro de abajo |
+| 3/6 Redshift | nada a medias: DDL + `TRUNCATE` + carga van en **una transacción por tabla** (`etl_redshift_to_postgres.py:320-323`). La que falló conserva el dato anterior | sí | `etl_redshift_to_postgres.py --solo <tabla>` |
+| 4/6 capa de negocio, **sin** `--rebuild` | nada: `REFRESH MATERIALIZED VIEW` es una sola sentencia; si falla, la matview conserva su contenido anterior | sí | `build_bnpl.py --solo <vista>` |
+| 4/6 capa de negocio, **con** `--rebuild` | **la vista que falló ya no existe, y las que dependían de ella tampoco**: cada `.sql` abre con `DROP MATERIALIZED VIEW … CASCADE` | sí, pero **nunca con `--solo`** | `build_bnpl.py --rebuild` completo |
+| 4/6 vistas de `pbi_bnpl` | **sólo la que falló queda fuera**: hay un `try/except` por vista, así que las demás sí se crean y `sql/16_pbi_grants.sql` se reaplica al final. La corrida **falla igual**, con el `raise` después de los grants; el refresh de Power BI va a fallar en esa tabla | sí | `build_bnpl.py` sin flags: rehace las 19 al final |
+| 5/6 calidad · 6/6 frescura | solo `bnpl_ops`. El tablero ya quedó cargado | sí | `ops\quality_checks.py` · `ops\check_freshness.py` |
+
+> **El caso que hay que mirar dos veces: `credit_order_production`.** Es la única colección en modo
+> ventana (`etl_mongo_to_postgres.py:58`). Si el pipeline murió durante su recarga completa mensual,
+> la transacción se revirtió y la tabla **conserva la carga anterior**; en `etl_runs` no queda fila
+> `modo='full'` de ese intento. Eso juega a favor: `_decidir_modo` vuelve a ver
+> `dias >= FULL_CADA_DIAS` y **rehace la recarga completa sola**, tanto desde `main.py` como desde
+> `etl_mongo_to_postgres.py --solo credit_order_production` — los dos caminos ejecutan el mismo
+> código, `main.py` no hace nada más que pasar el flag.
+>
+> Si lo que quieres es garantizar que el reintento sea completo y no la ventana de 60 días —por
+> ejemplo, porque el full que murió lo habías forzado tú con `--full` teniendo uno exitoso de hace
+> menos de 30 días— cuesta lo mismo y no falla nunca:
+>
+> ```powershell
+> .venv\Scripts\python.exe etl_mongo_to_postgres.py --solo credit_order_production --full
+> ```
+
+**Antes de re-correr, mira qué falta**; no repitas 20 minutos a ciegas:
+
+```sql
+-- deben salir 46 tablas con started_at de hoy
+select distinct on (tabla) tabla, started_at, modo, filas
+from bnpl_ops.etl_runs where tabla <> 'pipeline'
+order by tabla, started_at desc;
+
+-- deben ser 19
+select count(*) from information_schema.views where table_schema = 'pbi_bnpl';
+```
+
+**Casi siempre sale más barato re-correr el paso que el pipeline**: `main.py` completo vuelve a bajar
+Mongo (~14 min); si lo que falló fue el paso 4, `build_bnpl.py` son 85 segundos. `--sin-redshift`
+reprocesa sin volver a pagar los 3.5 min de Redshift.
+
+**Si el refresh ya corrió sobre una base a medias**, el tablero muestra números incompletos y no lo
+dice. Arregla la base y dispara un refresh a mano desde el Service.
+
 ### 2. ¿Cargó todo?
 
 ```sql
@@ -399,19 +493,68 @@ al día con Mongo.
 |---|---|---|
 | `OK` | menos de 24 h sin escrituras | nada |
 | `WARN` | entre 24 y 48 h | vigilar; puede ser normal en colecciones de baja frecuencia |
-| `CRIT` en fuente | más de 48 h sin escrituras en Mongo | **es de ingeniería, no del pipeline**: la fuente dejó de alimentarse |
+| `CRIT` en fuente | más de 48 h sin escrituras en Mongo | **es de ingeniería, no del pipeline**: la fuente dejó de alimentarse. Abre ticket a {{EQUIPO_ING}} y agrégala a *Incidencias abiertas con las fuentes* |
 | `CRIT` en staging | falta más del 1% de los documentos | correr el ETL; si persiste, `--full` |
 | `FALTA` | la tabla no existe en el staging | correr el ETL |
 
 Para saber **desde cuándo** una fuente dejó de actualizarse, `bnpl_ops.freshness_history` guarda una
 fila por colección por corrida.
 
-**Alertas de calidad que hoy están abiertas y son normales** (no las persigas):
+**Los 24 chequeos de calidad.** `ops/quality_checks.py` corre 24: **9 sobre el staging** y **15
+identidades entre capas**. Hoy solo dos están en alerta. El canal de revisión es **la vista, no el
+log**: `bnpl_ops.v_quality_alerts` pone los CRIT hasta arriba.
 
-| Check | Filas | Por qué |
-|---|---:|---|
-| `credit_order_sales_order_id_nulo` | ~1,469 | Órdenes que Mongo trae sin `salesOrderId`. Es basura de origen; el staging es espejo fiel y no la corrige. |
-| `pagos_sin_orden` | ~276 | Pagos cuya transacción no existe en `credit-order`. Analizado en `analisis/pagos_sin_orden.py`. |
+Los nueve del staging:
+
+| Check | Sev | Qué significa si sale en alerta | Qué hacer |
+|---|---|---|---|
+| `credit_order_sales_order_id_nulo` | CRIT | Órdenes que Mongo trae sin `salesOrderId`: no se agrupan ni se unen con delivery | **Ruido conocido: ~1,469 filas.** Basura de origen, y el staging es espejo fiel. Actuar solo si salta de golpe |
+| `credit_order_delivery_at_nulo` | CRIT | Órdenes `COMPLETED` sin `deliveryAt`: sin eso no hay `expectedPaymentDate` y el pedido se cae del PAR | Hoy en 0. Si deja de estar en 0, **cambió la fuente**: escalar a Ingeniería antes de dar la mora por buena |
+| `credit_order_sales_order_id_multi_cliente` | WARN | Un `salesOrderId` de más de un `netsuiteId` | Rompe el grano de `grouped_orders`. Revisar con `analisis/unicidad_llaves.py` |
+| `approval_netsuite_id_duplicado` | WARN | Cliente con más de una aprobación | Esperado: `grid_bnpl` se queda con una. Vigilar solo si crece |
+| `aprobados_sin_customer` | WARN | Aprobados sin ficha en `fintech-customers` | Sube mientras esa fuente esté en CRIT. Son clientes sin `shopName` ni teléfono en el tablero |
+| `payment_report_transaction_id_duplicado` | WARN | Transacción repetida en `payment-report`: **duplica revenue** | Eran 3 filas en la comparación del 2026-08-12. Si crece, el revenue está inflado |
+| `ordenes_sin_delivery` | WARN | Órdenes `COMPLETED` sin registro en `state-of-delivery` | Suele ser desfase de la fuente de entregas; se cierra en la corrida siguiente |
+| `pagos_sin_orden` | WARN | Pagos cuya transacción no existe en `credit-order` | **Ruido conocido: ~276 filas.** Analizado en `analisis/pagos_sin_orden.py` |
+| `cargas_manuales_viejas` | WARN | Una de las cinco cargas manuales lleva más de 90 días sin recargarse, o nunca se registró en `etl_runs` | Recargar el archivo o el Excel que corresponda (README → *Los archivos del Drive*) |
+
+Las quince identidades entre capas — las mismas de [¿Cuadran los conteos?](#4-cuadran-los-conteos),
+que desde el 2026-08-14 ya no se copian y pegan a mano. Cada una mide `filas de más o de menos`
+contra su regla, así que **0 es lo único que cuenta como OK**:
+
+| Check | Sev | Regla |
+|---|---|---|
+| `identidad_grouped_orders` | CRIT | `pbi_bnpl.bnpl_grouped_orders` = `bnpl.grouped_orders` |
+| `identidad_loss_rates` | CRIT | `pbi_bnpl.bnpl_loss_rates` = `bnpl.loss_rates` |
+| `identidad_revenue_comision` | CRIT | `bnpl.revenue_comision` = `bnpl.loss_rates` |
+| `identidad_bnpl_par` | CRIT | `pbi_bnpl.bnpl_par` = `bnpl.par_snapshot` |
+| `identidad_months_closes` | CRIT | `pbi_bnpl.months_closes` = `bnpl.par_snapshot` |
+| `identidad_vintage_analysis` | CRIT | `pbi_bnpl.vintage_analysis` = `bnpl.vintage_analysis` |
+| `identidad_dim_ruta_actual` | CRIT | `bnpl.dim_ruta_actual` = `redshift_bnpl.estructura_comercial` |
+| `identidad_dim_ruta_cliente_scd` | CRIT | `bnpl.dim_ruta_cliente_scd` = `redshift_bnpl.ruta_cliente_scd` |
+| `identidad_cosechas_agg` | CRIT | `pbi_bnpl.bnpl_cosechas_agg` = `redshift_bnpl.cosechas_agg` |
+| `identidad_seasonality_delta` | CRIT | `pbi_bnpl.seasonality_delta` = `redshift_bnpl.estacionalidad_mes` × 11 |
+| `identidad_grid_bnpl` | WARN | `pbi_bnpl.grid_bnpl` = `bnpl.grid_bnpl` − 71 — el delta está explicado abajo, pero **puede moverse** |
+| `identidad_odds_combinations` · `_atr_combinations_iv` · `_ps_transactional_profile` · `_bnpl_cac` | WARN | cada vista de `pbi_bnpl` = su tabla de `archivos_bnpl`. Son carga manual: desfasarse es normal hasta que alguien recargue |
+
+**Una identidad CRIT que no cuadra cuesta la corrida.** `main.py` las mira aparte del resto: si
+alguna sale `ALERTA` —o `NO_APLICABLE`, que es lo mismo, porque una identidad que no se pudo medir
+tampoco está comprobada— el pipeline **termina los seis pasos**, registra
+`modo = 'ok_identidades_rotas'` en `bnpl_ops.etl_runs` y **sale con código 1** para que el Task
+Scheduler lo marque como fallido. Un pipeline que devuelve 0 con una capa a medias es un pipeline
+que miente.
+
+Un chequeo cuya tabla o columna no exista sale como `NO_APLICABLE`, no como OK: eso significa que a
+la extracción le falta un campo.
+
+**Los dos marcados como ruido conocido son los únicos que hoy están abiertos. Cualquier otro que
+aparezca es nuevo y hay que revisarlo**, empezando por su historia:
+
+```sql
+select * from bnpl_ops.v_quality_alerts;
+select checked_at, n_filas from bnpl_ops.data_quality_checks
+where check_name = '<el que salió>' order by checked_at desc limit 30;
+```
 
 ### 4. ¿Cuadran los conteos?
 
@@ -516,6 +659,19 @@ Hoy no hace falta.
   paquete `postgres_local_client`). **Toda extracción va por ellas**, no con clientes propios.
 - Credenciales AWS para el túnel SSM de Mongo (perfil `bnpl` en `.env.mongo_extractor`).
 - Acceso al Drive compartido montado en `D:\Shared drives\` (sólo para las dos cargas manuales).
+- **Power BI Desktop con intérprete de Python configurado.** 9 de los 196 visuales del tablero son
+  `pythonVisual` y en los 9 la primera línea ejecutable es `import seaborn as sns`. Sin un intérprete
+  registrado en *Archivo → Opciones → Opciones globales → Scripts de Python*, esos 9 visuales pintan
+  un recuadro de error. **No sale en ningún log.** Dónde están:
+
+  | Página | Visuales |
+  |---|---|
+  | Resumen Ejecutivo (`a4eca66684d1a46d5446`) — es la primera que se abre | `f9c2e0e39c8a6d2e5603` |
+  | Cambio en Comportamiento de Compra (`f2df469501207dcc7b25`) | `244b55881eac31d2270e`, `96ef08940b40c3457d10`, `c8bf341930b0123a7e45`, `cf3a8e4f07bbee408a67` |
+  | Return On Investment (`2e0ca9895d50e2380127`, oculta en lectura) | `073fdf579c77450e4321`, `346bffe961ebe71c7aa5`, `3ded30fe4e178cc60974`, `89cfea3537b6a97e47d8` |
+
+  Paquetes que usan los scripts: `seaborn`, `matplotlib`, `numpy` y `pandas`. Si Desktop apunta al
+  `.venv` del proyecto, quedan cubiertos con el `pip install` de la sección de despliegue.
 
 **El proyecto ya no arma la conexión a PostgreSQL.** No lee `BD_ENGINE_RABBIT_LOCAL` ni llama a
 `create_engine`: todo el acceso pasa por `postgres_local_client`, que resuelve host, credenciales
@@ -534,13 +690,63 @@ Los `_rw` son los únicos con escritura y `ALLOW_DDL`; los demás rechazan cualq
 > `bnpl_rw` es el alias que crea los tres schemas (`bnpl`, `pbi_bnpl`, `archivos_bnpl`). No hay un
 > alias por schema: los tres los escribe el mismo rol.
 
+> **Hay un `.env` en la raíz y no es de este proyecto.** Trae tres URIs `postgresql+psycopg2://` con
+> usuario y contraseña: `BD_ENGINE_RABBIT_LOCAL`, `BD_ENGINE_RABBIT_LOCAL_SOPORTE` y
+> `BD_ENGINE_RABBIT_LOCAL_PBI` — las tres apuntan a la misma base, `localhost:9553/rabbit-bi-local`.
+> **Ningún script del pipeline lo lee.** Lo genera `postgresql_extractor_uploader` desde el alias
+> `local_rw` de su propio `.env.postgres_local_client`, así que se regenera solo si lo borras — de
+> hecho se regeneró durante la auditoría del 2026-08-14 y le apareció la tercera variable. Está en
+> `.gitignore:2-3` y nunca se commiteó (verificado con `git log --all --diff-filter=A -- .env`).
+> Resumen: no hay que crearlo, no hay que mantenerlo y no hay que commitearlo; si esa contraseña se
+> rota, este archivo queda viejo y da igual.
+
+### Quién administra cada acceso
+
+Arriba está **qué** hace falta. Esto es **a quién pedírselo** el día que otra persona tenga que
+levantar el pipeline. Hoy todo cuelga de una sola cuenta de Windows (`Administrator` en la VM): ése
+es el bus factor, y no se arregla documentándolo, pero sí se acota.
+
+| Acceso | Dónde vive hoy | Quién lo administra | Cómo se pide |
+|---|---|---|---|
+| Perfil AWS del túnel SSM | `~/.aws/credentials` de `Administrator` + `.env.mongo_extractor` (perfil `bnpl`) | {{EQUIPO}} · {{NOMBRE}} | {{TICKET}} |
+| Permiso de Session Manager sobre el bastión | rol de AWS {{ROL}} | {{EQUIPO}} | {{TICKET}} |
+| Redshift `data-rabbit-prod` | `.env.redshift_extractor` | {{EQUIPO}} · {{NOMBRE}} | {{TICKET}} |
+| PostgreSQL `rabbit-bi-local`, alias `*_rw` | `.env.postgres_local_client` en la VM | {{NOMBRE}} | {{CORREO}} |
+| Rol `pbi_gateway` (solo lectura sobre `pbi_bnpl`) | gestor de contraseñas {{CUAL}} | {{NOMBRE}} | {{CORREO}} |
+| VM: RDP, servicio `postgresql-x64-17`, Task Scheduler | instancia {{ID}} | {{EQUIPO}} | {{TICKET}} |
+| Gateway `Gateway_BI` y workspace de Power BI | Power BI Service | {{NOMBRE}} | {{CORREO}} |
+| Drive compartido `D:\Shared drives\Data Room - BI & Data Analytics` | Google Drive | {{NOMBRE}} | {{CORREO}} |
+| `mongo_extractor`, `redshift_extractor`, `postgresql_extractor_uploader` | `C:\Users\Administrator\Documents\Funciones\` — **fuera del repo y sin versionar** | {{NOMBRE}} | {{CORREO}} |
+| Repositorio git | `github.com/russellquiroz-spec/buy_now_pay_later` — **cuenta personal, no de la organización** | {{NOMBRE}} | mover a la org: {{TICKET}} |
+
+Tres cosas de esa tabla que no dependen de nadie más y hay que cerrar:
+
+1. **Las tres librerías internas no tienen copia en ningún repo ni versión fijada.** Sin ellas el
+   pipeline no arranca, y si esa carpeta se pierde no hay de dónde reinstalarlas. (Lo cierra
+   `requirements.txt`.)
+2. **El remoto es una cuenta personal.** Si esa cuenta se va, se va el historial.
+3. **La tarea programada corre como el usuario con credenciales AWS**: con `SYSTEM` el túnel SSM no
+   levanta, así que rotar o dar de baja esa cuenta rompe la corrida diaria del día siguiente.
+
+Ninguna prueba única cubre las diez filas. Cada una prueba lo suyo, todas de lectura:
+
+```powershell
+.venv\Scripts\python.exe ops\check_freshness.py                              # tunel SSM + PostgreSQL local
+.venv\Scripts\python.exe etl_redshift_to_postgres.py --solo route_mapping    # Redshift
+Get-ChildItem "D:\Shared drives\Data Room - BI & Data Analytics" | Select-Object -First 3   # Drive
+Get-Service postgresql-x64-17 | Select-Object Status                         # acceso a la VM
+```
+
+El gateway, el workspace y el rol `pbi_gateway` no se prueban desde aquí: se comprueban disparando
+un refresh a mano desde el Service.
+
 ## Las tablas de la capa de negocio
 
 | Vista | Grano | Para qué |
 |---|---|---|
 | `bnpl.dim_ruta_actual` | cliente | ruta, supervisor y oficina **vigentes** |
 | `bnpl.dim_ruta_cliente_scd` | cliente × tramo | ruta **histórica**, como intervalos de vigencia |
-| `bnpl.grouped_orders` | cliente + sales order | base: cohort, índice de pedido, entrega |
+| `bnpl.grouped_orders` | cliente + sales order + order_id + estatus + canal | base: cohort, índice de pedido, entrega. **No** es 1 fila por sales order |
 | `bnpl.loss_rates` | orden entregada | morosidad (PAR), días de atraso, revenue |
 | `bnpl.par_snapshot` | orden × corte mensual | auditar de dónde sale cada tasa del vintage |
 | `bnpl.vintage_analysis` | cohort × mes de maduración | evolución del PAR por cohort |
@@ -617,9 +823,11 @@ baja el 8% de las filas en vez del 100%.
 Lo que la ventana no cubre son las órdenes que quedaron en estado no final hace más tiempo (~225
 sales orders atascados). Esas se re-extraen dirigidas por `salesOrderId` en la misma llamada.
 
-> Al 2026-08-13, `fintech-customers-production` lleva 21 días en CRIT: dejó de recibir escrituras el
-> 22-jul. Está reportado a ingeniería. Impacto: los clientes enrolados desde entonces no tienen
-> `shopName` ni teléfono.
+> Al 2026-08-14, `fintech-customers-production` lleva **513 h** en CRIT: dejó de recibir escrituras
+> el 2026-07-22. Reportado a {{EQUIPO_ING}} el {{FECHA}}, ticket {{TICKET}}, lo lleva {{NOMBRE}}.
+> Impacto: los clientes enrolados desde entonces no tienen `shopName` ni teléfono. El seguimiento va
+> en *Dueño, escalamiento y SLA → Incidencias abiertas con las fuentes*; si esa fila no se actualiza,
+> nadie lo está siguiendo.
 
 ## Power BI
 
@@ -739,12 +947,14 @@ El pipeline está pensado para correr desatendido en una VM. En orden:
 git clone https://github.com/russellquiroz-spec/buy_now_pay_later.git
 cd buy_now_pay_later
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install pandas python-dotenv openpyxl matplotlib
+.venv\Scripts\python.exe -m pip install pandas python-dotenv openpyxl matplotlib seaborn
 ```
 
 `pandas` y `matplotlib` son para los scripts de análisis; `openpyxl` lo necesita
-`carga_clientes_concurso.py` para leer el Excel. El resto de las dependencias (SQLAlchemy, psycopg,
-sshtunnel) las arrastran las librerías internas del paso 2.
+`carga_clientes_concurso.py` para leer el Excel; `seaborn` **no lo usa el pipeline** sino los 9
+visuales de Python del tablero (ver *Requisitos*), y se instala aquí para que el venv que apunte
+Power BI Desktop ya lo traiga. El resto de las dependencias (SQLAlchemy, psycopg, sshtunnel) las
+arrastran las librerías internas del paso 2.
 
 **2. Instalar las librerías internas** (editable, desde donde estén en la VM):
 
@@ -756,9 +966,10 @@ sshtunnel) las arrastran las librerías internas del paso 2.
 
 **3. No hay `.env` que crear en la raíz.** Cada librería lee el suyo (`.env.mongo_extractor`,
 `.env.redshift_extractor`, `.env.postgres_local_client`), que debe existir en la VM con el perfil
-`bnpl` de Mongo, el de Redshift y los alias de PostgreSQL de la tabla de *Requisitos*. Ninguno se
-versiona. Los alias que el pipeline nombra tienen que existir con esos nombres exactos, o la
-primera llamada falla con `ConfigError` diciendo cuáles hay disponibles.
+correspondiente. Si ves un `.env` en la raíz, no lo creaste tú y no lo mantienes tú: lo genera
+`postgresql_extractor_uploader` y ningún script del pipeline lo lee — ver *Requisitos*. Ninguno de
+los tres se versiona, y los alias que el pipeline nombra tienen que existir con esos nombres
+exactos, o la primera llamada falla con `ConfigError` diciendo cuáles hay disponibles.
 
 **4. Verificar los accesos antes de programar nada.** Es donde suele fallar:
 
@@ -862,6 +1073,37 @@ El código queda como referencia de cómo se hizo la carga (COPY por lotes, `cre
 por meses para no repetir los 2.5 GB de RAM). Si alguna vez hay que mover datos entre dos bases
 distintas, se revive definiendo dos alias separados y pasando `db=` a cada llamada.
 
+## Respaldo y reconstrucción
+
+Esto es un data mart derivado: casi todo se rehace corriendo el pipeline. El riesgo no es perder el
+dato, es **cuánto tarda volver a tenerlo**. Hoy no hay respaldo de ningún tipo.
+
+| Schema | ¿Se rehace solo? | Con qué | Cuánto tarda |
+|---|---|---|---|
+| `mongo_bnpl` | sí | `etl_mongo_to_postgres.py --full` | 20–40 min (la variación es del túnel SSM) |
+| `redshift_bnpl` | sí | `etl_redshift_to_postgres.py` | 3.5 min · 1.29M filas |
+| `bnpl` (11 matviews) | sí | `build_bnpl.py --rebuild` | 1.4 min |
+| `pbi_bnpl` (19 vistas) | sí | `build_bnpl.py` | < 1 s |
+| `archivos_bnpl` | **no** | volver a bajar los 4 CSV del Drive | depende de que sigan ahí: `ps_transactional_profile` es del 2026-01-08 |
+| `bnpl.bnpl_clientes_concurso` | **no** | volver a pedir el Excel a Comercial | depende de una persona |
+| `bnpl_ops` | **no** | nada: el histórico de frescura, calidad y corridas se pierde | irrecuperable |
+
+**RTO de máquina: ~45 min**, y eso suponiendo que el túnel SSM, Redshift y las tres librerías
+internas estén en pie. Lo que puede alargarlo a días son las tres últimas filas.
+
+**Por eso el respaldo es solo de esas tres.** Son pocos MB y no se reconstruyen:
+
+```powershell
+ops\respaldo.bat
+schtasks /Create /TN "BNPL Respaldo" /SC WEEKLY /D SUN /ST 04:00 ^
+  /TR "C:\ruta\buy_now_pay_later\ops\respaldo.bat" /RU <usuario> /RP *
+```
+
+Restaurar: `pg_restore -h localhost -p 9553 -d rabbit-bi-local -c <archivo>.dump`.
+
+**Pendiente de confirmar con quien administra la VM**: si hay snapshot de EBS del disco donde vive
+`postgresql-x64-17`. Si lo hay, esto es un complemento; si no, es el único respaldo que existe.
+
 ## Estructura
 
 ```
@@ -873,6 +1115,11 @@ build_bnpl.py               Construye bnpl.* (11 matviews) y pbi_bnpl.* (19 vist
 carga_archivos_bnpl.py      MANUAL: 4 CSV del Drive → archivos_bnpl.*
 carga_clientes_concurso.py  MANUAL: Excel de negocio → bnpl.bnpl_clientes_concurso
 migrar_a_vm.py              DEPRECADO: su base origen ya no existe (ver arriba)
+DICCIONARIO.md              GENERADO: 21 tablas, 59 campos, 66 medidas. Sale de ayuda_tablero/conocimiento.py
+ayuda_tablero/              MANUAL: los 168 tooltips del PBIP (ver su README)
+  conocimiento.py           El catálogo: 21 tablas, 59 campos, 66 medidas. Fuente de DICCIONARIO.md
+  documentar_tablero.py     La entrada: sin flags dice qué cambiaría, --aplicar lo escribe
+  _datos/                   inventario.json y textos.json: derivados, no se versionan
 ops/
   config.py                 Fuentes, umbrales, alias
   check_freshness.py        Frescura de Mongo vs staging

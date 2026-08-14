@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+ops/respaldo.local.bat
 
 # Entorno
 .venv/

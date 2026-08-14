@@ -4457,7 +4457,22 @@ PASO 0 · Medir (10 min, sin tocar nada)
   .venv\Scripts\python.exe ayuda_tablero\inventario.py
   .venv\Scripts\python.exe ayuda_tablero\revisar_referencias.py
   La sección "VISUALES ATADOS A UNA JERARQUIA DE FECHAS AUTOMATICA" es el inventario de trabajo.
-  Hoy da 18 visuales sobre 7 columnas base:
+
+  > **CORREGIDO EL 2026-08-14, DESPUÉS DE APLICAR O3.3.** Este inventario decía 18 visuales sobre 7
+  > columnas base, y la nota del final explicaba que eran 18 y no 19 porque el visual
+  > `3fae7adac63213c97e39` ("Ever Activated Customers") **ya había perdido** su jerarquía y usaba un
+  > `Column` plano. **O3.3 se la devuelve**, que es justo lo que esa acción existe para hacer. Así que
+  > al aplicar O3.3 el inventario de O3.14 sube a **19 visuales sobre 8 columnas base**, con
+  > `grid_bnpl[bnplActivatedAt] → 1 visual` como fila nueva. Medido con `revisar_referencias.py`
+  > después de O3.3: `TOTAL: 19 visuales sobre 8 columnas base`.
+  >
+  > Consecuencia para el PASO 2: son **8 columnas sustitutas en 7 tablas**, no 7 en 6. La que falta es
+  > `grid_bnpl: bnplActivatedMes = FORMAT('grid_bnpl'[bnplActivatedAt], "yyyy-mm")`.
+  >
+  > Este choque **no está** en «Acciones que se pisan». Si algún día se decide NO hacer O3.14, O3.3 se
+  > queda como está y no pasa nada; si se hace, hay que re-apuntar 19 visuales, no 18.
+
+  Antes de O3.3 daba 18 visuales sobre 7 columnas base:
 
     bnpl_grouped_orders[createdAtClean]              5  KPI's Tracking
         12381723ef8668b870ba  Frecuencia de compra por cliente activo
@@ -5328,6 +5343,10 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 | **O4.15** y el árbol de `analisis_one_shot` | Si se borra `analisis_bnpl_one_shot.py`, no se escribe su renglón | Ya resuelto en el texto de O4.15 |
 | **O1.8** y **O3.14** | O1.8 crea una `LocalDateTable` nueva al retipar `paymentDate` | O1.8 antes; O3.14 la barre |
 | **O0.4** + **O4.x** (todas las del README) | Los anclajes se corren entre sí | De abajo hacia arriba, localizando el texto |
+| **O3.3** y **O3.14** *(no estaba listado)* | O3.3 devuelve la jerarquía a `3fae7adac63213c97e39`, así que el inventario de O3.14 sube de **18 visuales sobre 7 columnas** a **19 sobre 8**. La nota de O3.14 dice que son 18 «porque ese visual ya la perdió» — deja de ser cierto en cuanto se aplica O3.3 | Si se hacen las dos: O3.3 primero y re-medir con `revisar_referencias.py` antes del PASO 2 |
+| **O3.10** y **O4.2c** *(no estaba listado)* | O4.2c está redactada como recomendación futura («Renombrar las seis gráficas… Nombres propuestos…») y O3.10 ya las renombró, serie incluida | O3.10 primero; escribir O4.2c en pasado y tachada |
+| **O2.8** y **O2.14** *(no estaba listado)* | O2.8 agrega un `print` nuevo en `run()` que O2.14 tiene que convertir, o su verificación falla con un resultado | O2.8 primero; O2.14 sobre el resultado |
+| **O2.2** y `16_pbi_grants.sql` *(no estaba listado)* | Con el `raise` justo tras el bucle, una vista rota deja a `pbi_gateway` sin permisos sobre las sanas: el archivo de grants nunca corre | El `raise` va DESPUÉS de aplicar los grants |
 
 ---
 
@@ -5377,20 +5396,38 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 - [x] O2.17 `ops/notificar.py` + enganche en `main.py` — *falta el `.env.bnpl_pipeline` (credencial SMTP y destinatarios)*
 
 ### Ola 3 — Modelo y nombres
-- [ ] O3.1 3 consultas "Errores en…" y 4 queryGroups borrados
-- [ ] O3.2 4 tablas calculadas muertas borradas **en Desktop**
-- [ ] O3.3 Jerarquía Año/Mes en "Ever Activated Customers"
-- [ ] O3.4 Slicer "Cosecha Enrolamiento" sin selección persistida (**Desktop**)
-- [ ] O3.5 `inventario.py` recolecta las cinco fuentes de referencias (973 refs)
-- [ ] O3.6 `revisar_referencias.py` reescrito (reporta `TARGET.Area` y nada más)
-- [ ] O3.7 `TARGET.Area` borrado del textbox de Audiencias (archivo en 37 líneas)
-- [ ] O3.8 Cuatro títulos del Funnel + subtítulo del primero
-- [ ] O3.9 Tres `nativeQueryRef` del Funnel (sin tocar `queryRef`)
-- [ ] O3.10 Seis gráficas de tasa PAR: título y serie (ojo con la coma en `8a726824`)
-- [ ] O3.11 Seis subtítulos del Vintage corregidos
-- [ ] O3.12 Cuatro vistas `v_pbi_*` fuera del `.sql` + 4 `DROP` a mano
-- [ ] O3.13 `activePageName` a la portada + nota en `ayuda_tablero/README.md`
-- [ ] O3.14 Fecha automática apagada (7 pasos; compuerta = `TOTAL: 0` en el paso 4)
+- [x] O3.1 3 consultas "Errores en…" y 4 queryGroups borrados — *falta abrir el `.pbip` y confirmar que carga*
+- [ ] **O3.2 REQUIERE DESKTOP** — 4 tablas calculadas muertas. El plan mismo dice que es el único que no conviene hacer en texto
+- [x] O3.3 Jerarquía Año/Mes en "Ever Activated Customers" — **sube el inventario de O3.14 a 19/8**
+- [x] O3.4 Slicer "Cosecha Enrolamiento" sin selección persistida
+- [x] O3.5 `inventario.py` recolecta las cinco fuentes de referencias — **971 refs**, no 973 (O3.3 suma 1, O3.7 resta 1... y sigue moviéndose)
+- [x] O3.6 `revisar_referencias.py` reescrito — reportó `TARGET.Area` y, tras O3.7, **ninguna**
+- [x] O3.7 `TARGET.Area` borrado del textbox de Audiencias — **el archivo queda en 38 líneas, no 37**: el revisor midió terminadores CRLF, no líneas
+- [x] O3.8 Cuatro títulos del Funnel + subtítulo del primero
+- [x] O3.9 Tres `nativeQueryRef` del Funnel (sin tocar `queryRef`)
+- [x] O3.10 Seis gráficas de tasa PAR: título y serie
+- [x] O3.11 Seis subtítulos del Vintage corregidos
+- [x] O3.12 Cuatro vistas `v_pbi_*` fuera del `.sql` + 4 `DROP` a mano (pendientes de correr sobre la VM)
+- [x] O3.13 `activePageName` a la portada + nota en `ayuda_tablero/README.md`
+- [ ] **O3.14 REQUIERE DESKTOP** — fecha automática. Jornada larga, riesgo alto. **Inventario corregido: 19 visuales sobre 8 columnas base**, no 18/7
+
+### Ola 4 — Documentación, gobierno y continuidad
+- [x] O4.1 Grano de `grouped_orders` en `sql/03:1` y en el README
+- [x] O4.2 Tres afirmaciones de `PENDIENTES` — **eran 3 citas del título viejo, no 4**: la cuarta usaba la forma abreviada `PAR 30 Rate…` que ningún grep del título completo atrapa
+- [x] O4.3 `ayuda_tablero/README.md`: los cinco orígenes del revisor
+- [x] O4.4 Requisito de Python + `seaborn` para los 9 `pythonVisual`
+- [x] O4.5 Runbook de falla — **reescrito**: con O1.1, el staging ya NO queda vacío; 27→46 tablas; 18→19 vistas
+- [x] O4.6 Los chequeos de calidad documentados — **son 24, no 9**, y **10 CRIT / 5 WARN** entre las identidades
+- [x] O4.7 `ayuda_tablero/diccionario.py` creado + las dos líneas del README — *falta correr `--escribir` para generar `DICCIONARIO.md`*
+- [x] O4.8 `ops/respaldo.bat` + `.gitignore` + sección de RTO — *falta rellenar `PGUSER` y el `pgpass.conf`*
+- [x] O4.9 Dueño, escalamiento y SLA — **23 líneas con `{{TOKEN}}` por llenar**
+- [x] O4.10 Quién administra cada acceso (10 filas)
+- [x] O4.11 Tabla partida de `PENDIENTES` reparada
+- [x] O4.12 `plan_implementacion.md` fechado como histórico + Fase 6 cerrada
+- [x] O4.13 Las cinco relaciones que cambió la migración + inventario de PII
+- [ ] **O4.14 REQUIERE DESKTOP** — medición de los dos escenarios de `months_closes`; mueve $3.88M y espera a Riesgo/Finanzas
+- [x] O4.15 `analisis_one_shot/README.md` + `.env` de la raíz + `analisis_bnpl_one_shot.py` borrado
+- [x] O4.16 `ayuda_tablero/` en el diagrama y en el árbol; "tres pasos manuales"
 
 ### Ola 4 — Documentación, gobierno y continuidad
 - [ ] O4.1 Grano de `grouped_orders` en `sql/03:1` y `README:520`
@@ -5424,8 +5461,23 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 
 ## 4. Estado de la aplicación — 2026-08-14
 
-**Aplicadas: 24 de las 67.** Ola 0 completa salvo el `push`, Ola 1 completa, Ola 2 con 13 de 17.
-Olas 3 y 4 sin empezar.
+**Aplicadas: 55 de las 67.** Ola 0 completa salvo el `push`, Ola 1 completa, Ola 2 con 13 de 17,
+Ola 3 con 12 de 14, Ola 4 con 15 de 16.
+
+**Las 12 que faltan, y por qué:**
+
+| Acción | Motivo |
+|---|---|
+| O0.7 (`git push`) | bloqueado por el clasificador de permisos de la sesión; los commits existen en local |
+| O2.3 | el código ya no coincide con el plan: trae `if not solo or rebuild:` con comentario propio |
+| O2.9 | `sql/pbi/20` y `sql/pbi/README.md` se estaban editando a mano en paralelo |
+| O2.15 | vive fuera del repo (`mongo_extractor`); PR aparte y medir antes con `describe-sessions` |
+| O2.16 | depende de O2.15 y de que los tres repos internos estén limpios |
+| O3.2 · O3.14 · O4.14 | requieren Power BI Desktop |
+
+Y estas quedaron **aplicadas pero sin verificar**, porque su comprobación necesita Desktop o la base:
+O1.3-O1.7 (tarjetas y visuales), O1.8, O1.9, O2.5-O2.7, O2.10 (consultas SQL). Las consultas están
+escritas y listas para pegar en el reporte de cada lote.
 
 **Lo que cambió respecto de lo que el plan predecía**, y que hay que tener presente al leer el resto:
 

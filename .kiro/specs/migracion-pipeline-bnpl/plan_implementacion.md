@@ -1,6 +1,8 @@
 # Plan de implementación — Revivir y automatizar el pipeline BNPL
 
-Estado: **en revisión** · Diagnóstico verificado contra Mongo/Redshift/PG el 2026-08-11/12.
+Estado: **histórico — foto del 2026-08-12.** El diagnóstico y las mediciones siguen siendo válidos;
+el estado del proyecto **no**. Las fases 0 a 6 están completas: el estado vigente se lee en
+[`README.md` → Estado](../../../README.md#estado).
 
 Complementa `design.md` (vigente en arquitectura) y lo corrige donde el diagnóstico contra las
 fuentes reales lo desmintió.
@@ -11,6 +13,9 @@ fuentes reales lo desmintió.
 ---
 
 ## Punto de partida real
+
+> Tabla histórica: así estaba el 2026-08-11. Todo lo de aquí se resolvió — incluido el control de
+> versiones, que hoy es `github.com/russellquiroz-spec/buy_now_pay_later`.
 
 | Qué | Estado |
 |---|---|
@@ -659,10 +664,16 @@ están.
 
 ---
 
-## Fase 6 — Power BI
+## Fase 6 — Power BI — **COMPLETADA 2026-08-14**
 
-`.pbix` repuntado de CSVs a PostgreSQL, On-Premises Gateway en la VM, refresh 07:00. Página de estado
-del pipeline alimentada por `bnpl_ops.v_freshness_status`.
+Modelo repuntado de los 18 orígenes CSV a `pbi_bnpl` (publicado), gateway `Gateway_BI` en la misma VM
+con el rol de solo lectura `pbi_gateway`, y actualización programada a las **08:30** hora CDMX.
+Detalle en `README.md` → *Power BI*.
+
+**No se construyó** la "Página de estado del pipeline alimentada por `bnpl_ops.v_freshness_status`"
+que prometía este plan: `sql/pbi/` salta de la 17 a la 20 y no existe esa consulta. La vista sí
+existe y se consulta a mano (`README.md` → *Verificar una corrida*). Si se decide construirla, entra
+como la consulta 19 y como una tabla más del modelo.
 
 ---
 
@@ -679,5 +690,8 @@ del pipeline alimentada por `bnpl_ops.v_freshness_status`.
 6. **`get_report()` con Selenium** del legacy — ¿qué campos aportaba y existen ya en Mongo/Redshift?
 7. **Salidas** — ¿se siguen generando CSVs para el `.pbix` actual, o se corta directo a PostgreSQL?
    (el legacy escribía en latin1, y publicaba además a Slack, Google Sheets y SharePoint).
-8. **VM** — ¿cuál es, y tiene ya Python, credenciales AWS y acceso a PostgreSQL? ¿El PostgreSQL
-   destino es el local de tu máquina o uno en la VM?
+8. ~~**VM**~~ **Cerrado el 2026-08-12**: la VM es `rabbit-bi-local`, el PostgreSQL destino es
+   `localhost:9553/rabbit-bi-local` en esa misma máquina, los datos ya se migraron y la tarea diaria
+   `BNPL Pipeline` ya está registrada (00:00 CDMX / disparador 06:00 UTC). `migrar_a_vm.py` quedó
+   deprecado. El refresh de Power BI también quedó corregido el 2026-08-14 —de las 07:00 a las
+   **08:30**—, así que el despliegue ya no tiene nada abierto (`README.md` → *Despliegue a la VM*).

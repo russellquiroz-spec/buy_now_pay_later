@@ -490,8 +490,8 @@ Recorrido el `.Report` visual por visual, las cuatro tablas se consumen exactame
 | `atr_combinations_iv` | Default Customer Profile — **HiddenInViewMode** |
 
 `HiddenInViewMode` significa que quien abre el reporte publicado **no ve esa página**: sólo aparece
-para quien edita. De 14 páginas del tablero, 11 son visibles; las ocultas son *Default Customer
-Profile*, *Return On Investment* y *Search*.
+para quien edita. De 15 páginas del tablero, 12 son visibles; las ocultas son *Default Customer
+Profile*, *Return On Investment* y *Search*. (La 15ª es la portada *Cómo leer este tablero*.)
 
 **Qué se simplifica al quitarlas**: el modelo baja de **18 orígenes externos a 14**, se dejan de
 cargar a mano **85,454 filas** de espejo (84,986 + 468), y desaparece la pregunta §10.1 del corte
@@ -590,7 +590,7 @@ las dos está leyendo.
 desplegado, las columnas de la vista sobran y se pueden borrar; si es la de saldo vivo, las
 medidas del tablero están midiendo otra cosa.
 
-### Resuelto con datos (2026-08-14): no son dos, son tres — y dos comparten título en la misma página
+### Resuelto con datos (2026-08-14): no son dos, son tres — y dos compartían título en la misma página
 
 Medido sobre `bnpl.vintage_analysis` (530 filas):
 
@@ -603,18 +603,27 @@ Medido sobre `bnpl.vintage_analysis` (530 filas):
 La tercera es la que faltaba en el diagnóstico original. Y lo grave es dónde vive:
 
 En la página **Vintage Analysis** —visible— hay **dos gráficas de línea, lado a lado**
-(x=286 y x=926, misma altura), y **las dos se titulan `PAR 30 Rate per Enrollment Cohort`**. Sólo
-se distinguen por el subtítulo:
+(x=286 y x=926, misma altura) que hasta el 2026-08-14 **se titulaban exactamente igual** y sólo se
+distinguían por el subtítulo. Ya están renombradas: hoy son
+`PAR 30+ Rate per Enrollment Cohort (over Deployed Capital)` y
+`PAR 30+ Rate per Enrollment Cohort (over Activated Customers)`.
 
-| Posición | Medida | Subtítulo | Línea de referencia "BEP" | Valor hoy |
+| Posición | Medida | Subtítulo | Línea de referencia | Valor hoy |
 |---|---|---|---|---|
-| Izquierda | `par30RateAmount` | *PAR 30+ Balance Over Cumulative Deployed & Matured Capital* | **3.5%** | 6.02% |
-| Derecha | `par30RateCustomers` | *PAR 30+ Customers Over Ever Activated Customers* | **4.0%** | 31.30% |
+| Izquierda | `par30RateAmount` | *PAR 30+ Balance Over Cumulative Deployed & Matured Capital* | **"BEP" 3.5%** | 6.02% |
+| Derecha | `par30RateCustomers` | *PAR 30+ Customers Over Ever Activated Customers* | **"Healthy Value" 4.0%** | 31.30% |
+
+Las dos líneas **no se llaman igual**: la de la izquierda es `'BEP'`
+(`0ff2052f3312e68375b0:193`, valor `0.035D`) y la de la derecha es `'Healthy Value'`
+(`e9aa4c10e1eb56d608b4:193`, valor `0.04D`). Son las **únicas dos gráficas de tasa PAR** de la
+página con línea de referencia: las de PAR 60 y PAR 90 no tienen ninguna. (En la misma página hay
+una tercera línea de referencia, también llamada `'BEP'` y de valor `19D`, pero es de otra gráfica:
+`f4fa8eab332531023583`, *Propaga Net Income Estimation*, y no mide mora.)
 
 Quien mire la de la izquierda concluye "estamos a 1.7× del break-even". Quien mire la de la derecha
-concluye "estamos a **7.8×** del break-even". Mismo título, misma página, misma junta.
+concluye "estamos a **7.8×** del break-even". Era el mismo título, la misma página, la misma junta.
 
-**El umbral de la derecha casi seguro está mal.** Un BEP de 4% tiene sentido como fracción de
+**El umbral de la derecha casi seguro está mal.** Un umbral de 4% tiene sentido como fracción de
 capital desplegado; como fracción de clientes activados no, porque esa serie no ha estado por
 debajo de 4% en ninguna cohorte madura. Se ve como un copiar-pegar del umbral de la gráfica de al
 lado.
@@ -628,9 +637,13 @@ lado.
 
 **Recomendación**, en tres pasos y de menor a mayor riesgo:
 
-1. **Renombrar las dos gráficas** para que digan qué miden (`PAR 30 Rate — sobre capital
-   desplegado` y `— sobre clientes activados`). No cambia ninguna cifra y quita el riesgo de que
-   alguien cite la equivocada.
+1. ~~**Renombrar las seis gráficas de tasa**, no dos~~ — **hecho el 2026-08-14.** El problema se
+   repetía idéntico en PAR 60 (`18f1d6ffead214e615a8` sobre capital vs `5a0d21450822b2cc87ac` sobre
+   clientes) y en PAR 90 (`8a726824316a777192ae` vs `75ae87cd796169d70244`). En los tres pares las
+   dos gráficas nombraban la serie exactamente igual (`nativeQueryRef` y `displayName` en :102-103),
+   así que ni el eje ni el tooltip las distinguían; el subtítulo sí. Hoy las seis se llaman
+   `PAR NN+ Rate per Enrollment Cohort (over Deployed Capital)` y `(over Activated Customers)`, y la
+   serie de cada una lleva el sufijo correspondiente. No cambió ninguna cifra.
 2. **Revisar el BEP de 4%** de la gráfica de clientes con quien lo definió. Si no hay quién lo
    sostenga, quitar la línea: una referencia sin dueño es peor que ninguna.
 3. **Borrar las 6 columnas de tasa** de `bnpl.vintage_analysis` (`par30_rate`, `par60_rate`,
@@ -683,7 +696,8 @@ el orden de magnitud de la pérdida no cambia — pero la cifra deja de estar ma
 El campo enlazado es la **medida `par30RateAmount`**, que sí existe (`vintage_analysis.tmdl:4`).
 `par30Cumulative` aparece únicamente como `queryRef` —el alias con el que se nombra la proyección—
 y no figura en ningún `.tmdl`. Es un nombre viejo que quedó pegado cuando se cambió la medida, no
-un enlace roto: la gráfica es la de "PAR 30 Rate per Enrollment Cohort" de §12 y dibuja el 6.02%.
+un enlace roto: la gráfica es la de `PAR 30+ Rate per Enrollment Cohort (over Deployed Capital)`
+(`0ff2052f3312e68375b0`) de §12, y dibuja el 6.02%.
 
 Vale limpiar el `queryRef` para que no vuelva a confundir a quien lea el modelo, pero **no hay
 nada que decidir sobre qué debería mostrar** y no hay visual en blanco en el tablero. Este punto
@@ -990,15 +1004,17 @@ en esa parte — basta con preguntar si la promoción sigue viva.
 
 ### 16.5 · Cuál es "la" tasa PAR30 — a quien presenta el vintage en comité
 
-> En la página Vintage Analysis hay dos gráficas, una junto a la otra, **las dos tituladas
-> `PAR 30 Rate per Enrollment Cohort`**. La de la izquierda mide PAR30 sobre capital desplegado y
-> hoy marca **6.02%**, con una línea de break-even en 3.5%. La de la derecha mide PAR30 sobre
-> clientes activados, marca **31.30%**, y tiene una línea de break-even en 4.0%. ¿Cuál es la que se
-> cita en comité, y de dónde salió el 4% de la segunda?
+> En la página Vintage Analysis hay dos gráficas, una junto a la otra, que hasta el 2026-08-14
+> **compartían título** y hoy se llaman `PAR 30+ Rate per Enrollment Cohort (over Deployed Capital)`
+> y `PAR 30+ Rate per Enrollment Cohort (over Activated Customers)`. La primera mide PAR30 sobre
+> capital desplegado y hoy marca **6.02%**, con una línea de referencia `'BEP'` en 3.5%. La segunda
+> mide PAR30 sobre clientes activados, marca **31.30%**, y tiene una línea `'Healthy Value'` en
+> 4.0%. ¿Cuál es la que se cita en comité, y de dónde salió el 4% de la segunda?
 
-**Qué cambia**: si la oficial es la de capital, se renombran las gráficas, se quita la línea de 4%
-que no aplica, y se borran las 6 columnas de tasa de la vista que nadie lee. Si la oficial es la de
-clientes, hay que revisar el umbral, porque ninguna cohorte madura ha estado cerca de 4%.
+**Qué cambia**: los títulos ya se separaron, así que lo que queda por decidir es el umbral. Si la
+oficial es la de capital, se quita la línea de 4% que no aplica y se borran las 6 columnas de tasa
+de la vista que nadie lee. Si la oficial es la de clientes, hay que revisar ese umbral, porque
+ninguna cohorte madura ha estado cerca de 4%.
 
 ### 16.6 · ¿Vuelve a abrirse la página de ROI? — a Negocio
 
@@ -1060,23 +1076,70 @@ Ninguno tiene dinero medible detrás. Van juntos para no gastar cuatro reuniones
 
 ---
 
+## 17. Las cinco relaciones que cambió la migración, y el PII de `Top100InactiveCustomers`
+
+Hasta hoy **no existía ningún documento** que listara qué relaciones del modelo cambiaron al
+repuntarlo a PostgreSQL. Quedan escritas aquí para que la próxima migración no las vuelva a perder
+sin que nadie lo note. Todas se verifican en
+`pbi_new/Buy Now Pay Later.SemanticModel/definition/relationships.tmdl`.
+
+| # | Relación | Qué pasó |
+|---|---|---|
+| a | `grid_bnpl[bnplEnrolledAt] → enrollment_dates[Date]` (`ec74a7f6-…`) | **se perdió** — restaurada el 2026-08-14 |
+| b | `bnpl_loss_rates_with_lead[netsuiteId] → grid_bnpl[netsuiteId]` (`eef16e8f-…`) | **se perdió** — restaurada el 2026-08-14 |
+| c | `grid_bnpl[netsuiteId] → Top100InactiveCustomers[netsuiteId]`, bidireccional (`43b9c13a-…`) | **se perdió** — no se restaura: la tabla está en decisión (ver abajo) |
+| d | `loans_matured_default_profile[netsuiteId] → grid_bnpl[netsuiteId]` (`AutoDetected_3645b986`) | **nueva**, la inventó Power BI |
+| e | `months_closes[netsuiteId] → grid_bnpl[netsuiteId]` (`AutoDetected_c6522e8d`) | **desactivada**, como consecuencia de (d) |
+
+La (e) es la que está detrás de §13b.4: el filtro del grid que tira $3.88M en *Salud del
+Portafolio*. Ese cambio **sí espera a Riesgo/Finanzas** y no se toca aquí.
+
+### El PII que `Top100InactiveCustomers` publica al modelo
+
+Es lo que hace urgente la pregunta a negocio. La tabla es **calculada sobre `grid_bnpl`**: no trae
+origen nuevo, duplica en memoria un subconjunto con datos personales y **ningún visual la consume**
+(0 referencias, ni en el modelo migrado ni en el viejo). Los campos, en
+`Top100InactiveCustomers.tmdl`:
+
+| Campo | Línea |
+|---|---|
+| `shopName` | :420 |
+| `shopZipCode` | :444 |
+| `customerName` | :488 |
+| `customerLastNames` | :496 |
+| `customerBirthdate` | :512 |
+| `customerPhoneNumber` | :553 |
+| `customerLatitude` | :561 |
+| `customerLongitude` | :571 |
+
+Son **100 tenderos identificados con nombre, teléfono y coordenadas**, dentro de un modelo que se
+manda por correo.
+
+**Lo que espera respuesta**: si esa lista sigue haciendo falta, y si necesita nombre y teléfono o le
+basta `netsuiteId`. Si la respuesta es "ya no", la tabla se borra desde Power BI Desktop y se lleva
+consigo sus 7 `LocalDateTable`.
+
+---
+
 ## Lo que se puede ejecutar sin preguntarle a nadie
 
-Cambios donde la evidencia ya alcanza y el riesgo es bajo. Ninguno está aplicado todavía.
+Cambios donde la evidencia ya alcanza y el riesgo es bajo. Los tachados se aplicaron el 2026-08-14;
+los demás siguen pendientes.
 
 | Acción | Efecto en los números | Dónde |
 |---|---|---|
 | Corregir `"60-89"` → `"DQ 60-89"` en `lossAmount` | `lossAmount` **+$308,974 (+3.4%)** | `bnpl_loss_rates.tmdl:643` |
 | Corregir las etiquetas del `SWITCH` de `dynamicTotalRevenue` | quita un salto de 16% al mover el slicer | `bnpl_loss_rates.tmdl:29` |
-| Renombrar las dos gráficas `PAR 30 Rate…` | ninguno | página *Vintage Analysis* |
 | Limpiar el `queryRef` muerto `par30Cumulative` | ninguno | visual `0ff2052f3312e68375b0` |
+| Chequeo de frescura por contenido para `bnpl_cac` y `ps_transactional_profile` | ninguno | `ops/quality_checks.py` |
+| ~~Renombrar las dos gráficas de tasa PAR 30 que compartían título~~ | **hecho el 2026-08-14**, ninguno | página *Vintage Analysis* |
 | ~~Agregar `{"PaidPrev", 0}` al `DATATABLE` de `dq_order`~~ | **hecho el 2026-08-14**, ninguno | `dq_order.tmdl` |
+| ~~Borrar `Consulta1` y las expresiones de SharePoint~~ | **hecho el 2026-08-14**, ninguno (§15) | `expressions.tmdl` |
+| ~~Borrar la carpeta del modelo viejo, donde seguían las 8 `Csv.Document` y las 4 `SharePoint.Files`~~ | **hecho el 2026-08-14**, ninguno; publicar ese `.pbix` por error habría sobrescrito el productivo | salió del repo a `..\_deprecado_pbi_origenes_csv_2026-08-14` |
 
 > **Ya no está en esta lista**: activar el `WHERE p.par <> 'PaidPrev'` de las consultas 03 y 04.
 > Sobre `bnpl_par` **sí mueve cifras** —$1,684M de venta bruta en dos gráficas— y necesita decisión
 > de negocio. Ver §13b.1.
-| ~~Borrar `Consulta1` y las expresiones de SharePoint~~ | **hecho el 2026-08-14**, ninguno (§15) | `expressions.tmdl` |
-| Chequeo de frescura por contenido para `bnpl_cac` y `ps_transactional_profile` | ninguno | `ops/quality_checks.py` |
 
 Los que **sí** mueven cifras del negocio —retirar `rabbit_revenue` (§1) y excluir las 39 órdenes
 con `total_amount = 0`— quedan detenidos hasta que Finanzas conteste 16.1, porque juntos bajan el

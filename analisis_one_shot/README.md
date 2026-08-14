@@ -60,7 +60,7 @@ Desde la raíz del proyecto BNPL:
 | Dato | Fuente | Tabla / Vista |
 |---|---|---|
 | Órdenes Rabbit | Redshift `data-rabbit-prod` | `analytics.mv_pedidos_enriquecidos_2025_v2` + `2026_v2` |
-| Clientes aprobados BNPL | PostgreSQL local `rabbit_fintech_bi` | `mongo_bnpl.fintech_credit_approval_production` |
+| Clientes aprobados BNPL | PostgreSQL `rabbit-bi-local` (alias `mongo_bnpl` de `postgres_local_client`) | `mongo_bnpl.fintech_credit_approval_production` |
 | Órdenes BNPL | PostgreSQL local | `mongo_bnpl.credit_order_production` |
 
 ### Definición de ventana temporal
@@ -90,15 +90,22 @@ Con fecha de ejecución `2026-06-25` → `2025-12-01` a `2026-05-31`.
 ```
 analisis_one_shot/
 ├── run.py                    ← Orquestador — ejecutar este
-├── config.py                 ← Conexiones DB y ruta de salida
+├── run_v1.py                 ← Variante V1: la línea de crédito sale del Excel de Propaga, no de Mongo
+├── config.py                 ← Alias de BD, ruta de salida y el Excel de línea de crédito de la V1
 ├── extract_redshift.py       ← Query + fetch de órdenes Redshift
-├── extract_bnpl_postgres.py  ← Enrolled clients + órdenes BNPL desde PG local
+├── extract_bnpl_postgres.py  ← Enrolled clients + órdenes BNPL desde PostgreSQL
 ├── analisis_1.py             ← Lógica Análisis 1 (activos Rabbit vs BNPL)
 ├── analisis_2.py             ← Lógica Análisis 2 (línea de crédito vs drop size)
 ├── base_minima.py            ← Construcción de la base SO-nivel
 ├── exportar.py               ← Excel writer + histograma PNG
 └── README.md                 ← Este archivo
 ```
+
+> **De dónde sale la línea de crédito, y por qué hay dos versiones.** `run.py` la toma de
+> `fintech_credit_approval_production` (lo que hay en Mongo). `run_v1.py` la toma del Excel que
+> publica Propaga (`config.py:9`), porque **Propaga actualiza las líneas mensualmente en ese archivo
+> antes de cargarlas a MongoDB**: entre publicación y carga, Mongo tiene la línea del mes anterior.
+> No está confirmado cuánto dura ese desfase — ver `PENDIENTES_NEGOCIO.md` §16.11.
 
 ---
 

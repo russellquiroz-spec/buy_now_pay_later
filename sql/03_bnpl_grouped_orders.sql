@@ -1,4 +1,10 @@
--- bnpl.grouped_orders — 1 fila por (cliente, sales order).
+-- bnpl.grouped_orders — 1 fila por (cliente, sales order, order_id, order_status, sales_channel).
+--
+-- OJO: NO es una fila por sales order. El GROUP BY de `ordenes` va por esas cinco columnas y el
+-- indice unico de abajo tambien. Una sales order con tres SKUs distintos o con dos cambios de
+-- estatus son varias filas. Cualquier conteo de ordenes o suma de monto directo sobre esta vista
+-- sale inflado: hay que colapsar antes por (netsuite_id, sales_order_id), como hace el CTE
+-- `ordenes` de sql/pbi/20_concurso_base.sql.
 --
 -- Porta bnpl_orders_group del legacy (celda 78). Dos cosas que no son obvias:
 --
