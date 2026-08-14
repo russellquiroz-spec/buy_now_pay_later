@@ -21,3 +21,15 @@ analisis_one_shot/output_v1/
 # Notebooks legacy: contienen credenciales en texto plano
 legacy/
 .ipynb_checkpoints/
+
+# Derivados del generador de ayuda del tablero (se regeneran)
+ayuda_tablero/_datos/
+
+# Estado local del PBIP: NADA de .pbi/ se versiona.
+#  - cache.abf: 135 MiB del modelo cargado. GitHub rechaza cualquier blob > 100 MB.
+#  - localSettings.json: reportId/datasetId del artefacto PRODUCTIVO + firma DPAPI
+#    atada a esta maquina y usuario. Versionarlo es como cualquiera que clone
+#    publica encima de produccion sin darse cuenta.
+#  - editorSettings.json: preferencias del Desktop de quien abrio el archivo.
+.pbi/
+*.abf
