@@ -15,6 +15,26 @@
 -- vivan separados evita que alguien los incluya en un DROP masivo por descuido.
 --
 -- Los carga carga_archivos_bnpl.py, a mano, cuando negocio o riesgo publiquen una version nueva.
+--
+-- ── Las cuatro son de CARGA UNICA ───────────────────────────────────────────────────────
+--
+-- No son incrementales ni tienen ventana: carga_archivos_bnpl.py hace TRUNCATE + carga completa
+-- dentro de una sola transaccion, asi que cada corrida reemplaza la tabla entera por el archivo
+-- del momento. Se corre una vez, y no se vuelve a correr hasta que riesgo o negocio publiquen
+-- otra version del CSV. No hay nada que refrescar a diario ni que enganchar a main.py.
+--
+-- Lo que build_bnpl.py SI hace en cada corrida es aplicar este archivo (esta en su lista CAPAS,
+-- junto con 13_bnpl_clientes_concurso.sql). Es DDL puro -- CREATE TABLE / CREATE INDEX IF NOT
+-- EXISTS -- asi que en una VM limpia las cuatro tablas existen desde la primera corrida, vacias,
+-- y las cinco vistas de sql/pbi/ que las leen se crean sin fallar. Nunca toca los datos.
+--
+-- El origen de cada una va en su COMMENT ON TABLE, no solo en este encabezado: asi viaja con la
+-- base a un respaldo o a otra VM, y se puede consultar desde el propio Postgres sin abrir el
+-- repo. La consulta que los lista todos:
+--
+--     SELECT c.relname, obj_description(c.oid) FROM pg_class c
+--     JOIN pg_namespace n ON n.oid = c.relnamespace
+--     WHERE n.nspname = 'archivos_bnpl' AND c.relkind = 'r';
 
 CREATE SCHEMA IF NOT EXISTS archivos_bnpl;
 
@@ -44,6 +64,12 @@ CREATE TABLE IF NOT EXISTS archivos_bnpl.odds_combinations (
 CREATE INDEX IF NOT EXISTS ix_odds_comb_slice
     ON archivos_bnpl.odds_combinations (loan_disbursement_index_range, flag);
 
+-- Los COMMENT van en un solo literal cada uno, sin partir la cadena en varias lineas: la guarda
+-- de postgres_local_client parsea el SQL con sqlglot antes de ejecutarlo, y sqlglot no reconoce
+-- la concatenacion por adyacencia de literales que PostgreSQL si acepta. Mismo motivo que en
+-- sql/13_bnpl_clientes_concurso.sql.
+COMMENT ON TABLE archivos_bnpl.odds_combinations IS 'Salida del modelo de riesgo: WOE/IV por PAR de atributos. CARGA UNICA (TRUNCATE + carga completa) desde D:\Shared drives\Data Room - BI & Data Analytics\Rabbit Risk Analytics\Buy Now Pay Later\Default Profile\odds_combinations.csv, con carga_archivos_bnpl.py y a mano; se repite solo cuando riesgo publique otra version. build_bnpl.py aplica su DDL en cada corrida pero nunca toca los datos.';
+
 -- IV total de cada combinacion de atributos.
 CREATE TABLE IF NOT EXISTS archivos_bnpl.atr_combinations_iv (
     loan_disbursement_index_range text,
@@ -52,6 +78,8 @@ CREATE TABLE IF NOT EXISTS archivos_bnpl.atr_combinations_iv (
     number_of_combinations        bigint,
     iv                            double precision
 );
+
+COMMENT ON TABLE archivos_bnpl.atr_combinations_iv IS 'Salida del modelo de riesgo: IV total por combinacion de atributos. CARGA UNICA (TRUNCATE + carga completa) desde D:\Shared drives\Data Room - BI & Data Analytics\Rabbit Risk Analytics\Buy Now Pay Later\Default Profile\atr_combinations_iv.csv, con carga_archivos_bnpl.py y a mano; se repite solo cuando riesgo publique otra version. build_bnpl.py aplica su DDL en cada corrida pero nunca toca los datos.';
 
 -- ── Otros productos fintech ─────────────────────────────────────────────────────────────
 
@@ -77,6 +105,8 @@ CREATE TABLE IF NOT EXISTS archivos_bnpl.ps_transactional_profile (
 CREATE INDEX IF NOT EXISTS ix_ps_perfil_cliente
     ON archivos_bnpl.ps_transactional_profile (id_cliente);
 
+COMMENT ON TABLE archivos_bnpl.ps_transactional_profile IS 'Clasificacion de perfil transaccional que publica el equipo de Pago de Servicios; no se puede derivar del schema fintech de Redshift (el detalle de por que, en sql/14_archivos_bnpl.sql). CARGA UNICA (TRUNCATE + carga completa) desde D:\Shared drives\Data Room - BI & Data Analytics\Rabbit Analytics\Pago de Servicios Automation\ps_transactional_profile.csv, con carga_archivos_bnpl.py y a mano; se repite solo cuando PS publique otra version. build_bnpl.py aplica su DDL en cada corrida pero nunca toca los datos.';
+
 -- ── Captura manual de negocio ───────────────────────────────────────────────────────────
 
 -- Costo de adquisicion por cohorte de enrolamiento. El gasto de marketing no vive en ninguna
@@ -85,6 +115,8 @@ CREATE TABLE IF NOT EXISTS archivos_bnpl.bnpl_cac (
     enrollment_cohort text,
     cac               double precision
 );
+
+COMMENT ON TABLE archivos_bnpl.bnpl_cac IS 'Costo de adquisicion por cohorte de enrolamiento; captura manual de negocio, el gasto de marketing no vive en ninguna fuente del pipeline (PENDIENTES_NEGOCIO.md seccion 11). CARGA UNICA (TRUNCATE + carga completa) desde D:\Shared drives\Data Room - BI & Data Analytics\Rabbit Risk Analytics\Buy Now Pay Later\bnpl_cac.csv, con carga_archivos_bnpl.py y a mano; se repite solo cuando negocio publique otra version. build_bnpl.py aplica su DDL en cada corrida pero nunca toca los datos.';
 
 -- ── Vistas para Power BI: NO van aqui ───────────────────────────────────────────────────
 --
