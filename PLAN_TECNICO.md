@@ -5429,23 +5429,29 @@ Select-String -Path .\README.md -Pattern 'Dos cargas son manuales' # cero
 - [x] O4.15 `analisis_one_shot/README.md` + `.env` de la raíz + `analisis_bnpl_one_shot.py` borrado
 - [x] O4.16 `ayuda_tablero/` en el diagrama y en el árbol; "tres pasos manuales"
 
-### Ola 4 — Documentación, gobierno y continuidad
-- [ ] O4.1 Grano de `grouped_orders` en `sql/03:1` y `README:520`
-- [ ] O4.2 Tres afirmaciones de `PENDIENTES` (páginas, BEP/Healthy Value, seis gráficas)
-- [ ] O4.3 `ayuda_tablero/README.md`: los cinco orígenes del revisor
-- [ ] O4.4 Requisito de Python + `seaborn` para los 9 `pythonVisual`
-- [ ] O4.5 Runbook de falla en el README
-- [ ] O4.6 Los nueve chequeos de calidad documentados
-- [ ] O4.7 `ayuda_tablero/diccionario.py` + `DICCIONARIO.md` generado
-- [ ] O4.8 `ops/respaldo.bat` (dos invocaciones de `pg_dump`) + sección de RTO
-- [ ] O4.9 Dueño, escalamiento y SLA + incidencias abiertas (tokens `{{}}` por llenar)
-- [ ] O4.10 Quién administra cada acceso (10 filas, columna "dónde vive" completa)
-- [ ] O4.11 Tabla partida de `PENDIENTES:1067-1079` reparada
-- [ ] O4.12 `plan_implementacion.md` fechado como histórico + Fase 6 cerrada
-- [ ] O4.13 Las cinco relaciones que cambió la migración + inventario de PII
-- [ ] O4.14 Medición de los dos escenarios de `months_closes` anotada en §13.4
-- [ ] O4.15 `analisis_one_shot/README.md` + `.env` de la raíz + `analisis_bnpl_one_shot.py` borrado
-- [ ] O4.16 `ayuda_tablero/` en el diagrama y en el árbol; "tres pasos manuales"
+### Ola 5 — Validación post-corrida
+- [ ] **O5.1 `validar_bnpl.py` no está enganchado a nada.** Existe desde `96230b1` y se corre a mano
+  (`python validar_bnpl.py`); ni `main.py` ni `run_pipeline.bat` lo invocan. Las dos cosas que
+  **solo** él comprueba no se verifican en ninguna corrida programada: los permisos reales de
+  `pbi_gateway` —conectándose como ese rol y planeando cada vista, que es lo único que caza el
+  `42501` del 2026-08-14— y el inventario de objetos vivos sin archivo que los produzca, que es lo
+  que sacó a `concurso_base_liquidado` antes de que el CASCADE se la llevara. El enganche va en
+  `main.py:237`, después de `[6/6]`, donde hoy se decide el código de salida.
+- [ ] **O5.2 Decidir qué hace el pipeline con el hallazgo conocido — ANTES de aplicar O5.1.**
+  El validador sale con código 1 ante *cualquier* hallazgo y `run_pipeline.bat` propaga ese código al
+  Task Scheduler. Hoy el único hallazgo es `credit_order_sales_order_id_nulo` (1,507 filas, CRIT),
+  defecto de la fuente que no se arregla desde aquí: enganchado tal cual, la tarea se reportaría
+  FALLO todas las noches por algo ya aceptado — el mismo patrón que `cargas_manuales_viejas`. Tres
+  salidas: bajar ese check a WARN, correr el validador informativo sin tocar el código de salida, o
+  darle línea base (~1,507) para que alerte solo cuando crezca.
+
+**Medido (2026-08-26)** sobre la corrida **de prueba, lanzada a mano**, del 2026-08-25 22:00 (20.0
+min, terminada bien) — no sobre una programada: el validador pasa completo salvo ese CRIT. 10/10
+colecciones extraídas; 20 vistas en la base contra 20 archivos en `sql/pbi/` y 11 materializadas
+contra 11 en `build_bnpl.CAPAS`, **cero huérfanas**; 21 de 24 chequeos en OK con las 14
+identidades entre capas en 0; y los permisos en verde, incluidos los tres schemas vedados
+(`archivos_bnpl`, `mongo_bnpl`, `redshift_bnpl`) y el SELECT real como `pbi_gateway` sobre las
+cinco tablas del concurso. Es decir: O5.1 no está bloqueada por otra cosa que O5.2.
 
 ### Va a PENDIENTES, no a este plan
 - [ ] Credencial SMTP / webhook y lista de destinatarios (activa O2.17)
@@ -5506,6 +5512,8 @@ a 8 h 30 min. `README.md` y `plan_implementacion.md` ya lo reflejan.
 - Las verificaciones que necesitan Power BI Desktop (O1.3 a O1.7) y las que necesitan la base
   (O1.8, O1.9, O2.5, O2.6, O2.7, O2.10): ninguna se corrió, por el riel de no tocar la base.
 - Decidir sobre O2.3.
+- Enganchar `validar_bnpl.py` al pipeline (O5.1), que depende de decidir O5.2: hoy su
+  código 1 por el CRIT conocido marcaría la tarea como FALLO cada noche.
 
 ---
 
