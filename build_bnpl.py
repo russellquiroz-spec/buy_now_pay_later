@@ -199,9 +199,16 @@ def run(rebuild: bool = False, solo: list = None) -> None:
     # de bnpl hacen DROP MATERIALIZED VIEW ... CASCADE, y el CASCADE se lleva las vistas de
     # pbi_bnpl que leen de la que se reconstruyo. Si no se recrean aqui, el tablero queda sin esas
     # tablas hasta la siguiente corrida completa. Un --solo sin --rebuild no las toca (REFRESH no
-    # suelta nada), pero recrearlas cuesta menos que razonar sobre cual sobrevivio.
-    if not solo or rebuild:
-        _construir_vistas_pbi()
+    # suelta nada), pero recrearlas cuesta menos que razonar sobre cual sobrevivio: por eso va SIN
+    # guarda, tambien en ese caso. Son 19 CREATE VIEW y menos de un segundo.
+    if rebuild and solo:
+        log.info(
+            "AVISO: --rebuild --solo usa DROP ... CASCADE. Puede haberse llevado vistas de bnpl "
+            "que dependen de las reconstruidas (p.ej. bnpl.kpis_daily lee bnpl.grid_bnpl). "
+            "Comprueba con: select matviewname from pg_matviews where schemaname='bnpl'; "
+            "si falta alguna, corre build_bnpl.py --rebuild completo."
+        )
+    _construir_vistas_pbi()
 
 
 if __name__ == "__main__":

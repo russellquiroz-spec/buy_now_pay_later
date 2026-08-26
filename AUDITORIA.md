@@ -17,6 +17,11 @@
 
 **Fecha:** 2026-08-14 · **Alcance:** repo completo en modo lectura (no se ejecutó el pipeline ni se consultó Postgres) · **Hallazgos consolidados:** 71 verificados → 52 después de deduplicar.
 
+> **Este informe es del 2026-08-14 y se conserva como foto.** El estado del proyecto ya no es el
+> que describe: entre el 14 y el 26 de agosto se aplicaron 56 de las 67 acciones del
+> [`PLAN_TECNICO.md`](PLAN_TECNICO.md). **El § 7 (Plan de acción) está obsoleto** — sus acciones 1
+> a 5 ya están hechas. Lo que sigue abierto está en el § 9, al final de este documento.
+
 ---
 
 ## 0. Lo que está bien (y hay que decirlo)
@@ -486,3 +491,109 @@ mantiene, sin dueño declarado.
 
 **Qué falta:** identificar el generador antes de borrar el archivo (acción 41), o el borrado se
 deshará solo y quien limpie no va a entender por qué.
+
+---
+
+## 9. Pendientes de mejora · estado al 2026-08-26
+
+Lo que queda abierto después de aplicar las olas 0 a 5. Ordenado por **lo que cuesta no hacerlo**, no
+por esfuerzo. Los identificadores `A*`/`C*`/`DU*` son los hallazgos de este informe; los `O*` son
+acciones del [`PLAN_TECNICO.md`](PLAN_TECNICO.md).
+
+### El incidente que justifica el primer pendiente
+
+Conviene leerlo antes de la lista, porque es la prueba de que el punto 1.1 no es teórico.
+
+**Del 2026-08-15 al 2026-08-25, veinte corridas seguidas terminaron en `modo='error'` y nadie se
+enteró.** Todas en el paso [4/6], todas con el mismo mensaje:
+
+```
+sqlalchemy.exc.InvalidRequestError: A value is required for bind parameter '152'
+```
+
+No era Postgres: la consulta nunca salió de Python. `sa.text()` **no parsea comentarios SQL** —busca
+`:palabra` en todo el texto— y un comentario introducido el 2026-08-14 en `sql/02_bnpl_funciones.sql`
+traía la referencia cruzada `(sql/01:131-132, :152)`. En `01:131` los dos puntos van pegados a un
+dígito y el *lookbehind* del regex de SQLAlchemy los descarta; en `, :152` van precedidos de un
+espacio, así que lo tomó como un bind param que nadie llenaba. Como ese archivo es el primero de
+`CAPAS` y se aplica siempre, tumbaba la corrida entera antes de refrescar una sola vista.
+
+Corregido en `e6e3cfa`. **Los diez días de tablero congelado no los causó el bug, los causó la falta
+de aviso**: `notificar.avisar_fallo()` hizo exactamente lo que está escrito que hace sin
+configuración —dejar en el log la línea *«este fallo no se le avisa a nadie»*.
+
+### 1 · Bloqueantes de operación
+
+Sin esto, un fallo no se ve y una pérdida no se recupera.
+
+| # | Pendiente | Evidencia | Qué hace falta | De quién depende |
+|---|---|---|---|---|
+| 1.1 | **Nadie se entera cuando truena.** `ops/notificar.py` está escrito y enganchado a los tres caminos de fallo de `main.py`, pero degrada a un WARNING porque falta `.env.bnpl_pipeline` | las 20 corridas de arriba | Un *app password* de Google Workspace (requiere 2FA y que la política del dominio los permita; mejor una cuenta de servicio que una personal) **o** una URL de webhook de Slack, más la lista de destinatarios | Negocio / TI |
+| 1.2 | **No hay respaldo de lo irreproducible.** `ops/respaldo.bat` existe pero nunca ha corrido: `PGUSER=RELLENAR_USUARIO` y `D:\Respaldos\bnpl` no existe | `A13` | El usuario de PostgreSQL y su entrada en `%APPDATA%\postgresql\pgpass.conf`; después, la tarea semanal | Quien administre la VM |
+
+Lo que el respaldo protege y el pipeline **no** rehace: los 4 CSV del Drive (`archivos_bnpl`), el
+Excel del concurso (`bnpl.bnpl_clientes_concurso`) y **todo** el histórico de `bnpl_ops` —frescura,
+calidad y bitácora de corridas, que es irrecuperable. El resto se reconstruye en ~45 min.
+
+### 2 · Riesgo estructural abierto
+
+| # | Pendiente | Hallazgo | Por qué sigue importando |
+|---|---|---|---|
+| 2.1 | **Un solo ambiente.** El paso [4/6] hace `DROP VIEW` + `CREATE VIEW` de las 20 vistas de `pbi_bnpl` contra la misma base que lee Power BI | `A12` | Nunca se atendió. Un refresh que caiga dentro de la corrida no devuelve el dato de ayer: puede **fallar**. Hoy sólo lo evita el margen horario (00:00 contra 08:30) |
+| 2.2 | **Bus factor de uno.** El remoto es una cuenta personal (`github.com/russellquiroz-spec/…`) y las tres librerías internas viven en `C:\Users\Administrator\Documents\Funciones\`, fuera de todo repo | `C12` | Si esa cuenta se va, se va el historial. Si esa carpeta se pierde, el pipeline no arranca |
+| 2.3 | **`validar_bnpl.py` no está enganchado a `main.py`.** Es el único que comprueba los permisos de `pbi_gateway` conectándose *como* el rol y planeando cada vista | nuevo | Corre a mano, o sea que no corre. Es justo el chequeo que atrapa el `42501: permission denied` del 2026-08-14 |
+| 2.4 | **`credit_order_sales_order_id_nulo` está declarado CRIT siendo ruido crónico** (~1,507 filas de basura de origen) | `DU1` | El propio README dice no perseguirlo. Un CRIT que hay que ignorar entrena a ignorar los CRIT, que es exactamente lo que no se puede permitir después del incidente de arriba. Bajarlo a WARN |
+
+### 3 · Prevención — nace del incidente
+
+| # | Pendiente | Por qué |
+|---|---|---|
+| 3.1 | **Nada impide que otro comentario vuelva a tumbar el pipeline.** Cualquier `:palabra` o `:123` dentro de un comentario de un `.sql` lo repite | Hoy los 38 archivos de `sql/` compilan limpio, pero eso se comprobó a mano y una vez. La guarda cabe en tres líneas: pasar cada `.sql` por `sa.text(…).compile().construct_params({})` al arrancar `build_bnpl.py`, o en un *pre-commit*. Falla en seco y en un segundo, en vez de a medianoche y en silencio |
+
+### 4 · Gobierno sin dueño declarado
+
+| # | Pendiente | Hallazgo |
+|---|---|---|
+| 4.1 | **23 `{{TOKEN}}` sin llenar** en las secciones *Dueño, escalamiento y SLA* y *Quién administra cada acceso* del README: nombres, correos, equipos y colas de tickets | `C1` |
+| 4.2 | **`fintech-customers-production` sigue sin escrituras desde el 2026-07-22** y no hay ticket registrado. Los clientes enrolados desde entonces no tienen `shopName` ni teléfono | `C1` |
+| 4.3 | **PII sin clasificar.** `Top100InactiveCustomers` publica nombre, apellidos, teléfono, fecha de nacimiento y coordenadas de 100 tenderos a un modelo que se manda por correo, y **ningún visual la consume** | `C3` |
+
+### 5 · Requiere abrir Power BI Desktop
+
+No se pueden hacer editando texto; el plan lo dice explícitamente para las tres.
+
+| # | Pendiente | Acción | Nota |
+|---|---|---|---|
+| 5.1 | Borrar las 4 tablas calculadas muertas (`Clientes_Mensual`, `TablaParaGrafica`, `cohort_type`, `x_axis_type`) | `O3.2` · `C6` | A mano habría que tocar el modelo lingüístico de `es-MX.tmdl`, ~57 mil líneas. Desktop lo deja consistente en un clic |
+| 5.2 | Apagar la fecha y hora automáticas | `O3.14` · `C5` | **El inventario subió a 19 visuales sobre 8 columnas base**, no 18/7: `O3.3` le devolvió la jerarquía a *Ever Activated Customers*. La compuerta es que `revisar_referencias.py` cierre en `TOTAL: 0` |
+| 5.3 | Medir los dos escenarios de `months_closes → grid_bnpl` | `O4.14` | Mueve **$3.88M** en *Salud del Portafolio*. La medición se puede hacer ya; el cambio espera a Riesgo/Finanzas |
+
+### 6 · Diferidas por dependencia externa
+
+| # | Pendiente | Bloqueado por |
+|---|---|---|
+| 6.1 | `concurso_base` sigue sin leer `bnpl_clientes_concurso`, y dos documentos afirman que sí (`O2.9`, `B18`) | Se dejó fuera porque `sql/pbi/` se estaba editando a mano en paralelo. Ya se puede retomar |
+| 6.2 | El WARNING del `SessionId` sale en el 100% de las corridas y nadie puede accionarlo (`O2.15`, `C14`) | Vive en `mongo_extractor`, **fuera de este repo**, y la librería la usan otros proyectos: va con PR aparte. Medir antes con `aws ssm describe-sessions --state Active` |
+| 6.3 | No existe `requirements.txt`: el entorno no es reproducible (`O2.16`, `C15`) | Depende de 6.2 (cambia el commit anclado de `mongo_extractor`) y de que los tres repos internos estén limpios para leer sus SHA |
+
+### 7 · Aplicado pero sin comprobar
+
+Estas correcciones están en el código y en producción, pero **su verificación nunca se corrió**. No
+son pendientes de trabajo sino de confianza: hasta que alguien las mire, no se sabe si movieron la
+cifra que debían.
+
+| Qué comprobar | Dónde | Esperado |
+|---|---|---|
+| `SUM(grid_bnpl[bnplMinimumTenure])` | tarjeta en Desktop | de ~146,542 a **~9,283** |
+| El Funnel deja de repetir el total en cada periodo | *Clientes Enrolados Vs Activados* | barras que varían por periodo |
+| Los slicers del grid mueven los roll rates | *Salud del Portafolio* | las 4 matrices y las 2 tarjetas cambian |
+| La recta de no enrolados arranca sobre su serie | *Comparativo del Drop Size* | hoy arrancaba entre las dos |
+| `sum("totalAmountDefault")` en `bnpl_par` contra `months_closes` | SQL | idénticos, **con centavos** |
+| `ruta_inferida` | SQL | sólo `true`/`false`, sin grupo `NULL` |
+
+### Lo que no está aquí
+
+Las decisiones que necesitan a Finanzas, Riesgo o Comercial siguen en
+[`PENDIENTES_NEGOCIO.md`](PENDIENTES_NEGOCIO.md): el 14.2% con o sin IVA, si el concurso se mide sólo
+sobre el universo del Excel, si `Top100InactiveCustomers` sigue haciendo falta con PII, y el corte de
+«>4 meses» que no está justificado en ningún documento.
