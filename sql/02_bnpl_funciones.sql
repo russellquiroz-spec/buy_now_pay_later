@@ -109,7 +109,7 @@ $$;
 
 -- Texto -> coordenada. `maximo` es 90 para latitud y 180 para longitud. Devuelve NULL si el
 -- texto no es numerico o si cae fuera del rango: en el staging latitude/longitude son text
--- (sql/01:131-132, :152) y ahi han llegado cadenas vacias, comas decimales y ceros.
+-- (sql/01:131-132 y sql/01:152) y ahi han llegado cadenas vacias, comas decimales y ceros.
 CREATE OR REPLACE FUNCTION bnpl.a_coord(valor text, maximo double precision)
     RETURNS double precision
     LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$

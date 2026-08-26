@@ -132,7 +132,7 @@ SELECT
     r.name                                                  AS customer_name,
     r."lastNames"                                           AS customer_last_names,
     coalesce(nullif(r.gender, 'NOT_DEFINED'), nullif(c.gender, 'NOT_DEFINED')) AS gender,
-    -- birthdate, latitude y longitude son TEXT en el staging (sql/01:131-132, :152) y llegan de
+    -- birthdate, latitude y longitude son TEXT en el staging (sql/01:131-132 y sql/01:152) y llegan de
     -- captura libre. Van por las funciones guardadas de sql/02 por la misma razon que iso_a_mx():
     -- un solo valor invalido no puede tumbar el rebuild de la vista maestra del producto.
     bnpl.a_fecha(r.birthdate)                               AS customer_birthdate,
